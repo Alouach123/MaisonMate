@@ -1,18 +1,19 @@
 
 "use client";
 import Link from 'next/link';
-import { Home, LayoutGrid, Heart, LifeBuoy, ShoppingCart } from 'lucide-react';
+import { Home, LayoutGrid, Heart, LifeBuoy, ShieldCheck } from 'lucide-react'; // Added ShieldCheck
 import { Button } from '@/components/ui/button';
-import { useWishlist } from '@/hooks/use-wishlist-context'; // Updated to use context hook
+import { useWishlist } from '@/hooks/use-wishlist-context';
 import { Badge } from "@/components/ui/badge";
 
 export default function Navbar() {
   const { wishlist } = useWishlist();
 
   const navItems = [
-    { href: '/', label: 'Products', icon: LayoutGrid },
-    { href: '/wishlist', label: 'Wishlist', icon: Heart, badgeCount: wishlist.length > 0 ? wishlist.length : undefined },
+    { href: '/', label: 'Produits', icon: LayoutGrid },
+    { href: '/wishlist', label: 'Favoris', icon: Heart, badgeCount: wishlist.length > 0 ? wishlist.length : undefined },
     { href: '/support', label: 'Support', icon: LifeBuoy },
+    { href: '/admin', label: 'Admin', icon: ShieldCheck }, // New Admin link
   ];
 
   return (
