@@ -37,49 +37,61 @@ export default function ProductTable({ products, onEdit, onDelete, isLoadingDele
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>
-                <Image
-                  src={product.imageUrl || 'https://placehold.co/100x100.png'}
-                  alt={product.name}
-                  width={50}
-                  height={50}
-                  className="rounded object-cover aspect-square"
-                  data-ai-hint={`${product.category.toLowerCase()} ${product.style?.toLowerCase() || ''}`.trim()}
-                />
-              </TableCell>
-              <TableCell className="font-medium">{product.name}</TableCell>
-              <TableCell>
-                <Badge variant="outline">{product.category}</Badge>
-              </TableCell>
-              <TableCell className="text-right">${product.price.toFixed(2)}</TableCell>
-              <TableCell className="text-center">{product.stock ?? 'N/A'}</TableCell>
-              <TableCell className="text-center">{product.rating ? `${product.rating.toFixed(1)}/5` : 'N/A'}</TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isLoadingDelete === product.id}>
-                      {isLoadingDelete === product.id ? <Trash2 className="h-4 w-4 animate-ping" /> : <MoreVertical className="h-4 w-4" />}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/products/${product.id}`} target="_blank" className="flex items-center">
-                        <Eye className="mr-2 h-4 w-4" /> Voir
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEdit(product)} className="flex items-center">
-                      <Edit3 className="mr-2 h-4 w-4" /> Modifier
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onDelete(product.id)} className="flex items-center text-destructive focus:text-destructive focus:bg-destructive/10">
-                      <Trash2 className="mr-2 h-4 w-4" /> Supprimer
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+          {products.map((product) => {
+            const hintKeywords: string[] = [];
+            if (product.category) {
+              hintKeywords.push(product.category.toLowerCase().split(' ')[0]);
+            }
+            if (product.style) {
+              hintKeywords.push(product.style.toLowerCase().split(' ')[0]);
+            }
+            const uniqueHintKeywords = [...new Set(hintKeywords)];
+            const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
+
+            return (
+              <TableRow key={product.id}>
+                <TableCell>
+                  <Image
+                    src={product.imageUrl || 'https://placehold.co/100x100.png'}
+                    alt={product.name}
+                    width={50}
+                    height={50}
+                    className="rounded object-cover aspect-square"
+                    data-ai-hint={aiHint}
+                  />
+                </TableCell>
+                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{product.category}</Badge>
+                </TableCell>
+                <TableCell className="text-right">${product.price.toFixed(2)}</TableCell>
+                <TableCell className="text-center">{product.stock ?? 'N/A'}</TableCell>
+                <TableCell className="text-center">{product.rating ? `${product.rating.toFixed(1)}/5` : 'N/A'}</TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isLoadingDelete === product.id}>
+                        {isLoadingDelete === product.id ? <Trash2 className="h-4 w-4 animate-ping" /> : <MoreVertical className="h-4 w-4" />}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/products/${product.id}`} target="_blank" className="flex items-center">
+                          <Eye className="mr-2 h-4 w-4" /> Voir
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onEdit(product)} className="flex items-center">
+                        <Edit3 className="mr-2 h-4 w-4" /> Modifier
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onDelete(product.id)} className="flex items-center text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <Trash2 className="mr-2 h-4 w-4" /> Supprimer
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

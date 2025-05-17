@@ -27,6 +27,17 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     notFound();
   }
 
+  const hintKeywords: string[] = [];
+  if (product.category) {
+    hintKeywords.push(product.category.toLowerCase().split(' ')[0]);
+  }
+  if (product.style) {
+    hintKeywords.push(product.style.toLowerCase().split(' ')[0]);
+  }
+  const uniqueHintKeywords = [...new Set(hintKeywords)];
+  const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
+
+
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
@@ -40,7 +51,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               height={600}
               className="w-full h-auto object-contain aspect-[4/3]"
               priority // Prioritize loading of the main product image
-              data-ai-hint={`${product.category.toLowerCase()} ${product.style?.toLowerCase() || ''}`.trim()}
+              data-ai-hint={aiHint}
             />
           </Card>
           {/* Small gallery images could go here */}

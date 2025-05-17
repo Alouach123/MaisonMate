@@ -16,6 +16,16 @@ interface WishlistItemCardProps {
 export default function WishlistItemCard({ item }: WishlistItemCardProps) {
   const { removeFromWishlist } = useWishlist();
 
+  const hintKeywords: string[] = [];
+  if (item.category) {
+    hintKeywords.push(item.category.toLowerCase().split(' ')[0]);
+  }
+  if (item.style) {
+    hintKeywords.push(item.style.toLowerCase().split(' ')[0]);
+  }
+  const uniqueHintKeywords = [...new Set(hintKeywords)];
+  const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
+
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col md:flex-row rounded-lg border border-border/60">
       <Link href={`/products/${item.id}`} className="md:w-1/3 block relative">
@@ -25,7 +35,7 @@ export default function WishlistItemCard({ item }: WishlistItemCardProps) {
           width={300}
           height={200}
           className="w-full h-48 md:h-full object-cover transition-transform duration-300 hover:scale-105"
-          data-ai-hint={`${item.category.toLowerCase()} ${item.style?.toLowerCase() || ''}`.trim()}
+          data-ai-hint={aiHint}
         />
       </Link>
       <div className="flex flex-col justify-between md:w-2/3">

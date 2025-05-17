@@ -24,6 +24,16 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
+  const hintKeywords: string[] = [];
+  if (product.category) {
+    hintKeywords.push(product.category.toLowerCase().split(' ')[0]);
+  }
+  if (product.style) {
+    hintKeywords.push(product.style.toLowerCase().split(' ')[0]);
+  }
+  const uniqueHintKeywords = [...new Set(hintKeywords)];
+  const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
+
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full rounded-lg border border-border/60">
       <CardHeader className="p-0 relative">
@@ -34,7 +44,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             width={600}
             height={400}
             className="w-full h-56 object-cover transition-transform duration-300 hover:scale-105"
-            data-ai-hint={`${product.category.toLowerCase()} ${product.style?.toLowerCase() || ''}`.trim()}
+            data-ai-hint={aiHint}
           />
         </Link>
         <Button
