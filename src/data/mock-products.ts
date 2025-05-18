@@ -102,6 +102,45 @@ export let mockProducts: Product[] = [
     materials: ["Tempered Glass", "Metal"],
     dimensions: "160cm x 90cm x 76cm",
   },
+  {
+    id: '9',
+    name: 'Art Deco Table Lamp',
+    description: 'A stunning table lamp with geometric brass details and a frosted glass shade, adding a touch of Art Deco glamour to your space.',
+    price: 159.99,
+    imageUrl: 'https://placehold.co/600x400.png',
+    category: 'Lighting',
+    style: 'Art Deco',
+    rating: 4.7,
+    colors: ['Brass', 'White'],
+    materials: ['Metal', 'Glass'],
+    dimensions: '30cm (W) x 55cm (H)',
+  },
+  {
+    id: '10',
+    name: 'Plush Geometric Area Rug',
+    description: 'Soft and luxurious area rug with a modern geometric pattern in soothing colors. Adds warmth, comfort, and style to any room.',
+    price: 289.00,
+    imageUrl: 'https://placehold.co/600x400.png',
+    category: 'Rugs',
+    style: 'Modern',
+    rating: 4.5,
+    colors: ['Grey', 'Cream', 'Blue'],
+    materials: ['Polypropylene'],
+    dimensions: '200cm x 300cm',
+  },
+  {
+    id: '11',
+    name: 'Upholstered Platform Bed',
+    description: 'A stylish upholstered platform bed featuring a tufted headboard and sturdy wooden slats. Provides a comfortable and elegant centerpiece for your bedroom.',
+    price: 599.00,
+    imageUrl: 'https://placehold.co/600x400.png',
+    category: 'Beds',
+    style: 'Contemporary',
+    rating: 4.6,
+    colors: ['Charcoal Grey', 'Beige'],
+    materials: ['Fabric', 'Wood', 'Metal Frame'],
+    dimensions: 'Queen Size: 160cm (W) x 205cm (L) x 110cm (Headboard H)',
+  }
 ];
 
 export const getProductById = (id: string): Product | undefined => {
@@ -112,3 +151,4 @@ export const getProductById = (id: string): Product | undefined => {
 // For a dynamic admin panel, these might need to be updated or fetched differently.
 export const productCategories: string[] = Array.from(new Set(mockProducts.map(p => p.category)));
 export const productStyles: string[] = Array.from(new Set(mockProducts.map(p => p.style).filter(s => s !== undefined) as string[]));
+
