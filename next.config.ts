@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'img.freepik.com',
+        hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
       },
