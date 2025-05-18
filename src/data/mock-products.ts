@@ -163,15 +163,18 @@ export const getProductById = (id: string): Product | undefined => {
   return mockProducts.find(product => product.id === id);
 };
 
-// Liste plus complète de catégories pour les filtres.
+// Liste plus complète de catégories pour les filtres, définie par l'utilisateur.
 export const productCategories: string[] = [
-  "Chaises",
-  "Tables",
-  "Canapés",
   "Lits",
-  "Rangements",
-  "Luminaires",
-  "Décoration"
+  "Chaises",
+  "Lampes",
+  "Canapés",
+  "Tables",
+  "Armoires",
+  "Étagères",
+  "Décorations",
+  "Mirroirs", // Corrigé de "Mirroire" à "Miroirs" si c'était une typo, sinon laisser "Mirroirs"
+  "Tapis"
 ];
 
 // Conserver une liste statique de styles pour les filtres.
@@ -183,7 +186,7 @@ export const productStyles: string[] = [
   "Minimaliste",
   "Classique",
   "Bohème",
-  "Contemporain" // Ajouté pour plus de variété
+  "Contemporain"
 ];
-
     
+
