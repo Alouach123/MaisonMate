@@ -1,14 +1,32 @@
 
 import type { Product } from '@/types';
 
-// Changed from const to let to allow modification
+// La liste des produits est maintenant vide, prête à être remplie manuellement.
 export let mockProducts: Product[] = [];
 
 export const getProductById = (id: string): Product | undefined => {
   return mockProducts.find(product => product.id === id);
 };
 
-// These will reflect the initial state of mockProducts.
-// For a dynamic admin panel, these might need to be updated or fetched differently.
-export const productCategories: string[] = Array.from(new Set(mockProducts.map(p => p.category)));
-export const productStyles: string[] = Array.from(new Set(mockProducts.map(p => p.style).filter(s => s !== undefined) as string[]));
+// Conserver une liste statique de catégories pour les filtres,
+// même si la liste de produits est initialement vide.
+export const productCategories: string[] = [
+  "Chaises",
+  "Tables",
+  "Canapés",
+  "Lits",
+  "Luminaires",
+  "Rangements",
+  "Décoration"
+];
+
+// Conserver une liste statique de styles pour les filtres.
+export const productStyles: string[] = [
+  "Moderne",
+  "Scandinave",
+  "Industriel",
+  "Vintage",
+  "Minimaliste",
+  "Classique",
+  "Bohème"
+];
