@@ -114,7 +114,7 @@ export let mockProducts: Product[] = [
     colors: ['Gris Foncé Skiftebo', 'Noir Hyllie', 'Beige Hyllie'],
     materials: ['Polyester', 'Panneau de particules', 'Mousse Polyuréthane'],
     dimensions: '230cm L x 151cm P (méridienne) x 66cm H',
-  },
+  }
 ];
 
 export const getProductById = (id: string): Product | undefined => {
@@ -136,3 +136,4 @@ export const productStyles: string[] = [
   "Classique",
   "Bohème"
 ];
+
