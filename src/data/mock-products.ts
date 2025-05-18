@@ -9,7 +9,7 @@ export let mockProducts: Product[] = [
     name: 'Elegant Velvet Sofa',
     description: 'A luxurious velvet sofa that adds a touch of elegance to any living room. Features plush cushioning and a sturdy wooden frame.',
     price: 699.99,
-    imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=600&h=400&auto=format&fit=crop',
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Roche-Bobois/003_Roche-Bobois_Bubble_Large_Sofa/Roche-Bobois_Bubble_Large_Sofa_1000_0001-551x551.webp',
     category: 'Sofas',
     style: 'Modern',
     rating: 4.5,
@@ -35,7 +35,7 @@ export let mockProducts: Product[] = [
     name: 'Leather Chesterfield Loveseat',
     description: 'A classic Chesterfield loveseat upholstered in rich, genuine leather. Features deep button tufting and rolled arms.',
     price: 950.00,
-    imageUrl: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=600&h=400&auto=format&fit=crop', // Placeholder, specific chesterfield might be different
+    imageUrl: 'https://images.unsplash.com/photo-1604014237647-9690068c7d69?q=80&w=600&h=400&auto=format&fit=crop', // Placeholder, specific chesterfield might be different
     category: 'Sofas',
     style: 'Classic',
     rating: 4.8,
@@ -48,7 +48,7 @@ export let mockProducts: Product[] = [
     name: 'Minimalist Linen Daybed',
     description: 'Sleek minimalist daybed with a clean linen upholstery and a simple wooden frame. Doubles as a guest bed.',
     price: 480.00,
-    imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=600&h=400&auto=format&fit=crop', // More generic "modern bed"
+    imageUrl: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=600&h=400&auto=format&fit=crop', // More generic "modern bed"
     category: 'Sofas', // Can act as a small sofa/daybed
     style: 'Minimalist',
     rating: 4.3,
@@ -61,7 +61,7 @@ export let mockProducts: Product[] = [
     name: 'Outdoor Wicker Sofa Set',
     description: 'Durable and stylish outdoor wicker sofa set including a two-seater, two armchairs, and a coffee table. Weather-resistant cushions.',
     price: 799.00,
-    imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=600&h=400&auto=format&fit=crop', // Outdoor furniture
+    imageUrl: 'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?q=80&w=600&h=400&auto=format&fit=crop', // Outdoor furniture
     category: 'Sofas',
     style: 'Contemporary',
     rating: 4.6,
@@ -88,7 +88,7 @@ export let mockProducts: Product[] = [
     name: 'Bohemian Rattan Lounge Chair',
     description: 'Relax in style with this comfortable rattan lounge chair, perfect for a bohemian-inspired living space or patio.',
     price: 299.00,
-    imageUrl: 'https://images.unsplash.com/photo-1580480055273-228ff5382f89?q=80&w=600&h=400&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1562113530-57ba467a354a?q=80&w=600&h=400&auto=format&fit=crop',
     category: 'Chairs',
     style: 'Bohemian',
     rating: 4.7,
@@ -178,7 +178,7 @@ export let mockProducts: Product[] = [
     name: 'Glass Display Curio Cabinet',
     description: 'A beautiful curio cabinet with glass doors and shelves, perfect for displaying collectibles. Internal lighting included.',
     price: 380.00,
-    imageUrl: 'https://images.unsplash.com/photo-1619319388260-6dee7b369abd?q=80&w=600&h=400&auto=format&fit=crop', // Placeholder more generic cabinet
+    imageUrl: 'https://images.unsplash.com/photo-1619319388260-6dee7b369abd?q=80&w=600&h=400&auto=format&fit=crop',
     category: 'Cabinets',
     style: 'Traditional',
     rating: 4.4,
@@ -295,7 +295,7 @@ export let mockProducts: Product[] = [
     name: 'Modern Arc Floor Lamp',
     description: 'Sleek and contemporary arc floor lamp with a large shade, providing excellent overhead lighting for seating areas.',
     price: 199.50,
-    imageUrl: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=600&h=400&auto=format&fit=crop', // More general lamp
+    imageUrl: 'https://images.unsplash.com/photo-1543509799-0a7f1a784660?q=80&w=600&h=400&auto=format&fit=crop',
     category: 'Lighting',
     style: 'Modern',
     rating: 4.6,
@@ -308,7 +308,7 @@ export let mockProducts: Product[] = [
     name: 'Crystal Chandelier Ceiling Light',
     description: 'Elegant crystal chandelier with multiple tiers, adding a touch of luxury and sparkle to any formal room.',
     price: 350.00,
-    imageUrl: 'https://images.unsplash.com/photo-1618220048045-10a6dbdf83e0?q=80&w=600&h=400&auto=format&fit=crop', // Placeholder
+    imageUrl: 'https://images.unsplash.com/photo-1618220048045-10a6dbdf83e0?q=80&w=600&h=400&auto=format&fit=crop',
     category: 'Lighting',
     style: 'Traditional',
     rating: 4.8,
@@ -320,7 +320,7 @@ export let mockProducts: Product[] = [
     name: 'Bohemian Rattan Table Lamp',
     description: 'Natural rattan weave table lamp creating a warm, diffused light. Perfect for a bohemian or coastal decor style.',
     price: 75.00,
-    imageUrl: 'https://images.unsplash.com/photo-1616486531420-cf37530a6458?q=80&w=600&h=400&auto=format&fit=crop', // Placeholder
+    imageUrl: 'https://images.unsplash.com/photo-1616486531420-cf37530a6458?q=80&w=600&h=400&auto=format&fit=crop',
     category: 'Lighting',
     style: 'Bohemian',
     rating: 4.4,
@@ -385,7 +385,7 @@ export let mockProducts: Product[] = [
     name: 'Outdoor Striped Patio Rug',
     description: 'Durable and easy-to-clean outdoor rug with a classic striped pattern. UV resistant and suitable for patios and decks.',
     price: 99.00,
-    imageUrl: 'https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=600&h=400&auto=format&fit=crop', // general outdoor scene
+    imageUrl: 'https://images.unsplash.com/photo-1581433444436-1d53107b9f90?q=80&w=600&h=400&auto=format&fit=crop',
     category: 'Rugs',
     style: 'Coastal',
     rating: 4.4,
@@ -452,7 +452,7 @@ export let mockProducts: Product[] = [
     name: 'Round Velvet Tufted Daybed',
     description: 'Luxurious round daybed upholstered in plush velvet with deep tufting. A statement piece for a chic bedroom or lounge area.',
     price: 890.00,
-    imageUrl: 'https://images.unsplash.com/photo-1600185392952-72533f807891?q=80&w=600&h=400&auto=format&fit=crop', // Using a previous Jute rug image as a placeholder for a round bed.
+    imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=600&h=400&auto=format&fit=crop', // Using a sofa image as placeholder for a round daybed.
     category: 'Beds',
     style: 'Glam',
     rating: 4.7,
@@ -471,3 +471,6 @@ export const getProductById = (id: string): Product | undefined => {
 export const productCategories: string[] = Array.from(new Set(mockProducts.map(p => p.category)));
 export const productStyles: string[] = Array.from(new Set(mockProducts.map(p => p.style).filter(s => s !== undefined) as string[]));
 
+
+
+    
