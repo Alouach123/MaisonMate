@@ -4,12 +4,12 @@
 import { useState, useCallback } from 'react';
 import ProductCard from '@/components/products/product-card';
 import FilterSidebar from '@/components/products/filter-sidebar';
-import WelcomeHero from '@/components/layout/welcome-hero'; // Import du nouveau composant
+import WelcomeHero from '@/components/layout/welcome-hero';
 import { mockProducts } from '@/data/mock-products';
 import type { Product } from '@/types';
 
 export default function HomePage() {
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]); // Updated max price
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
 
@@ -30,7 +30,7 @@ export default function HomePage() {
   }, []);
 
   const handleClearFilters = useCallback(() => {
-    setPriceRange([0, 10000]); // Updated max price
+    setPriceRange([0, 10000]);
     setSelectedCategories([]);
     setSelectedStyles([]);
   }, []);
@@ -52,23 +52,26 @@ export default function HomePage() {
   });
 
   return (
-    <> {/* Fragment pour encapsuler WelcomeHero et le layout principal */}
-      <WelcomeHero /> {/* Ajout de la section de bienvenue */}
-      
-      <div className="flex flex-col lg:flex-row gap-8">
-        <aside className="w-full lg:w-72 xl:w-80">
-          <FilterSidebar
-            priceRange={priceRange}
-            onPriceRangeChange={handlePriceRangeChange}
-            selectedCategories={selectedCategories}
-            onCategoryChange={handleCategoryChange}
-            selectedStyles={selectedStyles}
-            onStyleChange={handleStyleChange}
-            onClearFilters={handleClearFilters}
-          />
-        </aside>
-        <section id="products-section" className="w-full lg:flex-1"> {/* Ajout de l'ID ici */}
-          {/* L'ancien titre de bienvenue est supprimé car géré par WelcomeHero */}
+    // Overall container for the page layout with sidebar and main content
+    <div className="flex flex-col lg:flex-row gap-8">
+      {/* Filter Sidebar Column */}
+      <aside className="w-full lg:w-72 xl:w-80">
+        <FilterSidebar
+          priceRange={priceRange}
+          onPriceRangeChange={handlePriceRangeChange}
+          selectedCategories={selectedCategories}
+          onCategoryChange={handleCategoryChange}
+          selectedStyles={selectedStyles}
+          onStyleChange={handleStyleChange}
+          onClearFilters={handleClearFilters}
+        />
+      </aside>
+
+      {/* Main Content Column (Welcome Hero + Products) */}
+      <div className="flex-1"> {/* This div will now contain WelcomeHero and the products section */}
+        <WelcomeHero /> {/* WelcomeHero is now part of the main content column */}
+        
+        <section id="products-section" className="w-full"> {/* No longer needs lg:flex-1 as parent div handles it */}
           <div className="mb-6 text-center lg:text-left">
              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 Notre Collection
@@ -88,7 +91,6 @@ export default function HomePage() {
           </div>
         </section>
       </div>
-    </>
+    </div>
   );
 }
-
