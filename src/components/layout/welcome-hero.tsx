@@ -31,7 +31,7 @@ export default function WelcomeHero() {
           <div className="md:col-span-2 grid grid-cols-2 gap-3 sm:gap-4 h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
             <div className="relative rounded-lg overflow-hidden shadow-md group/image">
               <Image 
-                src="https://placehold.co/450x600.png" 
+                src="https://img.freepik.com/free-photo/mid-century-modern-living-room-interior-design-with-monstera-tree_53876-129782.jpg" 
                 alt="Décoration intérieure élégante" 
                 fill
                 sizes="(max-width: 640px) 40vw, (max-width: 768px) 30vw, (max-width: 1024px) 20vw, 200px"
@@ -42,7 +42,7 @@ export default function WelcomeHero() {
             </div>
             <div className="relative rounded-lg overflow-hidden shadow-md group/image">
                <Image 
-                src="https://placehold.co/450x600.png" 
+                src="https://img.freepik.com/free-photo/modern-living-room-with-blue-sofa-plants_181624-46918.jpg" 
                 alt="Salon moderne et lumineux" 
                 fill
                 sizes="(max-width: 640px) 40vw, (max-width: 768px) 30vw, (max-width: 1024px) 20vw, 200px"
