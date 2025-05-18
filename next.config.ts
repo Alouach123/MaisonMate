@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.3dmodels.org', // Ajouté
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
