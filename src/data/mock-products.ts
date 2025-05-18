@@ -61,7 +61,7 @@ export const productCategories: string[] = [
   "Armoires",
   "Étagères",
   "Décorations",
-  "Mirroirs",
+  "Mirroirs", // Assurez-vous que l'orthographe est cohérente si vous l'utilisez ailleurs
   "Tapis"
 ];
 
