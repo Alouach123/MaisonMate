@@ -1,14 +1,14 @@
 
 "use client";
 import Link from 'next/link';
-import { Home, LayoutGrid, Heart, LifeBuoy, ShieldCheck, LogIn, LogOut, UserPlus } from 'lucide-react';
+import { LayoutGrid, Heart, LifeBuoy, ShieldCheck, LogIn, LogOut, UserPlus, Feather } from 'lucide-react'; // Ajout de Feather, suppression de Home
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import { useAuth } from '@/hooks/use-auth-context';
 import { Badge } from "@/components/ui/badge";
 import CartIcon from '@/components/cart/cart-icon';
 import { toast } from '@/hooks/use-toast';
-import { ThemeToggleButton } from "./theme-toggle-button"; // New import
+import { ThemeToggleButton } from "./theme-toggle-button"; 
 
 export default function Navbar() {
   const { wishlist } = useWishlist();
@@ -33,7 +33,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-primary hover:text-primary/80 transition-colors">
-          <Home className="h-7 w-7" />
+          <Feather className="h-7 w-7" /> {/* Remplacement de Home par Feather */}
           <span className="font-bold">MaisonMate</span>
         </Link>
         <nav className="flex items-center gap-1 md:gap-2"> {/* Adjusted gap here */}
