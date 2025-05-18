@@ -4,6 +4,7 @@
 import { useState, useCallback } from 'react';
 import ProductCard from '@/components/products/product-card';
 import FilterSidebar from '@/components/products/filter-sidebar';
+import WelcomeHero from '@/components/layout/welcome-hero'; // Import du nouveau composant
 import { mockProducts } from '@/data/mock-products';
 import type { Product } from '@/types';
 
@@ -51,37 +52,42 @@ export default function HomePage() {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
-      <aside className="w-full lg:w-72 xl:w-80">
-        <FilterSidebar
-          priceRange={priceRange}
-          onPriceRangeChange={handlePriceRangeChange}
-          selectedCategories={selectedCategories}
-          onCategoryChange={handleCategoryChange}
-          selectedStyles={selectedStyles}
-          onStyleChange={handleStyleChange}
-          onClearFilters={handleClearFilters}
-        />
-      </aside>
-      <section className="w-full lg:flex-1">
-        <div className="mb-8 text-center lg:text-left">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Welcome to <span className="text-primary">MaisonMate</span>
-          </h1>
-          <p className="mt-3 text-lg text-muted-foreground">
-            Explore our curated collection and transform your space with quality items at competitive prices.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-          {filteredProducts.length === 0 && (
-            <p className="col-span-full text-center text-muted-foreground py-10">No products found matching your criteria.</p>
-          )}
-        </div>
-      </section>
-    </div>
+    <> {/* Fragment pour encapsuler WelcomeHero et le layout principal */}
+      <WelcomeHero /> {/* Ajout de la section de bienvenue */}
+      
+      <div className="flex flex-col lg:flex-row gap-8">
+        <aside className="w-full lg:w-72 xl:w-80">
+          <FilterSidebar
+            priceRange={priceRange}
+            onPriceRangeChange={handlePriceRangeChange}
+            selectedCategories={selectedCategories}
+            onCategoryChange={handleCategoryChange}
+            selectedStyles={selectedStyles}
+            onStyleChange={handleStyleChange}
+            onClearFilters={handleClearFilters}
+          />
+        </aside>
+        <section id="products-section" className="w-full lg:flex-1"> {/* Ajout de l'ID ici */}
+          {/* L'ancien titre de bienvenue est supprimé car géré par WelcomeHero */}
+          <div className="mb-6 text-center lg:text-left">
+             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                Notre Collection
+             </h2>
+             <p className="mt-2 text-lg text-muted-foreground">
+                Parcourez nos articles sélectionnés avec soin.
+             </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+            {filteredProducts.length === 0 && (
+              <p className="col-span-full text-center text-muted-foreground py-10">Aucun produit ne correspond à vos critères.</p>
+            )}
+          </div>
+        </section>
+      </div>
+    </>
   );
 }
