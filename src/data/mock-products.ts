@@ -1,8 +1,9 @@
 
 import type { Product } from '@/types';
 
-// La liste des produits est maintenant remplie avec les canapés spécifiés.
+// La liste des produits est maintenant remplie avec les canapés et les lits.
 export let mockProducts: Product[] = [
+  // Canapés existants
   {
     id: '1',
     name: 'Roche Bobois Bubble Grand canapé',
@@ -114,7 +115,120 @@ export let mockProducts: Product[] = [
     colors: ['Gris Skiftebo', 'Noir Hyllie', 'Beige Foncé'],
     materials: ['Polyester', 'Bois Massif', 'Panneau de particules'],
     dimensions: '230cm L x 151cm P (méridienne) x 66cm H',
-  }
+  },
+  // Nouveaux lits
+  {
+    id: '9',
+    name: 'IKEA HEMNES Lit 2',
+    description: 'Un lit double HEMNES classique et robuste d\'IKEA, avec une tête de lit haute. Parfait pour un style intemporel et une chambre accueillante.',
+    price: 329.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/020_IKEA_HEMNES_bed_2/IKEA_HEMNES_bed_2_1000_0001-551x551.webp',
+    category: 'Lits',
+    style: 'Classique',
+    rating: 4.4,
+    stock: 45,
+    colors: ['Blanc', 'Noir-brun'],
+    materials: ['Pin massif', 'Acrylique'],
+    dimensions: '170cm L x 211cm P x 120cm H (couchage 160x200)',
+  },
+  {
+    id: '10',
+    name: 'IKEA Malm Lit',
+    description: 'Lit IKEA Malm avec un design épuré et des lignes droites. Offre des rangements optionnels sous le lit pour optimiser l\'espace.',
+    price: 279.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/081_IKEA_Malm_Bed/IKEA_Malm_Bed_1000_0001-551x551.webp',
+    category: 'Lits',
+    style: 'Minimaliste',
+    rating: 4.2,
+    stock: 50,
+    colors: ['Blanc', 'Plaqué chêne blanchi', 'Noir-brun'],
+    materials: ['Panneau de particules', 'Fibre de bois'],
+    dimensions: '176cm L x 209cm P x 100cm H (couchage 160x200)',
+  },
+  {
+    id: '11',
+    name: 'Roche Bobois Bubble Lit',
+    description: 'Le lit Bubble de Roche Bobois, un design audacieux et confortable avec ses formes organiques et son revêtement en tissu Techno 3D. Une pièce maîtresse.',
+    price: 4500.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Roche-Bobois/026_Roche-Bobois_Bubble_Bed/Roche-Bobois_Bubble_Bed_1000_0001-551x551.webp',
+    category: 'Lits',
+    style: 'Moderne',
+    rating: 4.9,
+    stock: 10,
+    colors: ['Rose Poudré', 'Gris Perle', 'Jaune Safran'],
+    materials: ['Tissu Techno 3D', 'Mousse HR', 'Structure bois'],
+    dimensions: 'Taille Queen, approx. 180cm L x 220cm P x 90cm H',
+  },
+  {
+    id: '12',
+    name: 'Natuzzi Fenice Lit',
+    description: 'Lit Fenice de Natuzzi Italia, alliant élégance et confort avec une tête de lit capitonnée et des finitions soignées. Luxe italien.',
+    price: 3800.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Natuzzi/001_Natuzzi_Fenice_Bed/Natuzzi_Fenice_Bed_1000_0001-551x551.webp',
+    category: 'Lits',
+    style: 'Contemporain',
+    rating: 4.8,
+    stock: 12,
+    colors: ['Cuir Beige Clair', 'Tissu Gris Foncé'],
+    materials: ['Cuir véritable', 'Tissu de haute qualité', 'Bois massif'],
+    dimensions: 'Taille King, approx. 200cm L x 225cm P x 110cm H',
+  },
+  {
+    id: '13',
+    name: 'IKEA HEMNES Lit',
+    description: 'Structure de lit HEMNES d\'IKEA, simple et élégante, en pin massif. Un classique intemporel pour une chambre cosy et chaleureuse.',
+    price: 249.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/019_IKEA_HEMNES_bed/IKEA_HEMNES_bed_1000_0001-551x551.webp',
+    category: 'Lits',
+    style: 'Classique',
+    rating: 4.3,
+    stock: 60,
+    colors: ['Blanc', 'Noir-brun', 'Gris Clair'],
+    materials: ['Pin massif teinté'],
+    dimensions: '150cm L x 211cm P x 120cm H (couchage 140x200)',
+  },
+  {
+    id: '14',
+    name: 'Minotti Andersen Quilt Lit',
+    description: 'Lit Andersen Quilt par Minotti, caractérisé par une tête de lit matelassée raffinée et un design sophistiqué. Confort et élégance suprêmes.',
+    price: 5200.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Minotti/007_Minotti_Andersen_Quilt_Bed/Minotti_Andersen_Quilt_Bed_1000_0001-551x551.webp',
+    category: 'Lits',
+    style: 'Contemporain',
+    rating: 4.9,
+    stock: 7,
+    colors: ['Tissu Taupe Chiné', 'Velours Bleu Profond', 'Cuir Naturel'],
+    materials: ['Tissu haut de gamme', 'Structure métallique', 'Bois rembourré'],
+    dimensions: 'Taille King, approx. 210cm L x 230cm P x 105cm H',
+  },
+  {
+    id: '15',
+    name: 'Lit en métal vintage victorien',
+    description: 'Un charmant lit en métal de style victorien, avec des détails ornementaux. Idéal pour une ambiance romantique et rétro, pour une personne.',
+    price: 450.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Generic/172_Generic_Victorian_Vintage_Twin_Size_Metal_Bed/Generic_Victorian_Vintage_Twin_Size_Metal_Bed_1000_0001-551x551.webp',
+    category: 'Lits',
+    style: 'Vintage',
+    rating: 4.6,
+    stock: 25,
+    colors: ['Noir Antique Mat', 'Blanc Crème Brillant'],
+    materials: ['Métal forgé, finition poudrée'],
+    dimensions: '100cm L x 200cm P x 115cm H (couchage 90x190)',
+  },
+  {
+    id: '16',
+    name: 'Savio Firmino 3058 Lit',
+    description: 'Lit 3058 de Savio Firmino, une pièce d\'exception avec des sculptures faites à la main et des finitions luxueuses. Un chef-d\'œuvre de l\'artisanat florentin.',
+    price: 8900.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Savio-Firmino/006_Savio-Firmino_3058_Bed/Savio-Firmino_3058_Bed_1000_0001-551x551.webp',
+    category: 'Lits',
+    style: 'Classique',
+    rating: 5.0,
+    stock: 5,
+    colors: ['Bois Naturel Finition Or vieilli', 'Laqué Blanc Perle avec détails argentés'],
+    materials: ['Bois précieux sculpté à la main', 'Feuille d\'or ou d\'argent', 'Tissus nobles'],
+    dimensions: 'Taille King/Super King, dimensions sur mesure disponibles',
+  },
 ];
 
 export const getProductById = (id: string): Product | undefined => {
@@ -131,7 +245,7 @@ export const productCategories: string[] = [
   "Armoires",
   "Étagères",
   "Décorations",
-  "Mirroirs", // Assurez-vous que l'orthographe est cohérente si vous l'utilisez ailleurs
+  "Mirroirs", 
   "Tapis"
 ];
 
@@ -145,8 +259,10 @@ export const productStyles: string[] = [
   "Classique",
   "Bohème",
   "Contemporain",
-  "Fonctionnel" // Ajouté pour le canapé Friheten
+  "Fonctionnel"
 ];
+    
+
     
 
     
