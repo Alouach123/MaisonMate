@@ -8,7 +8,7 @@ export let mockProducts: Product[] = [
     name: 'Elegant Velvet Sofa',
     description: 'A luxurious velvet sofa that adds a touch of elegance to any living room. Features plush cushioning and a sturdy wooden frame.',
     price: 699.99,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://3dmodels.org/imgfiles/prod_1007691_1_1.jpg', // Updated
     category: 'Sofas',
     style: 'Modern',
     rating: 4.5,
@@ -21,7 +21,7 @@ export let mockProducts: Product[] = [
     name: 'Minimalist Oak Chair',
     description: 'A sleek and minimalist chair crafted from solid oak. Perfect for dining rooms or as an accent piece.',
     price: 129.99,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://3dmodels.org/imgfiles/prod_1009083_1_1.jpg', // Updated
     category: 'Chairs',
     style: 'Minimalist',
     rating: 4.8,
@@ -33,7 +33,7 @@ export let mockProducts: Product[] = [
     name: 'Rustic Farmhouse Cabinet',
     description: 'A charming rustic cabinet with ample storage space. Made from reclaimed wood, perfect for a farmhouse aesthetic.',
     price: 349.50,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://3dmodels.org/imgfiles/prod_1011311_1_1.jpg', // Updated
     category: 'Cabinets',
     style: 'Rustic',
     rating: 4.2,
@@ -151,4 +151,3 @@ export const getProductById = (id: string): Product | undefined => {
 // For a dynamic admin panel, these might need to be updated or fetched differently.
 export const productCategories: string[] = Array.from(new Set(mockProducts.map(p => p.category)));
 export const productStyles: string[] = Array.from(new Set(mockProducts.map(p => p.style).filter(s => s !== undefined) as string[]));
-
