@@ -7,10 +7,11 @@ import { useWishlist } from '@/hooks/use-wishlist-context';
 import { useAuth } from '@/hooks/use-auth-context'; // Import useAuth
 import { Badge } from "@/components/ui/badge";
 import CartIcon from '@/components/cart/cart-icon';
+import { toast } from '@/hooks/use-toast'; // Import toast pour les messages spécifiques
 
 export default function Navbar() {
   const { wishlist } = useWishlist();
-  const { isAuthenticated, login, logout } = useAuth(); // Get auth state and functions
+  const { isAuthenticated, signUp, signIn, logout } = useAuth(); // Utilise signUp et signIn
 
   const mainNavItems = [
     { href: '/', label: 'Produits', icon: LayoutGrid },
@@ -19,11 +20,12 @@ export default function Navbar() {
     { href: '/admin', label: 'Admin', icon: ShieldCheck },
   ];
 
-  // Placeholder actions for Sign Up - In a real app, these would likely go to separate pages or modals
-  const handleSignUp = () => {
-    // For now, simulate login as a placeholder for sign up completion
-    login(); 
-    // In a real app: router.push('/signup') or open signup modal
+  const handleSignUpClick = () => {
+    signUp(); // Appelle la fonction signUp du contexte d'authentification
+  };
+
+  const handleSignInClick = () => {
+    signIn(); // Appelle la fonction signIn du contexte d'authentification
   };
 
   return (
@@ -60,11 +62,11 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Button onClick={handleSignUp} variant="ghost" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors">
+              <Button onClick={handleSignUpClick} variant="ghost" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors">
                 <UserPlus className="h-4 w-4 md:mr-1.5" />
                  <span className="hidden md:inline">S'inscrire</span>
               </Button>
-              <Button onClick={login} variant="ghost" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors">
+              <Button onClick={handleSignInClick} variant="ghost" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors">
                 <LogIn className="h-4 w-4 md:mr-1.5" />
                 <span className="hidden md:inline">Se connecter</span>
               </Button>

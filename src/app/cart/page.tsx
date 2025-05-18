@@ -12,7 +12,7 @@ import { toast } from '@/hooks/use-toast';
 
 export default function CartPage() {
   const { cartItems, clearCart, getSubtotal, getTotalItems } = useCart();
-  const { isAuthenticated, login } = useAuth(); // Get isAuthenticated state and login function
+  const { isAuthenticated, signIn } = useAuth(); // Utilise signIn au lieu de login
   const subtotal = getSubtotal();
   const totalItems = getTotalItems();
 
@@ -22,8 +22,8 @@ export default function CartPage() {
         title: "Connexion Requise",
         description: "Veuillez vous connecter ou vous inscrire pour continuer.",
         variant: "default",
-        action: ( // Example: Add a login button to the toast
-          <Button onClick={login} size="sm">
+        action: ( 
+          <Button onClick={signIn} size="sm"> {/* Appelle signIn */}
             Se connecter
           </Button>
         ),

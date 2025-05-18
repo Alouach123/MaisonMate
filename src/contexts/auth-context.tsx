@@ -6,9 +6,9 @@ import { toast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: () => void; // Simulate login
+  signUp: () => void; // Simule l'inscription et connecte l'utilisateur
+  signIn: () => void; // Simule la connexion
   logout: () => void;
-  // In a real app, you'd have user objects, signup functions, etc.
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,10 +33,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isAuthenticated, isLoaded]);
 
-  const login = useCallback(() => {
-    // In a real app, this would involve API calls, credential checks, etc.
+  const signUp = useCallback(() => {
     setIsAuthenticated(true);
-    toast({ title: "Connexion réussie !", description: "Bienvenue sur MaisonMate." });
+    toast({
+      title: "Inscription (simulée) réussie !",
+      description: "Normalement, vous auriez fourni : Nom, Prénom, Email, Mot de passe, Téléphone, Date de naissance. Bienvenue sur MaisonMate !",
+    });
+  }, []);
+
+  const signIn = useCallback(() => {
+    setIsAuthenticated(true);
+    toast({
+      title: "Connexion (simulée) réussie !",
+      description: "Normalement, vous auriez fourni : Email, Mot de passe. Bienvenue sur MaisonMate !",
+    });
   }, []);
 
   const logout = useCallback(() => {
@@ -49,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, signUp, signIn, logout }}>
       {children}
     </AuthContext.Provider>
   );
