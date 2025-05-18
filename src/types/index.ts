@@ -20,6 +20,10 @@ export interface WishlistItem extends Product {
   addedAt: string; // ISO date string
 }
 
+export interface CartItem extends Product {
+  quantity: number;
+}
+
 export interface StyleSuggestion {
   id: string;
   name: string;

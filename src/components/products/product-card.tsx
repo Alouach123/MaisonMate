@@ -5,8 +5,9 @@ import Link from 'next/link';
 import type { Product } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Heart, Eye, Star } from 'lucide-react';
+import { Heart, Eye, Star, ShoppingCart } from 'lucide-react';
 import { useWishlist } from '@/hooks/use-wishlist-context';
+import AddToCartButton from './add-to-cart-button'; // Import AddToCartButton
 
 interface ProductCardProps {
   product: Product;
@@ -77,12 +78,15 @@ export default function ProductCard({ product }: ProductCardProps) {
       </CardContent>
       <CardFooter className="p-4 flex justify-between items-center border-t pt-4">
         <p className="text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
-        <Button asChild variant="outline" size="sm">
-          <Link href={`/products/${product.id}`} className="flex items-center gap-1.5">
-            <Eye className="h-4 w-4" />
-            View
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/products/${product.id}`} className="flex items-center gap-1.5">
+              <Eye className="h-4 w-4" />
+              Voir
+            </Link>
+          </Button>
+          <AddToCartButton product={product} size="sm" variant="default" />
+        </div>
       </CardFooter>
     </Card>
   );

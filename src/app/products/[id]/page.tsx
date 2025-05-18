@@ -3,10 +3,11 @@ import Image from 'next/image';
 import { getProductById } from '@/data/mock-products';
 import { notFound } from 'next/navigation';
 import StyleSuggestions from '@/components/products/style-suggestions';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Palette, Package, Ruler } from 'lucide-react';
-import AddToWishlistButton from '@/components/products/add-to-wishlist-button'; // Separate client component for wishlist button
+import AddToWishlistButton from '@/components/products/add-to-wishlist-button';
+import AddToCartButton from '@/components/products/add-to-cart-button'; // Import AddToCartButton
 
 export async function generateStaticParams() {
   // In a real app, fetch all product IDs to pre-render pages
@@ -66,7 +67,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   {product.category && <Badge variant="outline" className="mb-2 text-sm">{product.category}</Badge>}
                   <CardTitle className="text-3xl lg:text-4xl font-bold tracking-tight">{product.name}</CardTitle>
                 </div>
-                 {/* Add to Wishlist Button - Client Component */}
                 <AddToWishlistButton product={product} />
               </div>
               {product.rating && (
@@ -92,14 +92,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 {product.colors && product.colors.length > 0 && (
                   <div className="flex items-center gap-2 text-sm">
                     <Palette className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">Colors:</span>
+                    <span className="font-medium">Couleurs:</span>
                     {product.colors.map(color => <Badge key={color} variant="outline" style={{backgroundColor: color, color: '#fff', borderColor: '#ccc'}}>{color}</Badge>)}
                   </div>
                 )}
                  {product.materials && product.materials.length > 0 && (
                   <div className="flex items-center gap-2 text-sm">
                     <Package className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">Materials:</span>
+                    <span className="font-medium">Matériaux:</span>
                     <span className="text-foreground/80">{product.materials.join(', ')}</span>
                   </div>
                 )}
@@ -111,9 +111,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   </div>
                 )}
               </div>
-
-              {/* CTA Buttons - Add to Cart could go here */}
             </CardContent>
+            <CardFooter className="border-t pt-4">
+                <AddToCartButton product={product} size="lg" variant="default" showText={true} className="w-full" />
+            </CardFooter>
           </Card>
           
           {/* Style Suggestions */}

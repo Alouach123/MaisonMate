@@ -1,19 +1,21 @@
 
 "use client";
 import Link from 'next/link';
-import { Home, LayoutGrid, Heart, LifeBuoy, ShieldCheck } from 'lucide-react'; // Added ShieldCheck
+import { Home, LayoutGrid, Heart, LifeBuoy, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import { Badge } from "@/components/ui/badge";
+import CartIcon from '@/components/cart/cart-icon'; // Added CartIcon
 
 export default function Navbar() {
   const { wishlist } = useWishlist();
 
-  const navItems = [
+  // Simplified navItems structure for CartIcon integration
+  const mainNavItems = [
     { href: '/', label: 'Produits', icon: LayoutGrid },
     { href: '/wishlist', label: 'Favoris', icon: Heart, badgeCount: wishlist.length > 0 ? wishlist.length : undefined },
     { href: '/support', label: 'Support', icon: LifeBuoy },
-    { href: '/admin', label: 'Admin', icon: ShieldCheck }, // New Admin link
+    { href: '/admin', label: 'Admin', icon: ShieldCheck },
   ];
 
   return (
@@ -23,13 +25,13 @@ export default function Navbar() {
           <Home className="h-7 w-7" />
           <span className="font-bold">MaisonMate</span>
         </Link>
-        <nav className="flex items-center gap-4 md:gap-6">
-          {navItems.map((item) => (
+        <nav className="flex items-center gap-1 md:gap-2"> {/* Adjusted gap for more items */}
+          {mainNavItems.map((item) => (
             <Button key={item.label} variant="ghost" asChild className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors relative">
               <Link href={item.href} className="flex items-center gap-1.5">
                 <item.icon className="h-4 w-4" />
                 {item.label}
-                {item.badgeCount && (
+                {item.badgeCount !== undefined && item.badgeCount > 0 && (
                   <Badge variant="destructive" className="absolute -top-1 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
                     {item.badgeCount}
                   </Badge>
@@ -37,6 +39,7 @@ export default function Navbar() {
               </Link>
             </Button>
           ))}
+          <CartIcon /> {/* Added CartIcon here */}
         </nav>
       </div>
     </header>
