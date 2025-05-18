@@ -19,19 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'images.pickawood.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '3dmodels.org',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.3dmodels.org', // Ajouté
+        hostname: 'img.freepik.com',
         port: '',
         pathname: '/**',
       },

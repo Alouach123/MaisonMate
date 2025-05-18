@@ -8,7 +8,7 @@ export let mockProducts: Product[] = [
     name: 'Elegant Velvet Sofa',
     description: 'A luxurious velvet sofa that adds a touch of elegance to any living room. Features plush cushioning and a sturdy wooden frame.',
     price: 699.99,
-    imageUrl: 'https://3dmodels.org/imgfiles/prod_1007691_1_1.jpg', // Kept from previous update
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Sofas',
     style: 'Modern',
     rating: 4.5,
@@ -21,7 +21,7 @@ export let mockProducts: Product[] = [
     name: 'Minimalist Oak Chair',
     description: 'A sleek and minimalist chair crafted from solid oak. Perfect for dining rooms or as an accent piece.',
     price: 129.99,
-    imageUrl: 'https://3dmodels.org/imgfiles/prod_1009083_1_1.jpg', // Kept from previous update
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Chairs',
     style: 'Minimalist',
     rating: 4.8,
@@ -33,7 +33,7 @@ export let mockProducts: Product[] = [
     name: 'Rustic Farmhouse Cabinet',
     description: 'A charming rustic cabinet with ample storage space. Made from reclaimed wood, perfect for a farmhouse aesthetic.',
     price: 349.50,
-    imageUrl: 'https://3dmodels.org/imgfiles/prod_1011311_1_1.jpg', // Kept from previous update
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Cabinets',
     style: 'Rustic',
     rating: 4.2,
@@ -45,7 +45,7 @@ export let mockProducts: Product[] = [
     name: 'Scandinavian Coffee Table',
     description: 'A light and airy coffee table with clean lines, embodying Scandinavian design principles. Features a white lacquered top and tapered wooden legs.',
     price: 189.00,
-    imageUrl: 'https://3dmodels.org/imgfiles/prod_1009070_1_1.jpg', // Updated
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Tables',
     style: 'Scandinavian',
     rating: 4.6,
@@ -58,7 +58,7 @@ export let mockProducts: Product[] = [
     name: 'Industrial Bookshelf',
     description: 'A sturdy bookshelf combining metal and wood for an industrial-chic look. Offers five spacious shelves for books and decor.',
     price: 259.99,
-    imageUrl: 'https://3dmodels.org/imgfiles/prod_1009094_1_1.jpg', // Updated
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Cabinets',
     style: 'Industrial',
     rating: 4.3,
@@ -70,7 +70,7 @@ export let mockProducts: Product[] = [
     name: 'Bohemian Rattan Lounge Chair',
     description: 'Relax in style with this comfortable rattan lounge chair, perfect for a bohemian-inspired living space or patio.',
     price: 299.00,
-    imageUrl: 'https://3dmodels.org/imgfiles/prod_1009084_1_1.jpg', // Updated
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Chairs',
     style: 'Bohemian',
     rating: 4.7,
@@ -82,7 +82,7 @@ export let mockProducts: Product[] = [
     name: 'Classic Chesterfield Armchair',
     description: 'Timeless design meets ultimate comfort in this classic Chesterfield armchair, upholstered in rich faux leather.',
     price: 450.00,
-    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Sofas-and-Armchairs/003_Baker_Kara_Mann_Milling_Road_Claremont_Lounge_Chair/Baker_Kara_Mann_Milling_Road_Claremont_Lounge_Chair_1000_0001.jpg', // Updated
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Chairs',
     style: 'Classic',
     rating: 4.9,
@@ -95,7 +95,7 @@ export let mockProducts: Product[] = [
     name: 'Modern Glass Dining Table',
     description: 'A sleek modern dining table with a tempered glass top and chrome-finished metal legs. Seats up to six people comfortably.',
     price: 399.99,
-    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Tables/001_Reflex_Angelo_Velo_72_Dining_Table/Reflex_Angelo_Velo_72_Dining_Table_1000_0001.jpg', // Updated
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Tables',
     style: 'Modern',
     rating: 4.4,
@@ -107,7 +107,7 @@ export let mockProducts: Product[] = [
     name: 'Art Deco Table Lamp',
     description: 'A stunning table lamp with geometric brass details and a frosted glass shade, adding a touch of Art Deco glamour to your space.',
     price: 159.99,
-    imageUrl: 'https://3dmodels.org/imgfiles/prod_1009150_1_1.jpg', // Updated
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Lighting',
     style: 'Art Deco',
     rating: 4.7,
@@ -120,7 +120,7 @@ export let mockProducts: Product[] = [
     name: 'Plush Geometric Area Rug',
     description: 'Soft and luxurious area rug with a modern geometric pattern in soothing colors. Adds warmth, comfort, and style to any room.',
     price: 289.00,
-    imageUrl: 'https://3dmodels.org/imgfiles/prod_1009160_1_1.jpg', // Updated
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Rugs',
     style: 'Modern',
     rating: 4.5,
@@ -133,7 +133,7 @@ export let mockProducts: Product[] = [
     name: 'Upholstered Platform Bed',
     description: 'A stylish upholstered platform bed featuring a tufted headboard and sturdy wooden slats. Provides a comfortable and elegant centerpiece for your bedroom.',
     price: 599.00,
-    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Beds/002_Poliform_Chloe_Bed/Poliform_Chloe_Bed_1000_0001.jpg', // Updated
+    imageUrl: 'https://placehold.co/600x400.png',
     category: 'Beds',
     style: 'Contemporary',
     rating: 4.6,
@@ -151,4 +151,3 @@ export const getProductById = (id: string): Product | undefined => {
 // For a dynamic admin panel, these might need to be updated or fetched differently.
 export const productCategories: string[] = Array.from(new Set(mockProducts.map(p => p.category)));
 export const productStyles: string[] = Array.from(new Set(mockProducts.map(p => p.style).filter(s => s !== undefined) as string[]));
-
