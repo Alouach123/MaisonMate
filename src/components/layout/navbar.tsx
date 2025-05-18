@@ -36,7 +36,7 @@ export default function Navbar() {
           <Home className="h-7 w-7" />
           <span className="font-bold">MaisonMate</span>
         </Link>
-        <nav className="flex items-center gap-0.5 md:gap-1"> {/* Reduced gap slightly */}
+        <nav className="flex items-center gap-1 md:gap-2"> {/* Adjusted gap here */}
           {mainNavItems.map((item) => (
             <Button key={item.label} variant="ghost" asChild className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors relative px-2 md:px-3">
               <Link href={item.href} className="flex items-center gap-1 md:gap-1.5">
