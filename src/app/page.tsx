@@ -9,7 +9,7 @@ import { mockProducts } from '@/data/mock-products';
 import type { Product } from '@/types';
 
 export default function HomePage() {
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]); // Updated max price
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
 
@@ -30,7 +30,7 @@ export default function HomePage() {
   }, []);
 
   const handleClearFilters = useCallback(() => {
-    setPriceRange([0, 1000]);
+    setPriceRange([0, 5000]); // Updated max price
     setSelectedCategories([]);
     setSelectedStyles([]);
   }, []);

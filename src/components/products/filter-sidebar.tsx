@@ -68,8 +68,8 @@ export default function FilterSidebar({
               <Slider
                 // defaultValue is not needed as value is controlled
                 min={0}
-                max={1000} // Ensure this max matches initial state in HomePage
-                step={50}
+                max={5000} // Updated max price
+                step={50} // You might want to adjust the step for a larger range, e.g., 100 or 250
                 value={priceRange}
                 onValueChange={onPriceRangeChange}
                 className="[&_[role=slider]]:bg-primary"
