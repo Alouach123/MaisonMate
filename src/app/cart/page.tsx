@@ -3,6 +3,7 @@
 
 import CartItemCard from '@/components/cart/cart-item-card';
 import { useCart } from '@/hooks/use-cart-context';
+import { useAuth } from '@/hooks/use-auth-context'; // Import useAuth
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
@@ -11,10 +12,24 @@ import { toast } from '@/hooks/use-toast';
 
 export default function CartPage() {
   const { cartItems, clearCart, getSubtotal, getTotalItems } = useCart();
+  const { isAuthenticated, login } = useAuth(); // Get isAuthenticated state and login function
   const subtotal = getSubtotal();
   const totalItems = getTotalItems();
 
   const handleProceedToCheckout = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Connexion Requise",
+        description: "Veuillez vous connecter ou vous inscrire pour continuer.",
+        variant: "default",
+        action: ( // Example: Add a login button to the toast
+          <Button onClick={login} size="sm">
+            Se connecter
+          </Button>
+        ),
+      });
+      return;
+    }
     // Placeholder for actual checkout logic
     toast({
       title: "Fonctionnalité en cours de développement",
@@ -95,4 +110,3 @@ export default function CartPage() {
     </div>
   );
 }
-

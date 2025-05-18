@@ -4,7 +4,8 @@ import { Geist, Geist_Mono } from 'next/font/google'; // Assuming these are your
 import './globals.css';
 import MainLayout from '@/components/layout/main-layout';
 import { WishlistProvider } from '@/contexts/wishlist-context';
-import { CartProvider } from '@/contexts/cart-context'; // Added CartProvider
+import { CartProvider } from '@/contexts/cart-context';
+import { AuthProvider } from '@/contexts/auth-context'; // Added AuthProvider
 
 const geistSans = Geist({ // Assuming these fonts are defined or use Inter as a fallback
   variable: '--font-geist-sans',
@@ -29,11 +30,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <WishlistProvider>
-          <CartProvider> {/* Added CartProvider */}
-            <MainLayout>{children}</MainLayout>
-          </CartProvider>
-        </WishlistProvider>
+        <AuthProvider> {/* Added AuthProvider */}
+          <WishlistProvider>
+            <CartProvider>
+              <MainLayout>{children}</MainLayout>
+            </CartProvider>
+          </WishlistProvider>
+        </AuthProvider>
       </body>
     </html>
   );
