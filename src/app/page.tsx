@@ -52,10 +52,12 @@ export default function HomePage() {
   });
 
   return (
-    // Overall container for the page layout with sidebar and main content
-    <div className="flex flex-col lg:flex-row gap-8">
-      {/* Filter Sidebar Column */}
-      <aside className="w-full lg:w-72 xl:w-80">
+    // Overall container for the page layout, sections will stack vertically
+    <div className="flex flex-col gap-10 md:gap-12">
+      <WelcomeHero />
+      
+      {/* Filter Sidebar Section - now in the main flow */}
+      <aside className="w-full">
         <FilterSidebar
           priceRange={priceRange}
           onPriceRangeChange={handlePriceRangeChange}
@@ -67,30 +69,26 @@ export default function HomePage() {
         />
       </aside>
 
-      {/* Main Content Column (Welcome Hero + Products) */}
-      <div className="flex-1"> {/* This div will now contain WelcomeHero and the products section */}
-        <WelcomeHero /> {/* WelcomeHero is now part of the main content column */}
+      {/* Products Section */}
+      <section id="products-section" className="w-full">
+        <div className="mb-6 text-center lg:text-left">
+           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Notre Collection
+           </h2>
+           <p className="mt-2 text-lg text-muted-foreground">
+              Parcourez nos articles sélectionnés avec soin.
+           </p>
+        </div>
         
-        <section id="products-section" className="w-full"> {/* No longer needs lg:flex-1 as parent div handles it */}
-          <div className="mb-6 text-center lg:text-left">
-             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Notre Collection
-             </h2>
-             <p className="mt-2 text-lg text-muted-foreground">
-                Parcourez nos articles sélectionnés avec soin.
-             </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-            {filteredProducts.length === 0 && (
-              <p className="col-span-full text-center text-muted-foreground py-10">Aucun produit ne correspond à vos critères.</p>
-            )}
-          </div>
-        </section>
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredProducts.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+          {filteredProducts.length === 0 && (
+            <p className="col-span-full text-center text-muted-foreground py-10">Aucun produit ne correspond à vos critères.</p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
