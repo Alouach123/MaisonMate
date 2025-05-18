@@ -52,43 +52,44 @@ export default function HomePage() {
   });
 
   return (
-    // Overall container for the page layout, sections will stack vertically
     <div className="flex flex-col gap-10 md:gap-12">
       <WelcomeHero />
       
-      {/* Filter Sidebar Section - now in the main flow */}
-      <aside className="w-full">
-        <FilterSidebar
-          priceRange={priceRange}
-          onPriceRangeChange={handlePriceRangeChange}
-          selectedCategories={selectedCategories}
-          onCategoryChange={handleCategoryChange}
-          selectedStyles={selectedStyles}
-          onStyleChange={handleStyleChange}
-          onClearFilters={handleClearFilters}
-        />
-      </aside>
+      <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+        {/* Filter Sidebar Section */}
+        <aside className="w-full md:w-72 lg:w-80">
+          <FilterSidebar
+            priceRange={priceRange}
+            onPriceRangeChange={handlePriceRangeChange}
+            selectedCategories={selectedCategories}
+            onCategoryChange={handleCategoryChange}
+            selectedStyles={selectedStyles}
+            onStyleChange={handleStyleChange}
+            onClearFilters={handleClearFilters}
+          />
+        </aside>
 
-      {/* Products Section */}
-      <section id="products-section" className="w-full">
-        <div className="mb-6 text-center lg:text-left">
-           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Notre Collection
-           </h2>
-           <p className="mt-2 text-lg text-muted-foreground">
-              Parcourez nos articles sélectionnés avec soin.
-           </p>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-          {filteredProducts.length === 0 && (
-            <p className="col-span-full text-center text-muted-foreground py-10">Aucun produit ne correspond à vos critères.</p>
-          )}
-        </div>
-      </section>
+        {/* Products Section */}
+        <section id="products-section" className="flex-1">
+          <div className="mb-6 text-center lg:text-left">
+             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                Notre Collection
+             </h2>
+             <p className="mt-2 text-lg text-muted-foreground">
+                Parcourez nos articles sélectionnés avec soin.
+             </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+            {filteredProducts.length === 0 && (
+              <p className="col-span-full text-center text-muted-foreground py-10">Aucun produit ne correspond à vos critères.</p>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
