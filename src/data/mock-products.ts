@@ -1,7 +1,7 @@
 
 import type { Product } from '@/types';
 
-// La liste des produits est maintenant vide, prête à être remplie manuellement.
+// La liste des produits est maintenant remplie avec les 8 canapés spécifiés.
 export let mockProducts: Product[] = [
   {
     id: '1',
@@ -121,16 +121,9 @@ export const getProductById = (id: string): Product | undefined => {
   return mockProducts.find(product => product.id === id);
 };
 
-// Conserver une liste statique de catégories pour les filtres,
-// même si la liste de produits est initialement vide.
+// La liste des catégories ne contient que "Canapés".
 export const productCategories: string[] = [
   "Canapés"
-  // "Chaises",
-  // "Tables",
-  // "Lits",
-  // "Luminaires",
-  // "Rangements",
-  // "Décoration"
 ];
 
 // Conserver une liste statique de styles pour les filtres.
