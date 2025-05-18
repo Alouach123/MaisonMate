@@ -1,7 +1,7 @@
 
 import type { Product } from '@/types';
 
-// La liste des produits est maintenant remplie avec les 8 canapés spécifiés.
+// La liste des produits est maintenant remplie avec les canapés spécifiés.
 export let mockProducts: Product[] = [
   {
     id: '1',
@@ -114,6 +114,48 @@ export let mockProducts: Product[] = [
     colors: ['Gris Foncé Skiftebo', 'Noir Hyllie', 'Beige Hyllie'],
     materials: ['Polyester', 'Panneau de particules', 'Mousse Polyuréthane'],
     dimensions: '230cm L x 151cm P (méridienne) x 66cm H',
+  },
+  {
+    id: '9',
+    name: 'Roche Bobois Bubble Grand canapé (Copie)', // Nom modifié pour unicité
+    description: 'Un design iconique et ludique, offrant un confort enveloppant avec ses formes arrondies. Parfait pour un intérieur contemporain et audacieux.',
+    price: 3599.99, // Prix légèrement différent
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Roche-Bobois/003_Roche-Bobois_Bubble_Large_Sofa/Roche-Bobois_Bubble_Large_Sofa_1000_0001-551x551.webp',
+    category: 'Canapés',
+    style: 'Contemporain', // Style légèrement différent
+    rating: 4.9,
+    stock: 12,
+    colors: ['Gris Anthracite', 'Jaune Moutarde'],
+    materials: ['Tissu Velours côtelé', 'Mousse HR'],
+    dimensions: '250cm L x 135cm P x 75cm H',
+  },
+  {
+    id: '10',
+    name: 'Chesterfield Canapé Cuir Vintage', // Nom modifié
+    description: 'L\'élégance intemporelle du style Chesterfield, version cuir vieilli pour un look vintage authentique. Capitonnage profond et accoudoirs enroulés.',
+    price: 2350.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/340_Chesterfield_Sofa/Chesterfield_Sofa_600_lq_0001-551x551.webp',
+    category: 'Canapés',
+    style: 'Vintage',
+    rating: 4.6,
+    stock: 18,
+    colors: ['Marron Vieilli', 'Noir Mat'],
+    materials: ['Cuir vieilli', 'Bois Massif'],
+    dimensions: '220cm L x 98cm P x 76cm H',
+  },
+  {
+    id: '11',
+    name: 'Canapé Marocain Traditionnel', // Nom modifié
+    description: 'Un authentique canapé marocain, invitant à la convivialité avec ses assises basses, ses riches coussins brodés et ses motifs orientaux traditionnels.',
+    price: 1950.00,
+    imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Generic/155_Generic_Moroccan_Sofa/Generic_Moroccan_Sofa_1000_0001-551x551.webp',
+    category: 'Canapés',
+    style: 'Bohème',
+    rating: 4.7,
+    stock: 15,
+    colors: ['Bordeaux et Or', 'Turquoise et Argent', 'Multicolore Intense'],
+    materials: ['Velours Brodé', 'Bois de Cèdre Sculpté', 'Soie'],
+    dimensions: '270cm L x 90cm P x 72cm H',
   }
 ];
 
@@ -121,9 +163,15 @@ export const getProductById = (id: string): Product | undefined => {
   return mockProducts.find(product => product.id === id);
 };
 
-// La liste des catégories ne contient que "Canapés".
+// Liste plus complète de catégories pour les filtres.
 export const productCategories: string[] = [
-  "Canapés"
+  "Chaises",
+  "Tables",
+  "Canapés",
+  "Lits",
+  "Rangements",
+  "Luminaires",
+  "Décoration"
 ];
 
 // Conserver une liste statique de styles pour les filtres.
@@ -134,6 +182,8 @@ export const productStyles: string[] = [
   "Vintage",
   "Minimaliste",
   "Classique",
-  "Bohème"
+  "Bohème",
+  "Contemporain" // Ajouté pour plus de variété
 ];
 
+    
