@@ -9,22 +9,22 @@ import { useState, useEffect } from 'react';
 
 const slides = [
   {
-    imageSrc: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    imageAlt: "Luxurious modern green velvet sofa in a bright, minimalist living room",
-    aiHint: "luxury sofa",
+    imageSrc: "https://i.pinimg.com/736x/31/de/35/31de35d6177adac97be1df59b93e2f01.jpg",
+    imageAlt: "Luxurious modern interior scene with elegant furniture",
+    aiHint: "luxury interior",
     headline: "Experience Unrivaled Comfort.",
-    subheadline: "Discover our exclusive collection of designer sofas, crafted for ultimate relaxation and contemporary style.",
-    ctaText: "Explore Sofas",
-    ctaLink: "/products?category=Canapés",
+    subheadline: "Discover our exclusive collection of designer pieces, crafted for ultimate relaxation and contemporary style.",
+    ctaText: "Explore Collection",
+    ctaLink: "/products",
   },
   {
-    imageSrc: "https://images.unsplash.com/photo-1594026112274-a9a1f90b39a3?q=80&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    imageAlt: "Elegant king-size bed with plush bedding in a sophisticated, modern bedroom setting",
-    aiHint: "luxury bed",
+    imageSrc: "https://i.pinimg.com/736x/67/42/c9/6742c98b351f71342b092fc79fc41c9b.jpg",
+    imageAlt: "Sophisticated modern living space with designer furniture",
+    aiHint: "designer furniture",
     headline: "Sleep in Serene Luxury.",
-    subheadline: "Transform your bedroom into a sanctuary with our premium beds and opulent bedding collections.",
-    ctaText: "Discover Beds",
-    ctaLink: "/products?category=Lits",
+    subheadline: "Transform your space into a sanctuary with our premium furniture and opulent collections.",
+    ctaText: "Discover Designs",
+    ctaLink: "/products",
   },
   {
     imageSrc: "https://images.unsplash.com/photo-1503602642458-232111409258?q=80&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -61,12 +61,11 @@ export default function HeroSlideshow() {
     setCurrentIndex(slideIndex);
   };
   
-  // Optional: Auto-play functionality
   useEffect(() => {
     const timer = setTimeout(() => {
       goToNext();
-    }, 7000); // Change slide every 7 seconds
-    return () => clearTimeout(timer); // Cleanup timer on component unmount or re-render
+    }, 7000); 
+    return () => clearTimeout(timer); 
   }, [currentIndex]);
 
 
@@ -76,11 +75,11 @@ export default function HeroSlideshow() {
     <section className="relative w-full min-h-screen overflow-hidden">
       {slides.map((slide, index) => (
         <Image
-          key={slide.imageSrc} // Use a unique key for each image
+          key={slide.imageSrc} 
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
-          priority={index === currentIndex} // Prioritize loading the current slide's image
+          priority={index === currentIndex} 
           className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
           data-ai-hint={slide.aiHint}
         />

@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'i.pinimg.com', // Added Pinterest domain
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 };
