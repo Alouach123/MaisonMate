@@ -23,16 +23,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    // This effect runs only on the client after mount
     if (typeof window !== 'undefined') {
       const storedCart = localStorage.getItem('maisonmate-cart');
       if (storedCart) {
-        setCartItems(JSON.parse(storedCart));
+        try {
+          setCartItems(JSON.parse(storedCart));
+        } catch (e) {
+          console.error("Error parsing cart from localStorage", e);
+          // Optionally clear corrupted localStorage item
+          // localStorage.removeItem('maisonmate-cart');
+        }
       }
       setIsLoaded(true);
     }
   }, []);
 
   useEffect(() => {
+    // This effect runs only on the client, and only after isLoaded is true
     if (isLoaded && typeof window !== 'undefined') {
       localStorage.setItem('maisonmate-cart', JSON.stringify(cartItems));
     }
@@ -72,11 +80,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         item.id === productId ? { ...item, quantity } : item
       )
     );
-    const item = cartItems.find(i => i.id === productId);
+    const item = cartItems.find(i => i.id === productId); // Find item in the *current* cartItems for toast
     if (item) {
          toast({ title: `Quantité de ${item.name} mise à jour.`, variant: "default" });
     }
-  }, [removeFromCart, cartItems]);
+  }, [removeFromCart, cartItems]); // Added cartItems dependency for the toast message to get current name
 
   const clearCart = useCallback(() => {
     setCartItems([]);
@@ -95,10 +103,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return cartItems.some(item => item.id === productId);
   }, [cartItems]);
   
-  if (!isLoaded) {
-    return null; // Or a loading spinner, but null is fine to prevent hydration issues
-  }
-
+  // Always render children. Components consuming the context can
+  // show loading states or empty states based on the cartItems content
+  // and the isLoaded flag if needed, but the provider itself shouldn't break the tree.
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateItemQuantity, clearCart, getTotalItems, getSubtotal, isItemInCart }}>
       {children}

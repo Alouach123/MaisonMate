@@ -1,5 +1,6 @@
 
 "use client";
+import React from 'react'; // Added this line
 import Link from 'next/link';
 import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, UserPlus, Armchair, Globe, UserCircle, UserCircle2 } from 'lucide-react'; // Added UserCircle2
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { useAuth } from '@/hooks/use-auth-context';
 import { Badge } from "@/components/ui/badge";
 import CartIcon from '@/components/cart/cart-icon';
 import { toast } from '@/hooks/use-toast';
-import { ThemeToggleButton } from "./theme-toggle-button"; 
+import { ThemeToggleButton } from "./theme-toggle-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"; // Make sure cn is imported if used by Avatar components
 
 
 export default function Navbar() {
@@ -158,3 +160,4 @@ const AvatarFallback = React.forwardRef<
   />
 ));
 AvatarFallback.displayName = "AvatarFallback";
+

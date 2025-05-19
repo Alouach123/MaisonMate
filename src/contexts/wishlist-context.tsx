@@ -20,16 +20,24 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    // This effect runs only on the client after mount
     if (typeof window !== 'undefined') {
       const storedWishlist = localStorage.getItem('maisonmate-wishlist');
       if (storedWishlist) {
-        setWishlist(JSON.parse(storedWishlist));
+        try {
+          setWishlist(JSON.parse(storedWishlist));
+        } catch (e) {
+          console.error("Error parsing wishlist from localStorage", e);
+          // Optionally clear corrupted localStorage item
+          // localStorage.removeItem('maisonmate-wishlist');
+        }
       }
       setIsLoaded(true);
     }
   }, []);
 
   useEffect(() => {
+    // This effect runs only on the client, and only after isLoaded is true
     if (isLoaded && typeof window !== 'undefined') {
       localStorage.setItem('maisonmate-wishlist', JSON.stringify(wishlist));
     }
@@ -65,13 +73,13 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     toast({ title: "Wishlist cleared.", variant: "default" });
   }, []);
   
-  if (!isLoaded) {
-    return null; // Or a loading spinner, but null is fine to prevent hydration issues
-  }
-
+  // Always render children. Components consuming the context can
+  // show loading states or empty states based on the wishlist content
+  // and the isLoaded flag if needed, but the provider itself shouldn't break the tree.
   return (
     <WishlistContext.Provider value={{ wishlist, addToWishlist, removeFromWishlist, isWishlisted, clearWishlist }}>
       {children}
     </WishlistContext.Provider>
   );
 };
+
