@@ -18,7 +18,7 @@ const heroData = {
 
 export default function HeroSlideshow() {
   return (
-    <section className="relative w-full min-h-screen overflow-hidden"> {/* Changed height and removed rounded-xl shadow-2xl */}
+    <section className="relative w-full min-h-screen overflow-hidden">
       <Image
         src={heroData.imageSrc}
         alt={heroData.imageAlt}
@@ -29,7 +29,7 @@ export default function HeroSlideshow() {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent"></div>
       
-      <div className="absolute inset-0 flex items-center justify-center md:justify-start text-center md:text-left p-6 md:p-12 lg:p-16">
+      <div className="absolute inset-0 flex items-center justify-center md:justify-start text-center md:text-left px-6 pt-24 pb-6 md:px-12 md:pt-32 md:pb-12 lg:px-16 lg:pt-40 lg:pb-16">
         <div className="max-w-lg md:max-w-xl space-y-6">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight shadow-md">
             {heroData.headline}
@@ -43,12 +43,6 @@ export default function HeroSlideshow() {
               <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-          {/* Optional: Secondary CTA or video link placeholder */}
-          {/* 
-          <Button variant="outline" size="lg" className="text-white border-white/70 hover:bg-white/10 group ml-4">
-            <PlayCircle className="mr-2 h-5 w-5" /> Regarder la Vidéo
-          </Button>
-          */}
         </div>
       </div>
     </section>

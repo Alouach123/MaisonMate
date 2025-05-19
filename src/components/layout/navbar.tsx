@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Using ShadCN Avatar
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Navbar() {
   const { wishlist } = useWishlist();
@@ -70,7 +70,7 @@ export default function Navbar() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border/20 bg-background/30 backdrop-blur-lg supports-[backdrop-filter]:bg-background/20 shadow-sm">
       <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-primary hover:text-primary/80 transition-colors">
           <Armchair className="h-7 w-7" />
@@ -78,7 +78,7 @@ export default function Navbar() {
         </Link>
         <nav className="flex items-center gap-1 md:gap-2">
           {mainNavItems.map((item) => (
-            <Button key={item.label} variant="ghost" asChild className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors relative px-2 md:px-3">
+            <Button key={item.label} variant="ghost" asChild className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors relative px-2 md:px-3">
               <Link href={item.href} className="flex items-center gap-1 md:gap-1.5">
                 <item.icon className="h-4 w-4" />
                 <span className="hidden sm:inline">{item.label}</span>
@@ -131,7 +131,7 @@ export default function Navbar() {
           ) : (
             <Button variant="ghost" size="sm" asChild className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors px-2 md:px-3">
               <Link href="/auth" className="flex items-center gap-1 md:gap-1.5">
-                <LogIn className="h-4 w-4 md:mr-1.5" /> 
+                <LogIn className="h-4 w-4" /> 
                 <span className="hidden sm:inline">Authentification</span>
               </Link>
             </Button>
