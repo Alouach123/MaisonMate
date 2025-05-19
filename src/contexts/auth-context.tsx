@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true); // Start with loading true
 
   useEffect(() => {
-    setIsLoading(true);
+    // setIsLoading(true); // This was redundant as initial state is true
     const getSession = async () => {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
@@ -93,11 +93,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const isAuthenticated = !!user;
 
-  // Don't render children until initial auth state is resolved to prevent flashes of incorrect UI
-  if (isLoading && typeof window !== 'undefined' && !session) { // Check session specifically for initial load
-     return null; // Or a global loading spinner component
-  }
-
+  // Removed the problematic block that caused hydration mismatch:
+  // if (isLoading && typeof window !== 'undefined' && !session) { 
+  //    return null; 
+  // }
 
   return (
     <AuthContext.Provider value={{ user, session, isAuthenticated, isLoading, signUpUser, signInUser, signOutUser }}>
