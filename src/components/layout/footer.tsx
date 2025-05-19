@@ -1,22 +1,12 @@
 
-"use client"; // Required for onClick and useToast
+"use client"; 
 
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Globe } from 'lucide-react'; // Added Globe
-import { Button } from '@/components/ui/button'; // Added Button
-import { useToast } from '@/hooks/use-toast'; // Added useToast
+import { Facebook, Instagram, Twitter } from 'lucide-react'; 
+
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear(); // Use current year dynamically
-  const { toast } = useToast(); // Initialize toast
-
-  const handleLanguageSwitch = () => {
-    toast({
-      title: "Changement de Langue (Simulation)",
-      description: "Cette fonctionnalité est en cours de développement. Le site serait normalement affiché en anglais.",
-      variant: "default",
-    });
-  };
+  const currentYear = new Date().getFullYear(); 
 
   return (
     <footer className="border-t border-border/40 bg-background/95">
@@ -32,7 +22,7 @@ export default function Footer() {
             <ul className="space-y-1">
               <li><Link href="/products" className="hover:text-primary">Produits</Link></li>
               <li><Link href="/support" className="hover:text-primary">Support Client</Link></li>
-              <li><Link href="/admin" className="hover:text-primary">Admin</Link></li>
+              <li><Link href="/auth" className="hover:text-primary">Admin/Connexion</Link></li> {/* Updated link */}
             </ul>
           </div>
           <div>
@@ -56,13 +46,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Language Switcher Button */}
-        <div className="mt-6 text-center">
-          <Button variant="outline" size="sm" onClick={handleLanguageSwitch}>
-            <Globe className="mr-2 h-4 w-4" />
-            Passer en Anglais
-          </Button>
-        </div>
+        {/* Language Switcher Button removed from here */}
 
         <div className="mt-8 border-t border-border/30 pt-6 text-center text-xs">
           <p>MaisonMate - Conçu avec passion pour la maison.</p>
