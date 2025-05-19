@@ -327,7 +327,7 @@ export default function AuthPage() {
 
   if (isAuthContextLoading && !user) {
      return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-8"> {/* Added pt-8 */}
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20"> {/* Increased pt-8 to pt-20 */}
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="mt-4 text-muted-foreground">Chargement de l'authentification...</p>
       </div>
@@ -335,7 +335,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-8"> {/* Added pt-8 */}
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20"> {/* Increased pt-8 to pt-20 */}
       {view === 'select' && renderSelection()}
       {view === 'admin' && renderAdminLogin()}
       {view === 'userSignup' && renderUserSignUpForm()}

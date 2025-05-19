@@ -31,7 +31,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 pt-8"> {/* Added pt-8 (py-8 already exists, ensuring pt-8) */}
+    <div className="max-w-6xl mx-auto py-8 px-4 pt-20"> {/* Increased pt-8 to pt-20 */}
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div className="md:sticky md:top-24">
           <Card className="overflow-hidden shadow-xl rounded-lg">

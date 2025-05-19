@@ -70,7 +70,7 @@ export default function Navbar() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/20 bg-background/30 backdrop-blur-lg supports-[backdrop-filter]:bg-background/20 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/20 bg-background/30 backdrop-blur-lg supports-[backdrop-filter]:bg-background/20 shadow-sm">
       <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-primary hover:text-primary/80 transition-colors">
           <Armchair className="h-7 w-7" />

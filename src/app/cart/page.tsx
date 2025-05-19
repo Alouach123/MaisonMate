@@ -41,7 +41,7 @@ export default function CartPage() {
 
   if (totalItems === 0) {
     return (
-      <div className="text-center py-20 max-w-md mx-auto pt-8"> {/* Added pt-8 */}
+      <div className="text-center py-20 max-w-md mx-auto pt-20"> {/* Increased pt-8 to pt-20 */}
         <ShoppingCart className="mx-auto h-20 w-20 text-muted-foreground mb-6" />
         <h1 className="text-3xl font-bold text-foreground mb-3">Votre Panier est Vide</h1>
         <p className="text-muted-foreground mb-8">Il semble que vous n'ayez encore rien ajouté à votre panier.</p>
@@ -55,7 +55,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 pt-8"> {/* Added pt-8 (py-8 already exists) */}
+    <div className="max-w-5xl mx-auto py-8 px-4 pt-20"> {/* Increased pt-8 to pt-20 */}
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
         {/* Cart Items Section */}
         <section className="w-full lg:w-2/3 space-y-6">

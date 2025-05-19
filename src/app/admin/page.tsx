@@ -30,7 +30,7 @@ export default function AdminPage() {
 
   if (isAuthenticated === undefined) {
     return (
-      <div className="flex items-center justify-center min-h-screen pt-8"> {/* Added pt-8 */}
+      <div className="flex items-center justify-center min-h-screen pt-20"> {/* Increased pt-8 to pt-20 */}
         <div className="space-y-4 p-8 rounded-lg shadow-xl bg-card w-full max-w-md">
             <Skeleton className="h-8 w-3/4 mx-auto" />
             <Skeleton className="h-6 w-full" />
@@ -43,14 +43,14 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-         <div className="flex items-center justify-center min-h-screen pt-8"> {/* Added pt-8 */}
+         <div className="flex items-center justify-center min-h-screen pt-20"> {/* Increased pt-8 to pt-20 */}
             <p>Redirection vers la page de connexion...</p>
          </div>
     );
   }
 
   return (
-    <div className="pt-8"> {/* Added pt-8 wrapper */}
+    <div className="pt-20"> {/* Increased pt-8 to pt-20 wrapper */}
       <AdminDashboard onLogout={handleLogout} />
     </div>
   );

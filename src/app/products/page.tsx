@@ -79,8 +79,8 @@ export default function ProductsPage() {
   }, [allProducts, priceRange, selectedCategories, selectedStyles]);
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8"> {/* Added container and padding here */}
-      <div className="flex flex-col md:flex-row gap-8 lg:gap-12"> {/* Removed pt-8, already on parent */}
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20"> {/* Increased pt-8 to pt-20 */}
+      <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
         <aside className="w-full md:w-72 lg:w-80">
           <FilterSidebar
             priceRange={priceRange}

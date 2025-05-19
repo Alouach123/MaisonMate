@@ -25,7 +25,7 @@ const faqItems = [
 
 export default function SupportPage() {
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 pt-8"> {/* Added pt-8 (py-8 already exists) */}
+    <div className="max-w-4xl mx-auto py-8 px-4 pt-20"> {/* Increased pt-8 to pt-20 */}
       <div className="text-center mb-12">
         <LifeBuoy className="mx-auto h-16 w-16 text-primary mb-4" />
         <h1 className="text-4xl font-bold text-foreground">Customer Support</h1>
