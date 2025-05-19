@@ -1,9 +1,23 @@
 
+"use client"; // Required for onClick and useToast
+
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Globe } from 'lucide-react'; // Added Globe
+import { Button } from '@/components/ui/button'; // Added Button
+import { useToast } from '@/hooks/use-toast'; // Added useToast
 
 export default function Footer() {
   const currentYear = new Date().getFullYear(); // Use current year dynamically
+  const { toast } = useToast(); // Initialize toast
+
+  const handleLanguageSwitch = () => {
+    toast({
+      title: "Changement de Langue (Simulation)",
+      description: "Cette fonctionnalité est en cours de développement. Le site serait normalement affiché en anglais.",
+      variant: "default",
+    });
+  };
+
   return (
     <footer className="border-t border-border/40 bg-background/95">
       <div className="container mx-auto px-4 py-8 text-sm text-muted-foreground">
@@ -41,6 +55,15 @@ export default function Footer() {
             </p>
           </div>
         </div>
+
+        {/* Language Switcher Button */}
+        <div className="mt-6 text-center">
+          <Button variant="outline" size="sm" onClick={handleLanguageSwitch}>
+            <Globe className="mr-2 h-4 w-4" />
+            Passer en Anglais
+          </Button>
+        </div>
+
         <div className="mt-8 border-t border-border/30 pt-6 text-center text-xs">
           <p>MaisonMate - Conçu avec passion pour la maison.</p>
         </div>
