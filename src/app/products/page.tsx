@@ -1,16 +1,32 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react'; // Ajout de useEffect
+import { useSearchParams } from 'next/navigation'; // Ajout de useSearchParams
 import ProductCard from '@/components/products/product-card';
 import FilterSidebar from '@/components/products/filter-sidebar';
 import { mockProducts } from '@/data/mock-products';
 import type { Product } from '@/types';
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams(); // Initialiser pour lire les paramètres de l'URL
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+
+  // Effet pour lire la catégorie depuis l'URL et l'appliquer comme filtre
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl) {
+      // Décode le nom de la catégorie (au cas où il contiendrait des espaces encodés, etc.)
+      // et le définit comme la seule catégorie sélectionnée.
+      setSelectedCategories([decodeURIComponent(categoryFromUrl)]);
+    }
+    // Nous ne voulons exécuter cet effet qu'une seule fois au montage initial si la catégorie
+    // n'est pas dans l'URL ou si l'utilisateur navigue depuis une autre page.
+    // Si l'utilisateur modifie les filtres manuellement, ce useEffect ne doit pas écraser ses sélections.
+    // Cependant, si `searchParams` change (navigation vers la même page avec de nouveaux params), il doit s'exécuter.
+  }, [searchParams]);
 
   const handlePriceRangeChange = useCallback((value: [number, number]) => {
     setPriceRange(value);
@@ -32,6 +48,9 @@ export default function ProductsPage() {
     setPriceRange([0, 10000]);
     setSelectedCategories([]);
     setSelectedStyles([]);
+    // Optionnel : pour supprimer le paramètre de l'URL lors de l'effacement des filtres,
+    // il faudrait utiliser `router.push('/products')` du hook `useRouter`.
+    // Pour l'instant, nous effaçons juste l'état.
   }, []);
 
   const filteredProducts = mockProducts.filter(product => {
@@ -72,7 +91,7 @@ export default function ProductsPage() {
               Notre Collection
             </h2>
             <p className="mt-2 text-lg text-muted-foreground">
-              Parcourez nos articles sélectionnés avec soin.
+              Parcourez nos articles sélectionnés avec soin. ({filteredProducts.length} produit{filteredProducts.length > 1 ? 's' : ''} trouvé{filteredProducts.length > 1 ? 's' : ''})
             </p>
         </div>
         
