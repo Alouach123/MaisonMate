@@ -1,7 +1,7 @@
 
 "use client";
 import Link from 'next/link';
-import { LayoutGrid, Heart, LifeBuoy, ShieldCheck, LogIn, LogOut, UserPlus, Armchair } from 'lucide-react'; // Ajout de Armchair, suppression de Feather
+import { LayoutGrid, Heart, LifeBuoy, ShieldCheck, LogIn, LogOut, UserPlus, Armchair } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import { useAuth } from '@/hooks/use-auth-context';
@@ -15,7 +15,7 @@ export default function Navbar() {
   const { isAuthenticated, signUp, signIn, logout } = useAuth();
 
   const mainNavItems = [
-    { href: '/', label: 'Produits', icon: LayoutGrid },
+    { href: '/products', label: 'Produits', icon: LayoutGrid }, // Changed href from / to /products
     { href: '/wishlist', label: 'Favoris', icon: Heart, badgeCount: wishlist.length > 0 ? wishlist.length : undefined },
     { href: '/support', label: 'Support', icon: LifeBuoy },
     { href: '/admin', label: 'Admin', icon: ShieldCheck },
@@ -33,10 +33,10 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-primary hover:text-primary/80 transition-colors">
-          <Armchair className="h-7 w-7" /> {/* Remplacement de Feather par Armchair */}
+          <Armchair className="h-7 w-7" />
           <span className="font-bold">MaisonMate</span>
         </Link>
-        <nav className="flex items-center gap-1 md:gap-2"> {/* Adjusted gap here */}
+        <nav className="flex items-center gap-1 md:gap-2">
           {mainNavItems.map((item) => (
             <Button key={item.label} variant="ghost" asChild className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors relative px-2 md:px-3">
               <Link href={item.href} className="flex items-center gap-1 md:gap-1.5">
@@ -51,9 +51,8 @@ export default function Navbar() {
             </Button>
           ))}
           <CartIcon />
-          <div className="h-6 border-l border-border/70 mx-1 md:mx-2"></div> {/* Small separator */}
+          <div className="h-6 border-l border-border/70 mx-1 md:mx-2"></div>
           
-          {/* Auth Buttons and Theme Toggle */}
           {isAuthenticated ? (
             <>
               <span className="text-sm text-foreground/90 ml-1 md:ml-2 hidden md:inline">Bienvenue !</span>

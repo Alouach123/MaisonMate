@@ -22,7 +22,7 @@ export default function WelcomeHero() {
               Des meubles uniques aux accessoires décoratifs, trouvez l'inspiration pour chaque pièce de votre maison.
             </p>
             <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground group mt-2 sm:mt-4">
-              <Link href="#products-section" className="flex items-center">
+              <Link href="/products" className="flex items-center"> {/* Changed href to /products */}
                 Explorer la Collection
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>
