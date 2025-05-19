@@ -8,7 +8,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-sans">
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 pb-8"> {/* Changed py-8 to pb-8 */}
+      <main className="flex-grow"> {/* Removed container mx-auto and padding classes */}
         {children}
       </main>
       <Footer />

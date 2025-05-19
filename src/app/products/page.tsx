@@ -79,52 +79,54 @@ export default function ProductsPage() {
   }, [allProducts, priceRange, selectedCategories, selectedStyles]);
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 lg:gap-12 pt-8"> {/* Added pt-8 */}
-      <aside className="w-full md:w-72 lg:w-80">
-        <FilterSidebar
-          priceRange={priceRange}
-          onPriceRangeChange={handlePriceRangeChange}
-          selectedCategories={selectedCategories}
-          onCategoryChange={handleCategoryChange}
-          selectedStyles={selectedStyles}
-          onStyleChange={handleStyleChange}
-          onClearFilters={handleClearFilters}
-          availableCategories={productCategories}
-          availableStyles={productStyles}
-        />
-      </aside>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8"> {/* Added container and padding here */}
+      <div className="flex flex-col md:flex-row gap-8 lg:gap-12"> {/* Removed pt-8, already on parent */}
+        <aside className="w-full md:w-72 lg:w-80">
+          <FilterSidebar
+            priceRange={priceRange}
+            onPriceRangeChange={handlePriceRangeChange}
+            selectedCategories={selectedCategories}
+            onCategoryChange={handleCategoryChange}
+            selectedStyles={selectedStyles}
+            onStyleChange={handleStyleChange}
+            onClearFilters={handleClearFilters}
+            availableCategories={productCategories}
+            availableStyles={productStyles}
+          />
+        </aside>
 
-      <section id="products-section" className="flex-1">
-        <div className="mb-6 text-center lg:text-left">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Notre Collection
-          </h2>
-          <p className="mt-2 text-lg text-muted-foreground">
-            Parcourez nos articles sélectionnés avec soin. ({isLoading ? "Chargement..." : `${filteredProducts.length} produit${filteredProducts.length !== 1 ? 's' : ''} trouvé${filteredProducts.length !== 1 ? 's' : ''}`})
-          </p>
-        </div>
-        
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="h-[224px] w-full rounded-lg" />
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-8 w-1/3" />
-              </div>
-            ))}
+        <section id="products-section" className="flex-1">
+          <div className="mb-6 text-center lg:text-left">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Notre Collection
+            </h2>
+            <p className="mt-2 text-lg text-muted-foreground">
+              Parcourez nos articles sélectionnés avec soin. ({isLoading ? "Chargement..." : `${filteredProducts.length} produit${filteredProducts.length !== 1 ? 's' : ''} trouvé${filteredProducts.length !== 1 ? 's' : ''}`})
+            </p>
           </div>
-        ) : filteredProducts.length === 0 ? (
-          <p className="col-span-full text-center text-muted-foreground py-10">Aucun produit ne correspond à vos critères.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
-      </section>
+          
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="h-[224px] w-full rounded-lg" />
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-8 w-1/3" />
+                </div>
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <p className="col-span-full text-center text-muted-foreground py-10">Aucun produit ne correspond à vos critères.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredProducts.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
