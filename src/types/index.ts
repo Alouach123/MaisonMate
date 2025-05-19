@@ -1,23 +1,45 @@
 
 import { z } from 'zod';
+import type { ObjectId } from 'mongodb';
 
-export interface Product {
-  id: string;
+// Interface for data coming from MongoDB (includes _id)
+export interface ProductDocument {
+  _id: ObjectId;
   name: string;
   description: string;
   price: number;
   imageUrl: string;
-  category: string; // e.g., "Sofas", "Chairs", "Tables"
-  style?: string; // e.g., "Modern", "Classic", "Minimalist"
-  rating?: number; // Optional rating 1-5
-  stock?: number; // Optional stock count
-  colors?: string[]; // Available colors
-  materials?: string[]; // E.g. "Wood", "Metal", "Fabric"
-  dimensions?: string; // E.g. "120cm x 80cm x 75cm"
+  category: string;
+  style?: string;
+  rating?: number;
+  stock?: number;
+  colors?: string[];
+  materials?: string[];
+  dimensions?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// Interface for Product used in the application (maps _id to id string)
+export interface Product {
+  id: string; // Changed from _id: ObjectId
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+  style?: string;
+  rating?: number;
+  stock?: number;
+  colors?: string[];
+  materials?: string[];
+  dimensions?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface WishlistItem extends Product {
-  addedAt: string; // ISO date string
+  addedAt: string; 
 }
 
 export interface CartItem extends Product {
@@ -31,8 +53,9 @@ export interface StyleSuggestion {
   reason?: string;
 }
 
+// Zod schema for product form data and validation
 export const ProductSchema = z.object({
-  id: z.string().optional(), // Optional: will be generated for new products or present for existing
+  id: z.string().optional(), // id is a string in the app, will be mapped to _id for DB ops
   name: z.string().min(3, { message: "Le nom doit contenir au moins 3 caractères." }),
   description: z.string().min(10, { message: "La description doit contenir au moins 10 caractères." }),
   price: z.coerce.number().positive({ message: "Le prix doit être un nombre positif." }),
@@ -42,14 +65,22 @@ export const ProductSchema = z.object({
   rating: z.coerce.number().min(0).max(5).optional().nullable(),
   stock: z.coerce.number().int().min(0).optional().nullable(),
   colors: z.preprocess(
-    (val) => (typeof val === 'string' && val.trim() !== '' ? val.split(',').map(s => s.trim()) : []),
+    (val) => (typeof val === 'string' && val.trim() !== '' ? val.split(',').map(s => s.trim()).filter(Boolean) : (Array.isArray(val) ? val : [])),
     z.array(z.string()).optional()
   ),
   materials: z.preprocess(
-    (val) => (typeof val === 'string' && val.trim() !== '' ? val.split(',').map(s => s.trim()) : []),
+    (val) => (typeof val === 'string' && val.trim() !== '' ? val.split(',').map(s => s.trim()).filter(Boolean) : (Array.isArray(val) ? val : [])),
     z.array(z.string()).optional()
   ),
   dimensions: z.string().optional(),
 });
 
 export type ProductFormData = z.infer<typeof ProductSchema>;
+
+// Helper function to transform ProductDocument from DB to Product for app use
+export function fromProductDocument(doc: ProductDocument): Product {
+  return {
+    ...doc,
+    id: doc._id.toString(), // Convert ObjectId to string
+  };
+}

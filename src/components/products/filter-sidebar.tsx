@@ -1,13 +1,11 @@
 
 "use client";
-// Removed useState as state is now managed by HomePage
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-// Input is not used directly for filtering, Slider is used for price
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { productCategories, productStyles } from '@/data/mock-products';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Filter, X } from 'lucide-react';
 
@@ -19,6 +17,8 @@ interface FilterSidebarProps {
   selectedStyles: string[];
   onStyleChange: (style: string) => void;
   onClearFilters: () => void;
+  availableCategories: string[]; // Added prop for categories
+  availableStyles: string[]; // Added prop for styles
 }
 
 export default function FilterSidebar({
@@ -28,9 +28,10 @@ export default function FilterSidebar({
   onCategoryChange,
   selectedStyles,
   onStyleChange,
-  onClearFilters
+  onClearFilters,
+  availableCategories, // Use passed categories
+  availableStyles    // Use passed styles
 }: FilterSidebarProps) {
-  // Local state is removed, props are used directly.
 
   return (
     <Card className="shadow-lg rounded-lg sticky top-20">
@@ -40,14 +41,13 @@ export default function FilterSidebar({
           Filter Products
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 space-y-6"> {/* Restored space-y-6 */}
-        {/* Removed ScrollArea wrapper */}
+      <CardContent className="p-4 space-y-6">
         <Accordion type="multiple" defaultValue={['category', 'price', 'style']} className="w-full">
           
           <AccordionItem value="category">
             <AccordionTrigger className="text-md font-medium">Category</AccordionTrigger>
-            <AccordionContent className="space-y-2 pt-2">
-              {productCategories.map(category => (
+            <AccordionContent className="space-y-2 pt-2 max-h-60 overflow-y-auto">
+              {availableCategories.map(category => (
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox
                     id={`cat-${category}`}
@@ -82,11 +82,11 @@ export default function FilterSidebar({
             </AccordionContent>
           </AccordionItem>
           
-          {productStyles.length > 0 && (
+          {availableStyles.length > 0 && (
             <AccordionItem value="style">
               <AccordionTrigger className="text-md font-medium">Style</AccordionTrigger>
-              <AccordionContent className="space-y-2 pt-2">
-                {productStyles.map(style => (
+              <AccordionContent className="space-y-2 pt-2 max-h-60 overflow-y-auto">
+                {availableStyles.map(style => (
                   <div key={style} className="flex items-center space-x-2">
                     <Checkbox
                       id={`style-${style}`}
@@ -107,7 +107,6 @@ export default function FilterSidebar({
         <Button onClick={onClearFilters} variant="outline" className="w-full">
           <X className="mr-2 h-4 w-4" /> Clear Filters
         </Button>
-        {/* End of removed ScrollArea wrapper */}
       </CardContent>
     </Card>
   );
