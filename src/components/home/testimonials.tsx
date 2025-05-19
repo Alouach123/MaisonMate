@@ -8,27 +8,27 @@ import { Star } from 'lucide-react';
 
 const testimonials = [
   {
-    name: "Sophie L.",
-    avatarFallback: "SL",
+    name: "Fatima Z.",
+    avatarFallback: "FZ",
     // Using Unsplash for placeholder avatar
     avatarImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&h=150&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    location: "Paris, France",
+    location: "Casablanca, Maroc",
     rating: 5,
     quote: "J'ai trouvé le canapé parfait pour mon salon chez MaisonMate. La qualité est incroyable et le service client était au top !"
   },
   {
-    name: "Ahmed B.",
-    avatarFallback: "AB",
+    name: "Youssef A.",
+    avatarFallback: "YA",
     avatarImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&h=150&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    location: "Lyon, France",
+    location: "Rabat, Maroc",
     rating: 5,
     quote: "Ma nouvelle table à manger est magnifique. Le processus de commande était simple et la livraison rapide. Je recommande vivement."
   },
   {
-    name: "Chloé M.",
-    avatarFallback: "CM",
+    name: "Amina K.",
+    avatarFallback: "AK",
     avatarImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&h=150&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    location: "Marseille, France",
+    location: "Marrakech, Maroc",
     rating: 4,
     quote: "Beaucoup de choix et des designs très sympas. J'ai redécoré ma chambre et je suis ravie du résultat. Juste un petit retard de livraison."
   },
