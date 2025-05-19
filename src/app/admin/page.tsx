@@ -18,8 +18,8 @@ export default function AdminPage() {
       setIsAuthenticated(true);
     } else {
       // If not authenticated, redirect to the new auth page for admin login
+      setIsAuthenticated(false); // Explicitly set to false before redirecting
       router.replace('/auth'); 
-      //setIsAuthenticated(false); // Not strictly needed as redirect will happen
     }
   }, [router]);
 
@@ -42,12 +42,8 @@ export default function AdminPage() {
     );
   }
 
-  // If isAuthenticated is false (shouldn't happen if redirect works, but as a fallback)
-  // or if redirection is in progress, this condition might briefly be met.
-  // The main gatekeeping is now the redirect.
   if (!isAuthenticated) {
-    // This content won't be shown if redirection is successful and quick.
-    // It acts as a fallback or if the redirect hasn't completed yet.
+    // This content might be briefly shown if redirection is not instantaneous.
     return (
          <div className="flex items-center justify-center min-h-screen">
             <p>Redirection vers la page de connexion...</p>
