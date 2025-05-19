@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import AdminDashboard from '@/components/admin/admin-dashboard';
-import { useRouter } from 'next/navigation'; // Import useRouter for redirection
+import { useRouter } from 'next/navigation'; 
 import { Skeleton } from '@/components/ui/skeleton'; 
 
 const ADMIN_AUTH_KEY = 'maisonmate-admin-auth';
@@ -17,8 +17,7 @@ export default function AdminPage() {
     if (storedAuth === 'true') {
       setIsAuthenticated(true);
     } else {
-      // If not authenticated, redirect to the new auth page for admin login
-      setIsAuthenticated(false); // Explicitly set to false before redirecting
+      setIsAuthenticated(false); 
       router.replace('/auth'); 
     }
   }, [router]);
@@ -26,12 +25,12 @@ export default function AdminPage() {
   const handleLogout = useCallback(() => {
     localStorage.removeItem(ADMIN_AUTH_KEY);
     setIsAuthenticated(false);
-    router.push('/auth'); // Redirect to auth page on logout
+    router.push('/auth'); 
   }, [router]);
 
   if (isAuthenticated === undefined) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen pt-8"> {/* Added pt-8 */}
         <div className="space-y-4 p-8 rounded-lg shadow-xl bg-card w-full max-w-md">
             <Skeleton className="h-8 w-3/4 mx-auto" />
             <Skeleton className="h-6 w-full" />
@@ -43,13 +42,16 @@ export default function AdminPage() {
   }
 
   if (!isAuthenticated) {
-    // This content might be briefly shown if redirection is not instantaneous.
     return (
-         <div className="flex items-center justify-center min-h-screen">
+         <div className="flex items-center justify-center min-h-screen pt-8"> {/* Added pt-8 */}
             <p>Redirection vers la page de connexion...</p>
          </div>
     );
   }
 
-  return <AdminDashboard onLogout={handleLogout} />;
+  return (
+    <div className="pt-8"> {/* Added pt-8 wrapper */}
+      <AdminDashboard onLogout={handleLogout} />
+    </div>
+  );
 }

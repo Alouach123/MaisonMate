@@ -4,10 +4,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, PlayCircle } from 'lucide-react'; // PlayCircle for potential video down the line
-
-// TODO: Implement actual slideshow logic if needed (e.g., using Embla Carousel, Swiper.js)
-// For now, this is a static hero section.
+import { ChevronRight, PlayCircle } from 'lucide-react'; 
 
 const heroData = {
   imageSrc: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -21,7 +18,7 @@ const heroData = {
 
 export default function HeroSlideshow() {
   return (
-    <section className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden rounded-xl shadow-2xl">
+    <section className="relative w-full min-h-screen overflow-hidden"> {/* Changed height and removed rounded-xl shadow-2xl */}
       <Image
         src={heroData.imageSrc}
         alt={heroData.imageAlt}

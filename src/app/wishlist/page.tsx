@@ -11,12 +11,12 @@ export default function WishlistPage() {
 
   if (wishlist.length === 0) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20 pt-8"> {/* Added pt-8 (py-20 already exists) */}
         <HeartCrack className="mx-auto h-20 w-20 text-muted-foreground mb-6" />
         <h1 className="text-3xl font-bold text-foreground mb-3">Your Wishlist is Empty</h1>
         <p className="text-muted-foreground mb-8">Looks like you haven't added any items to your wishlist yet.</p>
         <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/products" className="flex items-center gap-2"> {/* Changed link to /products */}
             <ShoppingBag className="h-5 w-5" />
             Start Shopping
           </Link>
@@ -26,7 +26,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto py-8 px-4 pt-8"> {/* Added pt-8 (py-8 already exists) */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-primary">Your Wishlist ({wishlist.length})</h1>
         {wishlist.length > 0 && (

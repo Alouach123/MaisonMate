@@ -6,9 +6,9 @@ import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/products/product-card';
 import FilterSidebar from '@/components/products/filter-sidebar';
 import type { Product } from '@/types';
-import { getProductsAction } from '@/app/admin/actions'; // Using admin action to fetch products
+import { getProductsAction } from '@/app/admin/actions'; 
 import { Skeleton } from '@/components/ui/skeleton';
-import { productCategories, productStyles } from '@/data/mock-products'; // Keep for filter options
+import { productCategories, productStyles } from '@/data/mock-products'; 
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
@@ -30,18 +30,16 @@ export default function ProductsPage() {
     async function loadProducts() {
       setIsLoading(true);
       try {
-        // Fetch all products. Category filtering from URL is handled by selectedCategories state.
         const productsFromDb = await getProductsAction();
         setAllProducts(productsFromDb);
       } catch (error) {
         console.error("Failed to load products:", error);
-        // Handle error state if necessary
       } finally {
         setIsLoading(false);
       }
     }
     loadProducts();
-  }, []); // Load products once on mount
+  }, []); 
 
   const handlePriceRangeChange = useCallback((value: [number, number]) => {
     setPriceRange(value);
@@ -81,7 +79,7 @@ export default function ProductsPage() {
   }, [allProducts, priceRange, selectedCategories, selectedStyles]);
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+    <div className="flex flex-col md:flex-row gap-8 lg:gap-12 pt-8"> {/* Added pt-8 */}
       <aside className="w-full md:w-72 lg:w-80">
         <FilterSidebar
           priceRange={priceRange}
@@ -91,8 +89,6 @@ export default function ProductsPage() {
           selectedStyles={selectedStyles}
           onStyleChange={handleStyleChange}
           onClearFilters={handleClearFilters}
-          // Pass static categories and styles for filter options
-          // These are now sourced from mock-products.ts as static lists
           availableCategories={productCategories}
           availableStyles={productStyles}
         />

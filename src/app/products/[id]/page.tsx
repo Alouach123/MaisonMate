@@ -7,15 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Star, Palette, Package, Ruler } from 'lucide-react';
 import AddToWishlistButton from '@/components/products/add-to-wishlist-button';
 import AddToCartButton from '@/components/products/add-to-cart-button';
-import { getProductByIdAction } from '@/app/admin/actions'; // Using action to fetch product
+import { getProductByIdAction } from '@/app/admin/actions'; 
 
 interface ProductDetailPageProps {
   params: { id: string };
 }
-
-// We can't use generateStaticParams easily with dynamic DB data without knowing all IDs beforehand.
-// For a DB, Next.js will typically render these pages on demand or through ISR.
-// export async function generateStaticParams() { ... }
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const product = await getProductByIdAction(params.id);
@@ -35,7 +31,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4">
+    <div className="max-w-6xl mx-auto py-8 px-4 pt-8"> {/* Added pt-8 (py-8 already exists, ensuring pt-8) */}
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div className="md:sticky md:top-24">
           <Card className="overflow-hidden shadow-xl rounded-lg">

@@ -22,7 +22,6 @@ interface PasswordValidation {
   uppercase: boolean;
   lowercase: boolean;
   number: boolean;
-  // TDO:  specialChar: boolean; // Optional: add special character requirement
 }
 
 const initialPasswordValidation: PasswordValidation = {
@@ -30,7 +29,6 @@ const initialPasswordValidation: PasswordValidation = {
   uppercase: false,
   lowercase: false,
   number: false,
-  // specialChar: false,
 };
 
 const validatePassword = (password: string): PasswordValidation => {
@@ -39,18 +37,16 @@ const validatePassword = (password: string): PasswordValidation => {
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /[0-9]/.test(password),
-    // specialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password),
   };
 };
 
 const getPasswordStrength = (validation: PasswordValidation): number => {
   let strength = 0;
-  if (validation.minLength) strength += 25; // Base for length
+  if (validation.minLength) strength += 25; 
   if (validation.uppercase) strength += 20;
   if (validation.lowercase) strength += 20;
   if (validation.number) strength += 20;
-  // if (validation.specialChar) strength += 15; // Optional
-  return Math.min(100, strength > 25 ? strength : (validation.minLength ? 25: 0) ); // Ensure minimum of 25 if length met
+  return Math.min(100, strength > 25 ? strength : (validation.minLength ? 25: 0) ); 
 };
 
 export default function AuthPage() {
@@ -203,10 +199,10 @@ export default function AuthPage() {
   );
 
   const renderPasswordStrength = () => {
-    if (!password) return null; // Don't show if password field is empty
-    let strengthColor = 'bg-destructive'; // Red
-    if (passwordStrength > 70) strengthColor = 'bg-green-500'; // Green
-    else if (passwordStrength > 40) strengthColor = 'bg-yellow-500'; // Yellow
+    if (!password) return null; 
+    let strengthColor = 'bg-destructive'; 
+    if (passwordStrength > 70) strengthColor = 'bg-green-500'; 
+    else if (passwordStrength > 40) strengthColor = 'bg-yellow-500'; 
 
     return (
       <div className="mt-2 space-y-1">
@@ -216,7 +212,6 @@ export default function AuthPage() {
           <li className={passwordValidation.uppercase ? 'text-green-600' : 'text-destructive'}>Une lettre majuscule</li>
           <li className={passwordValidation.lowercase ? 'text-green-600' : 'text-destructive'}>Une lettre minuscule</li>
           <li className={passwordValidation.number ? 'text-green-600' : 'text-destructive'}>Un chiffre</li>
-          {/* <li className={passwordValidation.specialChar ? 'text-green-600' : 'text-destructive'}>Un caractère spécial (optionnel)</li> */}
         </ul>
       </div>
     );
@@ -332,7 +327,7 @@ export default function AuthPage() {
 
   if (isAuthContextLoading && !user) {
      return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-8"> {/* Added pt-8 */}
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="mt-4 text-muted-foreground">Chargement de l'authentification...</p>
       </div>
@@ -340,7 +335,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-8"> {/* Added pt-8 */}
       {view === 'select' && renderSelection()}
       {view === 'admin' && renderAdminLogin()}
       {view === 'userSignup' && renderUserSignUpForm()}

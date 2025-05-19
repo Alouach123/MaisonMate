@@ -3,16 +3,18 @@
 
 import CartItemCard from '@/components/cart/cart-item-card';
 import { useCart } from '@/hooks/use-cart-context';
-import { useAuth } from '@/hooks/use-auth-context'; // Import useAuth
+import { useAuth } from '@/hooks/use-auth-context'; 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { ShoppingCart, Trash2, CreditCard, ArrowRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 export default function CartPage() {
   const { cartItems, clearCart, getSubtotal, getTotalItems } = useCart();
-  const { isAuthenticated, signIn } = useAuth(); // Utilise signIn au lieu de login
+  const { isAuthenticated } = useAuth(); 
+  const router = useRouter(); // Initialize router
   const subtotal = getSubtotal();
   const totalItems = getTotalItems();
 
@@ -23,8 +25,8 @@ export default function CartPage() {
         description: "Veuillez vous connecter ou vous inscrire pour continuer.",
         variant: "default",
         action: ( 
-          <Button onClick={signIn} size="sm"> {/* Appelle signIn */}
-            Se connecter
+          <Button onClick={() => router.push('/auth')} size="sm"> {/* Use router to navigate */}
+            Se connecter / S'inscrire
           </Button>
         ),
       });
@@ -39,12 +41,12 @@ export default function CartPage() {
 
   if (totalItems === 0) {
     return (
-      <div className="text-center py-20 max-w-md mx-auto">
+      <div className="text-center py-20 max-w-md mx-auto pt-8"> {/* Added pt-8 */}
         <ShoppingCart className="mx-auto h-20 w-20 text-muted-foreground mb-6" />
         <h1 className="text-3xl font-bold text-foreground mb-3">Votre Panier est Vide</h1>
         <p className="text-muted-foreground mb-8">Il semble que vous n'ayez encore rien ajouté à votre panier.</p>
         <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/products" className="flex items-center gap-2"> {/* Changed link to /products */}
             <ArrowRight className="h-5 w-5 transform rotate-180" /> Continuer vos achats
           </Link>
         </Button>
@@ -53,7 +55,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4">
+    <div className="max-w-5xl mx-auto py-8 px-4 pt-8"> {/* Added pt-8 (py-8 already exists) */}
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
         {/* Cart Items Section */}
         <section className="w-full lg:w-2/3 space-y-6">
@@ -99,7 +101,7 @@ export default function CartPage() {
                 <CreditCard className="mr-2 h-5 w-5" /> Passer à la caisse
               </Button>
               <Button asChild variant="outline" className="w-full">
-                  <Link href="/" className="flex items-center gap-2">
+                  <Link href="/products" className="flex items-center gap-2"> {/* Changed link to /products */}
                      <ArrowRight className="h-4 w-4 transform rotate-180" /> Continuer vos achats
                   </Link>
               </Button>
