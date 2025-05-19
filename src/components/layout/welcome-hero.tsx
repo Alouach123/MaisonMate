@@ -1,6 +1,9 @@
 
 "use client";
 
+// This component is being replaced by HeroSlideshow.tsx for the new homepage design.
+// Kept for reference or if you want to revert parts of it.
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -22,7 +25,7 @@ export default function WelcomeHero() {
               Des meubles uniques aux accessoires décoratifs, trouvez l'inspiration pour chaque pièce de votre maison.
             </p>
             <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground group mt-2 sm:mt-4">
-              <Link href="/products" className="flex items-center"> {/* Changed href to /products */}
+              <Link href="/products" className="flex items-center">
                 Explorer la Collection
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>

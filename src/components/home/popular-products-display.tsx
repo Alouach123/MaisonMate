@@ -1,14 +1,18 @@
 
 "use client";
 
+// This component can be reused for any product grid display if needed.
+// For the homepage, BestSellerProducts.tsx is now used.
+// If you want a generic grid, this is a good starting point.
+
 import type { Product } from '@/types';
 import ProductCard from '@/components/products/product-card';
 
-interface PopularProductsDisplayProps {
+interface ProductGridDisplayProps {
   products: Product[];
 }
 
-export default function PopularProductsDisplay({ products }: PopularProductsDisplayProps) {
+export default function ProductGridDisplay({ products }: ProductGridDisplayProps) {
   if (!products || products.length === 0) {
     return null; 
   }
