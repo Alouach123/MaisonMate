@@ -1,9 +1,12 @@
 
 "use client";
 
+// This component is being replaced by PopularProductsDisplay
+// Kept for reference or if you want to revert, but it's no longer used by page.tsx
+
 import { useState, useEffect } from 'react';
 import type { Product } from '@/types';
-import { getProductsAction } from '@/app/admin/actions'; // Using admin action
+import { getProductsAction } from '@/app/admin/actions'; 
 import ProductCard from '@/components/products/product-card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -20,8 +23,6 @@ export default function PopularProducts() {
     async function fetchPopularProducts() {
       setIsLoading(true);
       try {
-        // Fetch all products and take the first few, or implement specific logic later
-        // For now, just taking the first few as "popular"
         const allProducts = await getProductsAction();
         setPopularProducts(allProducts.slice(0, POPULAR_PRODUCTS_COUNT));
       } catch (error) {
@@ -84,3 +85,4 @@ export default function PopularProducts() {
     </section>
   );
 }
+

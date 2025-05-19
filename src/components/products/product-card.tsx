@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Heart, Eye, Star, ShoppingCart } from 'lucide-react';
 import { useWishlist } from '@/hooks/use-wishlist-context';
-import AddToCartButton from './add-to-cart-button'; // Import AddToCartButton
+import AddToCartButton from './add-to-cart-button'; 
 
 interface ProductCardProps {
   product: Product;
@@ -17,7 +17,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist();
   const wishlisted = isWishlisted(product.id);
 
-  const handleWishlistToggle = () => {
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (wishlisted) {
       removeFromWishlist(product.id);
     } else {
@@ -36,58 +37,59 @@ export default function ProductCard({ product }: ProductCardProps) {
   const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
 
   return (
-    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full rounded-lg border border-border/60">
+    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full rounded-lg border border-border/60 group">
       <CardHeader className="p-0 relative">
-        <Link href={`/products/${product.id}`} aria-label={`View details for ${product.name}`}>
+        <Link href={`/products/${product.id}`} aria-label={`View details for ${product.name}`} className="block aspect-[4/3] relative overflow-hidden">
           <Image
             src={product.imageUrl}
             alt={product.name}
-            width={600}
-            height={400}
-            className="w-full h-56 object-cover transition-transform duration-300 hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
             data-ai-hint={aiHint}
           />
         </Link>
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 bg-card/70 hover:bg-card rounded-full"
+          className="absolute top-2 right-2 bg-card/70 hover:bg-card rounded-full h-8 w-8 z-10"
           onClick={handleWishlistToggle}
-          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={wishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris'}
         >
-          <Heart className={`h-5 w-5 ${wishlisted ? 'fill-destructive text-destructive' : 'text-foreground/70'}`} />
+          <Heart className={`h-4 w-4 ${wishlisted ? 'fill-destructive text-destructive' : 'text-foreground/70'}`} />
         </Button>
       </CardHeader>
-      <CardContent className="p-4 flex-grow">
+      <CardContent className="p-3 flex-grow">
         <Link href={`/products/${product.id}`}>
-            <CardTitle className="text-lg font-semibold hover:text-primary transition-colors truncate" title={product.name}>
+            <CardTitle className="text-sm sm:text-base font-semibold hover:text-primary transition-colors truncate" title={product.name}>
             {product.name}
             </CardTitle>
         </Link>
-        <CardDescription className="text-sm text-muted-foreground mt-1 h-10 overflow-hidden text-ellipsis">
-          {product.description}
-        </CardDescription>
+        {/* Optional: Could add a very short description or style here if space allows */}
+        {/* <CardDescription className="text-xs text-muted-foreground mt-1 h-8 overflow-hidden text-ellipsis">
+          {product.category} {product.style ? `- ${product.style}`: ''}
+        </CardDescription> */}
         {product.rating && (
-          <div className="flex items-center mt-2">
+          <div className="flex items-center mt-1.5">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating!) ? 'fill-accent text-accent' : 'text-muted-foreground/50'}`} />
+              <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(product.rating!) ? 'fill-accent text-accent' : 'text-muted-foreground/40'}`} />
             ))}
-            <span className="ml-1.5 text-xs text-muted-foreground">({product.rating.toFixed(1)})</span>
+            <span className="ml-1 text-xs text-muted-foreground">({product.rating.toFixed(1)})</span>
           </div>
         )}
       </CardContent>
-      <CardFooter className="p-4 flex justify-between items-center border-t pt-4">
-        <p className="text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
-        <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/products/${product.id}`} className="flex items-center gap-1.5">
+      <CardFooter className="p-3 flex flex-col items-start gap-2 border-t pt-3">
+        <p className="text-base sm:text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
+        <div className="w-full flex gap-2">
+           <AddToCartButton product={product} size="sm" variant="default" className="flex-grow" showText={true} />
+           <Button asChild variant="outline" size="icon" className="h-9 w-9">
+            <Link href={`/products/${product.id}`} aria-label="Voir le produit">
               <Eye className="h-4 w-4" />
-              Voir
             </Link>
           </Button>
-          <AddToCartButton product={product} size="sm" variant="default" />
         </div>
       </CardFooter>
     </Card>
   );
 }
+
