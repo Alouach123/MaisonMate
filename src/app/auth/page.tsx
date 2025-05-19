@@ -7,33 +7,67 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, User, KeyRound, LogIn, UserPlus, Loader2, ArrowLeft, Mail, Phone, CalendarDays, UserCircle2 } from 'lucide-react';
+import { Shield, User, KeyRound, LogIn, UserPlus, Loader2, ArrowLeft, Mail, UserCircle2, Info } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth-context';
 import { verifyPasswordAction } from '@/app/admin/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
 import type { SignUpWithPasswordCredentials } from '@supabase/supabase-js';
+import { Progress } from '@/components/ui/progress';
 
 const ADMIN_AUTH_KEY = 'maisonmate-admin-auth';
+
+interface PasswordValidation {
+  minLength: boolean;
+  uppercase: boolean;
+  lowercase: boolean;
+  number: boolean;
+  // TDO:  specialChar: boolean; // Optional: add special character requirement
+}
+
+const initialPasswordValidation: PasswordValidation = {
+  minLength: false,
+  uppercase: false,
+  lowercase: false,
+  number: false,
+  // specialChar: false,
+};
+
+const validatePassword = (password: string): PasswordValidation => {
+  return {
+    minLength: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    // specialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password),
+  };
+};
+
+const getPasswordStrength = (validation: PasswordValidation): number => {
+  let strength = 0;
+  if (validation.minLength) strength += 25; // Base for length
+  if (validation.uppercase) strength += 20;
+  if (validation.lowercase) strength += 20;
+  if (validation.number) strength += 20;
+  // if (validation.specialChar) strength += 15; // Optional
+  return Math.min(100, strength > 25 ? strength : (validation.minLength ? 25: 0) ); // Ensure minimum of 25 if length met
+};
 
 export default function AuthPage() {
   const [view, setView] = useState<'select' | 'admin' | 'userSignin' | 'userSignup'>('select');
   
-  // Admin state
   const [adminPassword, setAdminPassword] = useState('');
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [adminError, setAdminError] = useState<string | null>(null);
 
-  // User Auth state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  // Additional sign-up fields (optional for now, can be expanded)
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-
+  
+  const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>(initialPasswordValidation);
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
   const [isUserAuthLoading, setIsUserAuthLoading] = useState(false);
   const [userAuthError, setUserAuthError] = useState<string | null>(null);
@@ -50,6 +84,12 @@ export default function AuthPage() {
     }
   }, [isUserAuthenticated, isAuthContextLoading, view, router]);
 
+  const handlePasswordChange = (pass: string) => {
+    setPassword(pass);
+    const validation = validatePassword(pass);
+    setPasswordValidation(validation);
+    setPasswordStrength(getPasswordStrength(validation));
+  };
 
   const handleAdminLogin = async (event: FormEvent) => {
     event.preventDefault();
@@ -73,36 +113,41 @@ export default function AuthPage() {
 
   const handleUserSignUpSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const currentPasswordValidation = validatePassword(password);
+    const allValid = Object.values(currentPasswordValidation).every(Boolean);
+
+    if (!allValid) {
+      setUserAuthError("Le mot de passe ne respecte pas tous les critères de sécurité.");
+      return;
+    }
     if (password !== confirmPassword) {
       setUserAuthError("Les mots de passe ne correspondent pas.");
       return;
     }
+
     setIsUserAuthLoading(true);
     setUserAuthError(null);
 
-    const credentials: SignUpWithPasswordCredentials = { email, password };
-    // For additional data with Supabase, use options.data
-    // This requires your 'users' table or a related 'profiles' table to have these columns.
-    // Example:
-    // credentials.options = {
-    //   data: {
-    //     first_name: firstName,
-    //     last_name: lastName,
-    //     phone_number: phoneNumber,
-    //     birth_date: birthDate,
-    //   }
-    // };
+    const credentials = { 
+      email, 
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+        }
+      }
+    };
 
     const { error } = await signUpUser(credentials);
     setIsUserAuthLoading(false);
     if (error) {
       setUserAuthError(error.message || "Erreur lors de l'inscription.");
     } else {
-      // Supabase sends a confirmation email. User will be redirected after confirming or if auto-confirm is on.
-      // No immediate redirect here unless you handle post-signup flow differently.
       toast({ title: "Inscription demandée", description: "Veuillez vérifier votre e-mail pour confirmer votre compte."});
-      setView('userSignin'); // Optionally switch to signin view
-      setEmail(''); setPassword(''); setConfirmPassword(''); // Clear fields
+      setView('userSignin'); 
+      setEmail(''); setPassword(''); setConfirmPassword(''); setFirstName(''); setLastName('');
+      setPasswordValidation(initialPasswordValidation); setPasswordStrength(0);
     }
   };
 
@@ -115,7 +160,7 @@ export default function AuthPage() {
     if (error) {
       setUserAuthError(error.message || "Erreur lors de la connexion.");
     } else {
-      router.push('/'); // Redirect to homepage on successful sign-in
+      router.push('/');
     }
   };
 
@@ -157,6 +202,26 @@ export default function AuthPage() {
     </Card>
   );
 
+  const renderPasswordStrength = () => {
+    if (!password) return null; // Don't show if password field is empty
+    let strengthColor = 'bg-destructive'; // Red
+    if (passwordStrength > 70) strengthColor = 'bg-green-500'; // Green
+    else if (passwordStrength > 40) strengthColor = 'bg-yellow-500'; // Yellow
+
+    return (
+      <div className="mt-2 space-y-1">
+        <Progress value={passwordStrength} className={`h-2 ${strengthColor}`} />
+        <ul className="text-xs list-disc list-inside text-muted-foreground">
+          <li className={passwordValidation.minLength ? 'text-green-600' : 'text-destructive'}>Au moins 8 caractères</li>
+          <li className={passwordValidation.uppercase ? 'text-green-600' : 'text-destructive'}>Une lettre majuscule</li>
+          <li className={passwordValidation.lowercase ? 'text-green-600' : 'text-destructive'}>Une lettre minuscule</li>
+          <li className={passwordValidation.number ? 'text-green-600' : 'text-destructive'}>Un chiffre</li>
+          {/* <li className={passwordValidation.specialChar ? 'text-green-600' : 'text-destructive'}>Un caractère spécial (optionnel)</li> */}
+        </ul>
+      </div>
+    );
+  };
+
   const renderUserSignUpForm = () => (
     <Card className="w-full max-w-md">
       <CardHeader>
@@ -173,19 +238,24 @@ export default function AuthPage() {
           </Alert>
         )}
         <form onSubmit={handleUserSignUpSubmit} className="space-y-4">
-          {/* 
-          <p className="text-sm text-muted-foreground mb-3">
-            Champs requis pour l'inscription : Nom, Prénom, E-mail, Mot de passe, Téléphone, Date de naissance.
-            Pour cette démo, nous n'utilisons que l'e-mail et le mot de passe.
-          </p>
-          */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="signup-firstname"><UserCircle2 className="inline mr-1 h-4 w-4" />Prénom</Label>
+              <Input id="signup-firstname" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required placeholder="Ex: Jean" />
+            </div>
+            <div>
+              <Label htmlFor="signup-lastname"><UserCircle2 className="inline mr-1 h-4 w-4" />Nom</Label>
+              <Input id="signup-lastname" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required placeholder="Ex: Dupont" />
+            </div>
+          </div>
           <div>
             <Label htmlFor="signup-email"><Mail className="inline mr-1 h-4 w-4" />E-mail</Label>
             <Input id="signup-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="vous@exemple.com" />
           </div>
           <div>
             <Label htmlFor="signup-password"><KeyRound className="inline mr-1 h-4 w-4" />Mot de passe</Label>
-            <Input id="signup-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="********" />
+            <Input id="signup-password" type="password" value={password} onChange={(e) => handlePasswordChange(e.target.value)} required placeholder="********" />
+            {renderPasswordStrength()}
           </div>
            <div>
             <Label htmlFor="signup-confirm-password"><KeyRound className="inline mr-1 h-4 w-4" />Confirmer le mot de passe</Label>
@@ -243,7 +313,6 @@ export default function AuthPage() {
     </Card>
   );
 
-
   const renderSelection = () => (
     <Card className="w-full max-w-md text-center">
       <CardHeader>
@@ -269,7 +338,6 @@ export default function AuthPage() {
       </div>
     );
   }
-
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12">

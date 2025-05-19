@@ -1,8 +1,8 @@
 
 "use client";
-import React from 'react'; // Added this line
+import React from 'react';
 import Link from 'next/link';
-import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, UserPlus, Armchair, Globe, UserCircle, UserCircle2 } from 'lucide-react'; // Added UserCircle2
+import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, Armchair, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import { useAuth } from '@/hooks/use-auth-context';
@@ -17,9 +17,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"; // Make sure cn is imported if used by Avatar components
-
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Using ShadCN Avatar
 
 export default function Navbar() {
   const { wishlist } = useWishlist();
@@ -38,6 +37,37 @@ export default function Navbar() {
       variant: "default",
     });
   };
+
+  const getUserDisplayName = () => {
+    if (user?.user_metadata) {
+      const firstName = user.user_metadata.first_name;
+      const lastName = user.user_metadata.last_name;
+      if (firstName && lastName) {
+        return `${firstName} ${lastName}`;
+      }
+      if (firstName) {
+        return firstName;
+      }
+    }
+    return user?.email?.split('@')[0] || "Utilisateur";
+  };
+
+  const getAvatarFallback = () => {
+    if (user?.user_metadata) {
+      const firstName = user.user_metadata.first_name;
+      const lastName = user.user_metadata.last_name;
+      if (firstName && lastName) {
+        return `${firstName[0]}${lastName[0]}`.toUpperCase();
+      }
+      if (firstName) {
+        return firstName[0].toUpperCase();
+      }
+    }
+    return user?.email?.[0]?.toUpperCase() || 'U';
+  };
+  
+  const avatarSeed = user?.user_metadata?.first_name || user?.user_metadata?.last_name || user?.email?.split('@')[0] || 'User';
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
@@ -69,32 +99,29 @@ export default function Navbar() {
               <LogIn className="h-4 w-4 md:mr-1.5 animate-pulse" />
               <span className="hidden sm:inline">Chargement...</span>
             </Button>
-          ) : isAuthenticated ? (
+          ) : isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full md:h-10 md:w-auto md:px-3 md:py-2">
-                   <Avatar className="h-7 w-7 md:mr-2"> {/* Use ShadCN Avatar */}
-                      <AvatarImage src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${user?.email?.split('@')[0] || 'User'}`} alt={user?.email || "User"} />
-                      <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                   <Avatar className="h-7 w-7 md:mr-2">
+                      <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(avatarSeed)}`} alt={getUserDisplayName()} />
+                      <AvatarFallback>{getAvatarFallback()}</AvatarFallback>
                    </Avatar>
                   <span className="hidden md:inline text-sm font-medium text-foreground/90">
-                    {user?.email?.split('@')[0]}
+                    {getUserDisplayName()}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.user_metadata?.full_name || user?.email?.split('@')[0]}</p>
+                    <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {user?.email}
+                      {user.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {/* <DropdownMenuItem>Profil (Bientôt)</DropdownMenuItem>
-                <DropdownMenuItem>Commandes (Bientôt)</DropdownMenuItem>
-                <DropdownMenuSeparator /> */}
                 <DropdownMenuItem onClick={signOutUser} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Se déconnecter</span>
@@ -120,44 +147,3 @@ export default function Navbar() {
     </header>
   );
 }
-
-// Minimal Avatar component for Navbar, or use ShadCN's Avatar if available
-// If ShadCN's Avatar is already globally available, this can be removed.
-const Avatar = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { children?: React.ReactNode }
->(({ className, children, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("relative flex h-7 w-7 shrink-0 overflow-hidden rounded-full bg-muted items-center justify-center", className)}
-    {...props}
-  >
-    {children}
-  </div>
-));
-Avatar.displayName = "Avatar";
-
-const AvatarImage = React.forwardRef<
-  HTMLImageElement,
-  React.ImgHTMLAttributes<HTMLImageElement>
->(({ className, ...props }, ref) => (
-  <img
-    ref={ref}
-    className={cn("aspect-square h-full w-full object-cover", className)}
-    {...props}
-  />
-));
-AvatarImage.displayName = "AvatarImage";
-
-const AvatarFallback = React.forwardRef<
-  HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement>
->(({ className, ...props }, ref) => (
-  <span
-    ref={ref}
-    className={cn("flex h-full w-full items-center justify-center rounded-full bg-muted text-xs font-medium", className)}
-    {...props}
-  />
-));
-AvatarFallback.displayName = "AvatarFallback";
-

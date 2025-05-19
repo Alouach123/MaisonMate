@@ -6,12 +6,25 @@ import { supabase } from '@/lib/supabase/client';
 import type { AuthChangeEvent, Session, User, SignUpWithPasswordCredentials } from '@supabase/supabase-js';
 import { toast } from "@/hooks/use-toast";
 
+// Extend SignUpWithPasswordCredentials to include first_name and last_name in options.data
+interface ExtendedSignUpCredentials extends SignUpWithPasswordCredentials {
+  options?: {
+    data?: {
+      first_name?: string;
+      last_name?: string;
+      [key: string]: any; // Allow other custom metadata
+    };
+    emailRedirectTo?: string;
+    captchaToken?: string;
+  };
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  signUpUser: (credentials: SignUpWithPasswordCredentials) => Promise<{ error: any | null }>;
+  signUpUser: (credentials: ExtendedSignUpCredentials) => Promise<{ error: any | null }>;
   signInUser: (credentials: Pick<SignUpWithPasswordCredentials, 'email' | 'password'>) => Promise<{ error: any | null }>;
   signOutUser: () => Promise<{ error: any | null }>;
 }
@@ -21,10 +34,9 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // setIsLoading(true); // This was redundant as initial state is true
     const getSession = async () => {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
@@ -37,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (event: AuthChangeEvent, sessionState: Session | null) => {
         setSession(sessionState);
         setUser(sessionState?.user ?? null);
-        setIsLoading(false); // Ensure loading is false after auth state changes
+        setIsLoading(false);
       }
     );
 
@@ -46,11 +58,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const signUpUser = useCallback(async (credentials: SignUpWithPasswordCredentials) => {
+  const signUpUser = useCallback(async (credentials: ExtendedSignUpCredentials) => {
     setIsLoading(true);
-    // You can add 'nom', 'prénom', etc. to options.data
-    // For example: options: { data: { first_name: 'John', last_name: 'Doe', phone: '123', birth_date: 'YYYY-MM-DD' } }
-    // This requires configuring your Supabase table 'users' or a 'profiles' table to hold this data.
+    // Supabase uses options.data to store additional user metadata
     const { data, error } = await supabase.auth.signUp(credentials);
     setIsLoading(false);
     if (error) {
@@ -58,8 +68,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { error };
     }
     if (data.user) {
-      // Supabase typically requires email confirmation.
-      // If user is immediately available, it means confirmation might be off or auto-confirmed.
       toast({ title: "Inscription réussie !", description: "Veuillez vérifier votre e-mail pour confirmer votre compte." });
     }
     return { error: null };
@@ -92,11 +100,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
   
   const isAuthenticated = !!user;
-
-  // Removed the problematic block that caused hydration mismatch:
-  // if (isLoading && typeof window !== 'undefined' && !session) { 
-  //    return null; 
-  // }
 
   return (
     <AuthContext.Provider value={{ user, session, isAuthenticated, isLoading, signUpUser, signInUser, signOutUser }}>
