@@ -2,64 +2,105 @@
 "use client";
 
 import React, { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { supabase } from '@/lib/supabase/client';
+import type { AuthChangeEvent, Session, User, SignUpWithPasswordCredentials } from '@supabase/supabase-js';
 import { toast } from "@/hooks/use-toast";
 
 interface AuthContextType {
+  user: User | null;
+  session: Session | null;
   isAuthenticated: boolean;
-  signUp: () => void; // Simule l'inscription et connecte l'utilisateur
-  signIn: () => void; // Simule la connexion
-  logout: () => void;
+  isLoading: boolean;
+  signUpUser: (credentials: SignUpWithPasswordCredentials) => Promise<{ error: any | null }>;
+  signInUser: (credentials: Pick<SignUpWithPasswordCredentials, 'email' | 'password'>) => Promise<{ error: any | null }>;
+  signOutUser: () => Promise<{ error: any | null }>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedAuthStatus = localStorage.getItem('maisonmate-auth-status');
-      if (storedAuthStatus === 'true') {
-        setIsAuthenticated(true);
+    setIsLoading(true);
+    const getSession = async () => {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setIsLoading(false);
+    };
+    getSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event: AuthChangeEvent, sessionState: Session | null) => {
+        setSession(sessionState);
+        setUser(sessionState?.user ?? null);
+        setIsLoading(false); // Ensure loading is false after auth state changes
       }
-      setIsLoaded(true);
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  const signUpUser = useCallback(async (credentials: SignUpWithPasswordCredentials) => {
+    setIsLoading(true);
+    // You can add 'nom', 'prénom', etc. to options.data
+    // For example: options: { data: { first_name: 'John', last_name: 'Doe', phone: '123', birth_date: 'YYYY-MM-DD' } }
+    // This requires configuring your Supabase table 'users' or a 'profiles' table to hold this data.
+    const { data, error } = await supabase.auth.signUp(credentials);
+    setIsLoading(false);
+    if (error) {
+      console.error("Sign up error:", error.message);
+      return { error };
     }
-  }, []);
-
-  useEffect(() => {
-    if (isLoaded && typeof window !== 'undefined') {
-      localStorage.setItem('maisonmate-auth-status', isAuthenticated.toString());
+    if (data.user) {
+      // Supabase typically requires email confirmation.
+      // If user is immediately available, it means confirmation might be off or auto-confirmed.
+      toast({ title: "Inscription réussie !", description: "Veuillez vérifier votre e-mail pour confirmer votre compte." });
     }
-  }, [isAuthenticated, isLoaded]);
-
-  const signUp = useCallback(() => {
-    setIsAuthenticated(true);
-    toast({
-      title: "Inscription (simulée) réussie !",
-      description: "Normalement, vous auriez fourni : Nom, Prénom, Email, Mot de passe, Téléphone, Date de naissance. Bienvenue sur MaisonMate !",
-    });
+    return { error: null };
   }, []);
 
-  const signIn = useCallback(() => {
-    setIsAuthenticated(true);
-    toast({
-      title: "Connexion (simulée) réussie !",
-      description: "Normalement, vous auriez fourni : Email, Mot de passe. Bienvenue sur MaisonMate !",
-    });
+  const signInUser = useCallback(async (credentials: Pick<SignUpWithPasswordCredentials, 'email' | 'password'>) => {
+    setIsLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword(credentials);
+    setIsLoading(false);
+    if (error) {
+      console.error("Sign in error:", error.message);
+      return { error };
+    }
+    if (data.user) {
+      toast({ title: "Connexion réussie !", description: "Bienvenue sur MaisonMate !" });
+    }
+    return { error: null };
   }, []);
 
-  const logout = useCallback(() => {
-    setIsAuthenticated(false);
+  const signOutUser = useCallback(async () => {
+    setIsLoading(true);
+    const { error } = await supabase.auth.signOut();
+    setIsLoading(false);
+    if (error) {
+      console.error("Sign out error:", error.message);
+      return { error };
+    }
     toast({ title: "Déconnexion réussie.", description: "À bientôt !" });
+    return { error: null };
   }, []);
   
-  if (!isLoaded) {
-    return null; // Prevents hydration mismatch
+  const isAuthenticated = !!user;
+
+  // Don't render children until initial auth state is resolved to prevent flashes of incorrect UI
+  if (isLoading && typeof window !== 'undefined' && !session) { // Check session specifically for initial load
+     return null; // Or a global loading spinner component
   }
 
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, signUp, signIn, logout }}>
+    <AuthContext.Provider value={{ user, session, isAuthenticated, isLoading, signUpUser, signInUser, signOutUser }}>
       {children}
     </AuthContext.Provider>
   );

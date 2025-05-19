@@ -1,7 +1,7 @@
 
 "use client";
 import Link from 'next/link';
-import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, UserPlus, Armchair, Globe, UserCircle } from 'lucide-react'; // Added UserCircle, LogIn, LogOut, UserPlus
+import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, UserPlus, Armchair, Globe, UserCircle, UserCircle2 } from 'lucide-react'; // Added UserCircle2
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import { useAuth } from '@/hooks/use-auth-context';
@@ -9,10 +9,19 @@ import { Badge } from "@/components/ui/badge";
 import CartIcon from '@/components/cart/cart-icon';
 import { toast } from '@/hooks/use-toast';
 import { ThemeToggleButton } from "./theme-toggle-button"; 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
 
 export default function Navbar() {
   const { wishlist } = useWishlist();
-  const { isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, signOutUser, isLoading: isAuthLoading } = useAuth();
 
   const mainNavItems = [
     { href: '/products', label: 'Produits', icon: LayoutGrid },
@@ -53,18 +62,47 @@ export default function Navbar() {
           
           <div className="h-6 border-l border-border/70 mx-1 md:mx-2"></div>
           
-          {isAuthenticated ? (
-            <>
-              <span className="text-sm text-foreground/90 ml-1 md:ml-2 hidden md:inline">Bienvenue !</span>
-              <Button onClick={logout} variant="ghost" size="sm" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors px-2 md:px-3">
-                <LogOut className="h-4 w-4 md:mr-1.5" />
-                <span className="hidden md:inline">Se déconnecter</span>
-              </Button>
-            </>
+          {isAuthLoading ? (
+            <Button variant="ghost" size="sm" className="text-sm font-medium text-foreground/70 px-2 md:px-3" disabled>
+              <LogIn className="h-4 w-4 md:mr-1.5 animate-pulse" />
+              <span className="hidden sm:inline">Chargement...</span>
+            </Button>
+          ) : isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full md:h-10 md:w-auto md:px-3 md:py-2">
+                   <Avatar className="h-7 w-7 md:mr-2"> {/* Use ShadCN Avatar */}
+                      <AvatarImage src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${user?.email?.split('@')[0] || 'User'}`} alt={user?.email || "User"} />
+                      <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                   </Avatar>
+                  <span className="hidden md:inline text-sm font-medium text-foreground/90">
+                    {user?.email?.split('@')[0]}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user?.user_metadata?.full_name || user?.email?.split('@')[0]}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {/* <DropdownMenuItem>Profil (Bientôt)</DropdownMenuItem>
+                <DropdownMenuItem>Commandes (Bientôt)</DropdownMenuItem>
+                <DropdownMenuSeparator /> */}
+                <DropdownMenuItem onClick={signOutUser} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Se déconnecter</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button variant="ghost" size="sm" asChild className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors px-2 md:px-3">
               <Link href="/auth" className="flex items-center gap-1 md:gap-1.5">
-                <LogIn className="h-4 w-4 md:mr-1.5" /> {/* Changed Icon */}
+                <LogIn className="h-4 w-4 md:mr-1.5" /> 
                 <span className="hidden sm:inline">Authentification</span>
               </Link>
             </Button>
@@ -80,3 +118,43 @@ export default function Navbar() {
     </header>
   );
 }
+
+// Minimal Avatar component for Navbar, or use ShadCN's Avatar if available
+// If ShadCN's Avatar is already globally available, this can be removed.
+const Avatar = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { children?: React.ReactNode }
+>(({ className, children, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("relative flex h-7 w-7 shrink-0 overflow-hidden rounded-full bg-muted items-center justify-center", className)}
+    {...props}
+  >
+    {children}
+  </div>
+));
+Avatar.displayName = "Avatar";
+
+const AvatarImage = React.forwardRef<
+  HTMLImageElement,
+  React.ImgHTMLAttributes<HTMLImageElement>
+>(({ className, ...props }, ref) => (
+  <img
+    ref={ref}
+    className={cn("aspect-square h-full w-full object-cover", className)}
+    {...props}
+  />
+));
+AvatarImage.displayName = "AvatarImage";
+
+const AvatarFallback = React.forwardRef<
+  HTMLSpanElement,
+  React.HTMLAttributes<HTMLSpanElement>
+>(({ className, ...props }, ref) => (
+  <span
+    ref={ref}
+    className={cn("flex h-full w-full items-center justify-center rounded-full bg-muted text-xs font-medium", className)}
+    {...props}
+  />
+));
+AvatarFallback.displayName = "AvatarFallback";
