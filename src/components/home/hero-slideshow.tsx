@@ -7,52 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, ChevronLeft, Circle } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
-const slides = [
-  {
-    imageSrc: "https://i.pinimg.com/736x/31/de/35/31de35d6177adac97be1df59b93e2f01.jpg",
-    imageAlt: "Luxurious modern interior scene with elegant furniture",
-    aiHint: "luxury interior",
-    headline: "Experience Unrivaled Comfort.",
-    subheadline: "Discover our exclusive collection of designer pieces, crafted for ultimate relaxation and contemporary style.",
-    ctaText: "Explore Collection",
-    ctaLink: "/products",
-  },
-  {
-    imageSrc: "https://i.pinimg.com/736x/67/42/c9/6742c98b351f71342b092fc79fc41c9b.jpg",
-    imageAlt: "Sophisticated modern living space with designer furniture",
-    aiHint: "designer furniture",
-    headline: "Sleep in Serene Luxury.",
-    subheadline: "Transform your space into a sanctuary with our premium furniture and opulent collections.",
-    ctaText: "Discover Designs",
-    ctaLink: "/products",
-  },
-  {
-    imageSrc: "https://images.unsplash.com/photo-1503602642458-232111409258?q=80&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    imageAlt: "Stylish wooden accent chair with woven details in a chic, minimalist interior",
-    aiHint: "designer chair",
-    headline: "Statement Pieces, Timeless Design.",
-    subheadline: "Elevate your space with our iconic chairs, blending artistic form with exceptional comfort.",
-    ctaText: "View Chairs",
-    ctaLink: "/products?category=Chaises",
-  },
-  {
-    imageSrc: "https://images.unsplash.com/photo-1615875605825-5eb9bb5d5083?q=80&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    imageAlt: "Grand dining table made of rich dark wood, set for a luxurious meal in a spacious room",
-    aiHint: "luxury dining",
-    headline: "Gather in Grandeur.",
-    subheadline: "Host memorable moments with our exquisite dining tables, the centerpiece of every celebration.",
-    ctaText: "Explore Tables",
-    ctaLink: "/products?category=Tables",
-  },
-  {
-    imageSrc: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // Example: Minimal living room sofa
-    imageAlt: "Minimal style living room with white fabric sofa on concrete floor",
-    aiHint: "minimalist sofa",
-    headline: "Simplicity in Style.",
-    subheadline: "Embrace minimalist elegance with our curated selection of clean-lined sofas and decor.",
-    ctaText: "Shop Minimalist",
-    ctaLink: "/products?style=Minimaliste",
-  },
+const slidesData = [
   {
     imageSrc: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // Example: Sectional sofa with coffee table
     imageAlt: "Comfortable sectional sofa with a lit candle on a round coffee table",
@@ -77,11 +32,11 @@ export default function HeroSlideshow() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToPrevious = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? slides.length - 1 : prevIndex - 1));
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? slidesData.length - 1 : prevIndex - 1));
   }, []);
 
   const goToNext = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex === slides.length - 1 ? 0 : prevIndex + 1));
+    setCurrentIndex((prevIndex) => (prevIndex === slidesData.length - 1 ? 0 : prevIndex + 1));
   }, []);
 
   const goToSlide = (slideIndex: number) => {
@@ -96,20 +51,20 @@ export default function HeroSlideshow() {
   }, [currentIndex, goToNext]);
 
 
-  const currentSlide = slides[currentIndex];
+  const currentSlide = slidesData[currentIndex];
 
   return (
     <section className="relative w-full min-h-screen overflow-hidden">
-      {slides.map((slide, index) => (
+      {slidesData.map((slide, index) => (
         <Image
-          key={slide.imageSrc + index} // Added index to key for more uniqueness if imageSrc were repeated
+          key={slide.imageSrc + index}
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
           priority={index === currentIndex} 
           className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
           data-ai-hint={slide.aiHint}
-          quality={85} // Slightly increased quality from default 75
+          quality={85}
         />
       ))}
       
@@ -150,7 +105,7 @@ export default function HeroSlideshow() {
 
       {/* Dot Indicators */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-40 flex space-x-2">
-        {slides.map((_, slideIndex) => (
+        {slidesData.map((_, slideIndex) => (
           <button
             key={slideIndex}
             onClick={() => goToSlide(slideIndex)}
