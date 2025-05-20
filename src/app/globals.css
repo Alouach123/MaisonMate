@@ -124,7 +124,8 @@ body {
   transition: background-color 0.2s ease-out; /* Smooth transition for color change */
 }
 
-::-webkit-scrollbar-thumb:hover {
+/* Apply hover effect to scrollbar thumb when hovering over the scrollbar itself (not just the thumb) */
+*:hover::-webkit-scrollbar-thumb {
   background-color: hsl(var(--primary) / 0.6); /* More opaque on hover over the thumb */
 }
 
@@ -132,8 +133,20 @@ body {
   background-color: hsl(var(--primary) / 0.8); /* Even more opaque when dragging */
 }
 
+
 /* For Firefox */
 html {
   scrollbar-width: thin; /* Makes scrollbar slimmer in Firefox */
   scrollbar-color: hsl(var(--primary) / 0.6) transparent; /* thumb color (primary) and transparent track */
+}
+
+/* Utility to hide scrollbar */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 }

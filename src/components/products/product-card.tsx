@@ -12,10 +12,11 @@ import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
-  className?: string; // Added className prop
+  className?: string; 
+  style?: React.CSSProperties; // Allow passing CSSProperties
 }
 
-export default function ProductCard({ product, className }: ProductCardProps) {
+export default function ProductCard({ product, className, style }: ProductCardProps) {
   const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist();
   const wishlisted = isWishlisted(product.id);
 
@@ -39,9 +40,15 @@ export default function ProductCard({ product, className }: ProductCardProps) {
   const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
 
   return (
-    <Card className={cn("overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full rounded-lg border border-border/60 group", className)}>
+    <Card 
+      className={cn(
+        "overflow-hidden group flex flex-col h-full rounded-xl border border-card-foreground/10 shadow-lg hover:shadow-2xl transition-all duration-300", 
+        className
+      )}
+      style={style}
+    >
       <CardHeader className="p-0 relative">
-        <Link href={`/products/${product.id}`} aria-label={`View details for ${product.name}`} className="block aspect-[4/3] relative overflow-hidden">
+        <Link href={`/products/${product.id}`} aria-label={`View details for ${product.name}`} className="block aspect-[4/3] relative overflow-hidden rounded-t-xl">
           <Image
             src={product.imageUrl || 'https://placehold.co/600x400.png'}
             alt={product.name}
@@ -54,37 +61,37 @@ export default function ProductCard({ product, className }: ProductCardProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 bg-card/70 hover:bg-card rounded-full h-8 w-8 z-10"
+          className="absolute top-3 right-3 bg-white/70 dark:bg-zinc-900/70 hover:bg-white dark:hover:bg-zinc-900 backdrop-blur-sm rounded-full h-9 w-9 z-10 shadow-md"
           onClick={handleWishlistToggle}
           aria-label={wishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris'}
         >
-          <Heart className={`h-4 w-4 ${wishlisted ? 'fill-destructive text-destructive' : 'text-foreground/70'}`} />
+          <Heart className={`h-5 w-5 ${wishlisted ? 'fill-destructive text-destructive' : 'text-foreground/70'}`} />
         </Button>
       </CardHeader>
-      <CardContent className="p-3 flex-grow">
+      <CardContent className="p-4 flex-grow">
         <Link href={`/products/${product.id}`}>
-            <CardTitle className="text-sm sm:text-base font-semibold hover:text-primary transition-colors truncate" title={product.name}>
+            <CardTitle className="text-base font-semibold hover:text-primary transition-colors truncate leading-tight" title={product.name}>
             {product.name}
             </CardTitle>
         </Link>
         {product.shortDescription && (
-          <CardDescription className="text-xs text-muted-foreground mt-1 h-8 overflow-hidden text-ellipsis line-clamp-2">
+          <CardDescription className="text-xs text-muted-foreground mt-1.5 h-8 overflow-hidden text-ellipsis line-clamp-2">
             {product.shortDescription}
           </CardDescription>
         )}
         {product.rating && (
-          <div className="flex items-center mt-1.5">
+          <div className="flex items-center mt-2">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(product.rating!) ? 'fill-accent text-accent' : 'text-muted-foreground/40'}`} />
+              <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating!) ? 'fill-accent text-accent' : 'text-muted-foreground/40'}`} />
             ))}
-            <span className="ml-1 text-xs text-muted-foreground">({product.rating.toFixed(1)})</span>
+            <span className="ml-1.5 text-xs text-muted-foreground">({product.rating.toFixed(1)})</span>
           </div>
         )}
       </CardContent>
-      <CardFooter className="p-3 flex flex-col items-start gap-2 border-t pt-3">
-        <p className="text-base sm:text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
+      <CardFooter className="p-4 flex flex-col items-start gap-3 border-t border-card-foreground/10 pt-4">
+        <p className="text-lg sm:text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
         <div className="w-full flex gap-2">
-           <AddToCartButton product={product} size="sm" variant="default" className="flex-grow" showText={true} />
+           <AddToCartButton product={product} size="sm" variant="default" className="flex-grow h-9" showText={true} />
            <Button asChild variant="outline" size="icon" className="h-9 w-9">
             <Link href={`/products/${product.id}`} aria-label="Voir le produit">
               <Eye className="h-4 w-4" />
