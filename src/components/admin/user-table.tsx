@@ -2,16 +2,21 @@
 "use client";
 
 import type { AdminUserView } from '@/types';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MoreVertical, Trash2 } from 'lucide-react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { fr } from 'date-fns/locale'; // For French date formatting
+import { fr } from 'date-fns/locale'; 
 
 interface UserTableProps {
   users: AdminUserView[];
+  onDeleteUser: (userId: string, userEmail?: string) => void;
+  deletingUserId: string | null;
 }
 
-export default function UserTable({ users }: UserTableProps) {
+export default function UserTable({ users, onDeleteUser, deletingUserId }: UserTableProps) {
   if (users.length === 0) {
     return <p className="text-center text-muted-foreground py-8">Aucun utilisateur à afficher.</p>;
   }
@@ -22,7 +27,7 @@ export default function UserTable({ users }: UserTableProps) {
       return formatDistanceToNow(parseISO(dateString), { addSuffix: true, locale: fr });
     } catch (error) {
       console.error("Error formatting date:", error);
-      return dateString; // Fallback to raw string if parsing fails
+      return dateString; 
     }
   };
 
@@ -36,7 +41,7 @@ export default function UserTable({ users }: UserTableProps) {
             <TableHead>Prénom</TableHead>
             <TableHead>Créé le</TableHead>
             <TableHead>Dernière connexion</TableHead>
-            <TableHead className="w-[120px]">User ID</TableHead>
+            <TableHead className="text-right w-[80px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -49,7 +54,25 @@ export default function UserTable({ users }: UserTableProps) {
               <TableCell>{user.firstName || 'N/A'}</TableCell>
               <TableCell>{formatDate(user.createdAt)}</TableCell>
               <TableCell>{user.lastSignInAt ? formatDate(user.lastSignInAt) : 'Jamais'}</TableCell>
-              <TableCell className="text-xs text-muted-foreground">{user.id}</TableCell>
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" disabled={deletingUserId === user.id}>
+                       {deletingUserId === user.id ? <Trash2 className="h-4 w-4 animate-ping" /> : <MoreVertical className="h-4 w-4" />}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem 
+                      onClick={() => onDeleteUser(user.id, user.email)} 
+                      className="flex items-center text-destructive focus:text-destructive focus:bg-destructive/10"
+                      disabled={deletingUserId === user.id}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Supprimer
+                    </DropdownMenuItem>
+                    {/* Add other actions like Edit, View Details here if needed */}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

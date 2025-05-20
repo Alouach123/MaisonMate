@@ -4,13 +4,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Product, ProductFormData, AdminUserView } from '@/types';
 import ProductTable from './product-table';
-import UserTable from './user-table'; // New import
+import UserTable from './user-table';
 import ProductForm from './product-form';
 import { Button } from '@/components/ui/button';
-import { getProductsAction, addProductAction, updateProductAction, deleteProductAction, getUsersAction } from '@/app/admin/actions';
+import { getProductsAction, addProductAction, updateProductAction, deleteProductAction, getUsersAction, deleteUserAction } from '@/app/admin/actions';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, LogOut, PlusCircle, RefreshCw, Users, Package } from 'lucide-react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Loader2, LogOut, PlusCircle, RefreshCw, Users, Package, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -20,15 +21,19 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [users, setUsers] = useState<AdminUserView[]>([]); // State for users
+  const [users, setUsers] = useState<AdminUserView[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false); // Separate loading for users
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   
   const [showProductForm, setShowProductForm] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [activeTab, setActiveTab] = useState("products");
+
+  const [showDeleteUserDialog, setShowDeleteUserDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{ id: string; email?: string } | null>(null);
 
   const fetchProducts = useCallback(async () => {
     setIsLoadingProducts(true);
@@ -81,9 +86,34 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         toast({ variant: "destructive", title: "Erreur", description: result.error || "Impossible de supprimer le produit." });
       }
     } catch (error) {
-      toast({ variant: "destructive", title: "Erreur", description: "Une erreur est survenue lors de la suppression." });
+      toast({ variant: "destructive", title: "Erreur", description: "Une erreur est survenue lors de la suppression du produit." });
     } finally {
       setDeletingProductId(null);
+    }
+  };
+
+  const handleOpenDeleteUserDialog = (userId: string, userEmail?: string) => {
+    setUserToDelete({ id: userId, email: userEmail });
+    setShowDeleteUserDialog(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    setDeletingUserId(userToDelete.id);
+    setShowDeleteUserDialog(false);
+    try {
+      const result = await deleteUserAction(userToDelete.id);
+      if (result.success) {
+        toast({ title: "Utilisateur supprimé !", description: `L'utilisateur ${userToDelete.email || userToDelete.id} a été supprimé.` });
+        fetchUsers();
+      } else {
+        toast({ variant: "destructive", title: "Erreur de suppression", description: result.error || "Impossible de supprimer l'utilisateur." });
+      }
+    } catch (error) {
+      toast({ variant: "destructive", title: "Erreur", description: "Une erreur est survenue lors de la suppression de l'utilisateur." });
+    } finally {
+      setDeletingUserId(null);
+      setUserToDelete(null);
     }
   };
   
@@ -135,9 +165,9 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         </TabsList>
 
         <TabsContent value="products">
-          <div className="mb-6 flex justify-between items-center">
+          <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h2 className="text-2xl font-semibold">Produits</h2>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 <Button variant="outline" onClick={fetchProducts} disabled={isLoadingProducts}>
                     <RefreshCw className={`mr-2 h-4 w-4 ${isLoadingProducts ? 'animate-spin' : ''}`} /> Actualiser Produits
                 </Button>
@@ -158,7 +188,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         </TabsContent>
 
         <TabsContent value="users">
-          <div className="mb-6 flex justify-between items-center">
+          <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h2 className="text-2xl font-semibold">Utilisateurs Enregistrés</h2>
             <Button variant="outline" onClick={fetchUsers} disabled={isLoadingUsers}>
                 <RefreshCw className={`mr-2 h-4 w-4 ${isLoadingUsers ? 'animate-spin' : ''}`} /> Actualiser Utilisateurs
@@ -171,13 +201,13 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 <Skeleton className="h-20 w-full" />
             </div>
           ) : (
-            <UserTable users={users} />
+            <UserTable users={users} onDeleteUser={handleOpenDeleteUserDialog} deletingUserId={deletingUserId} />
           )}
         </TabsContent>
       </Tabs>
       
       <Dialog open={showProductForm} onOpenChange={(open) => { if (!open) handleCancelProductForm(); else setShowProductForm(true);}}>
-        <DialogContent className="max-w-3xl p-0">
+        <DialogContent className="max-w-3xl p-0"> {/* Changed to Dialog from ShadCN */}
             <ProductForm
                 key={productToEdit ? productToEdit.id : 'new'} 
                 productToEdit={productToEdit}
@@ -187,6 +217,29 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showDeleteUserDialog} onOpenChange={setShowDeleteUserDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer l'utilisateur {userToDelete?.email || userToDelete?.id}? Cette action est irréversible et supprimera définitivement l'utilisateur de Supabase.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setUserToDelete(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteUser} 
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              disabled={deletingUserId === userToDelete?.id}
+            >
+              {deletingUserId === userToDelete?.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }

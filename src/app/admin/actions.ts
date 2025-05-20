@@ -5,7 +5,7 @@ import { connectToDatabase, toObjectId } from '@/lib/mongodb';
 import type { Product, ProductFormData, ProductDocument, AdminUserView } from '@/types';
 import { ProductSchema } from '@/types';
 import { ObjectId } from 'mongodb';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type User } from '@supabase/supabase-js';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
@@ -31,7 +31,7 @@ export async function getProductsAction(filters: { category?: string } = {}): Pr
     return productDocs.map(doc => ({
       ...doc,
       id: doc._id.toString(),
-      shortDescription: doc.shortDescription, // Ensure mapping
+      shortDescription: doc.shortDescription, 
     }));
   } catch (error) {
     console.error("Failed to fetch products:", error);
@@ -54,7 +54,7 @@ export async function getProductByIdAction(productId: string): Promise<Product |
     return {
       ...productDoc,
       id: productDoc._id.toString(),
-      shortDescription: productDoc.shortDescription, // Ensure mapping
+      shortDescription: productDoc.shortDescription, 
     };
   } catch (error) {
     console.error("Failed to fetch product by ID:", error);
@@ -82,7 +82,7 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    // Remove id if present, as MongoDB will generate _id
+    
     if ('id' in newProductData) delete (newProductData as any).id;
 
 
@@ -93,7 +93,7 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
     }
 
     const insertedProduct: Product = {
-      ...(newProductData as Omit<ProductDocument, '_id' | 'createdAt' | 'updatedAt'> & { createdAt: Date, updatedAt: Date }), // Type assertion
+      ...(newProductData as Omit<ProductDocument, '_id' | 'createdAt' | 'updatedAt'> & { createdAt: Date, updatedAt: Date }),
       id: result.insertedId.toString(),
     };
     
@@ -119,7 +119,6 @@ export async function updateProductAction(data: ProductFormData): Promise<{ succ
     
     const productId = toObjectId(data.id);
     
-    // Prepare data for update, excluding id and _id
     const { id: formId, ...updateData } = validation.data;
     const productToUpdate = {
       ...updateData,
@@ -170,7 +169,6 @@ export async function deleteProductAction(productId: string): Promise<{ success:
   }
 }
 
-// New action to fetch users
 export async function getUsersAction(): Promise<AdminUserView[]> {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
     console.error("Supabase URL or Service Role Key is not configured.");
@@ -205,5 +203,33 @@ export async function getUsersAction(): Promise<AdminUserView[]> {
   } catch (error) {
     console.error("Failed to fetch users:", error);
     return [];
+  }
+}
+
+export async function deleteUserAction(userId: string): Promise<{ success: boolean; error?: string }> {
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    return { success: false, error: "Supabase URL or Service Role Key is not configured for admin actions." };
+  }
+  if (!userId) {
+    return { success: false, error: "User ID is required." };
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+
+  try {
+    const { data, error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (error) {
+      console.error("Error deleting user from Supabase:", error.message);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to delete user:", error);
+    return { success: false, error: error.message || "An unexpected error occurred while deleting the user." };
   }
 }
