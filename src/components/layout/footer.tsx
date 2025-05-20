@@ -4,8 +4,8 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Facebook, Instagram, Twitter, Linkedin, Youtube, Send, Copyright } from 'lucide-react'; 
-import { Armchair } from 'lucide-react'; // Re-using the logo icon
+import { Facebook, Instagram, Twitter, Linkedin, Copyright, Send } from 'lucide-react'; 
+import { Armchair } from 'lucide-react'; 
 
 export default function Footer() {
   const currentYear = new Date().getFullYear(); 
@@ -19,7 +19,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="border-t border-border/40 bg-card text-card-foreground pt-12 pb-8">
+    <footer className="border-t border-border/40 bg-card text-card-foreground pt-12 pb-8 mt-16"> {/* Added mt-16 */}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Column 1: Logo & About */}
@@ -31,11 +31,11 @@ export default function Footer() {
             <p className="text-sm text-muted-foreground">
               Votre destination unique pour des meubles et décorations d'intérieur élégants et de qualité.
             </p>
-             <p className="text-xs text-muted-foreground">
-              Projet éducatif réalisé par ALOUACH Abdennour et ELGARRAB Idris.
-              <br />
-              Encadrement pédagogique : Prof. BOUROUMANE Farida.
-            </p>
+             <div className="text-xs text-muted-foreground pt-2"> {/* Made credits slightly more distinct */}
+              <p className="font-semibold">Projet Éducatif :</p>
+              <p>Réalisé par ALOUACH Abdennour & ELGARRAB Idris.</p>
+              <p>Encadrement pédagogique : Prof. BOUROUMANE Farida.</p>
+            </div>
           </div>
 
           {/* Column 2: Shop Links */}
@@ -55,7 +55,7 @@ export default function Footer() {
             <h3 className="text-md font-semibold text-foreground mb-4">Service Client</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/support" className="text-muted-foreground hover:text-primary">Contactez-nous</Link></li>
-              <li><Link href="/support#faq" className="text-muted-foreground hover:text-primary">FAQ</Link></li>
+              <li><Link href="/support#faq" className="text-muted-foreground hover:text-primary">FAQ</Link></li> {/* Assuming FAQ section might have an ID */}
               <li><Link href="#" className="text-muted-foreground hover:text-primary">Politique de Retour</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary">Suivi de Commande</Link></li>
             </ul>
