@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Product } from '@/types';
 import { getProductsAction } from '@/app/admin/actions';
 
@@ -53,6 +53,9 @@ export default function HomePage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [dealsProducts, setDealsProducts] = useState<Product[]>([]);
+  const [moreToExploreProducts, setMoreToExploreProducts] = useState<Product[]>([]);
+
   useEffect(() => {
     async function loadProducts() {
       setIsLoading(true);
@@ -68,13 +71,24 @@ export default function HomePage() {
     loadProducts();
   }, []);
 
+  // Client-side effect for randomization to prevent hydration mismatch
+  useEffect(() => {
+    if (allProducts.length > 0) {
+      setDealsProducts(
+        [...allProducts].sort(() => 0.5 - Math.random()).slice(0, DEALS_COUNT)
+      );
+      setMoreToExploreProducts(
+        [...allProducts].sort(() => 0.5 - Math.random()).slice(DEALS_COUNT, DEALS_COUNT + MORE_TO_EXPLORE_COUNT)
+      );
+    }
+  }, [allProducts]); // Re-run when allProducts is populated
+
   const categoryShowcaseSections = CATEGORIES_TO_SHOWCASE.map((categoryConfig, index) => {
     const productsForShowcase = allProducts
       .filter(p => p.category === categoryConfig.name)
       .slice(0, PRODUCTS_PER_SHOWCASE);
 
-    // Skeleton for showcase sections while loading
-    if (isLoading && productsForShowcase.length === 0) {
+    if (isLoading && productsForShowcase.length === 0 && index < 3) { // Only show skeletons for initial showcases if loading
       return (
         <div key={`showcase-skel-${categoryConfig.name}`} className="w-full min-h-screen flex items-center justify-center bg-muted">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
@@ -94,9 +108,7 @@ export default function HomePage() {
       );
     }
     
-    // Don't render if no products for this showcase *after* loading and if there are some products overall
     if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0) return null;
-    // If still loading or no products at all, the skeleton above handles it, or the main empty state below will.
 
     return (
       <CategoryShowcaseSection
@@ -114,21 +126,10 @@ export default function HomePage() {
     );
   }).filter(Boolean);
 
-  // Randomize deals and more to explore (client-side only, will change on re-render)
-  // For consistent "deals" you'd typically flag them in the DB
-  const dealsProducts = useMemo(() => 
-    [...allProducts].sort(() => 0.5 - Math.random()).slice(0, DEALS_COUNT), 
-    [allProducts]
-  );
   const bestSellerProducts = useMemo(() => 
     [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT),
     [allProducts]
   );
-  const moreToExploreProducts = useMemo(() =>
-    [...allProducts].sort(() => 0.5 - Math.random()).slice(DEALS_COUNT, DEALS_COUNT + MORE_TO_EXPLORE_COUNT),
-    [allProducts]
-  );
-
 
   return (
     <>
