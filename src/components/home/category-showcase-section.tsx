@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 interface CategoryShowcaseSectionProps {
   title: string;
@@ -16,7 +17,7 @@ interface CategoryShowcaseSectionProps {
   ctaLink: string;
   ctaText?: string;
   productsToDisplay: Product[];
-  reverseLayout?: boolean; // For alternating layout if desired
+  reverseLayout?: boolean;
   imageAiHint?: string;
 }
 
@@ -33,12 +34,11 @@ export default function CategoryShowcaseSection({
 }: CategoryShowcaseSectionProps) {
   
   if (productsToDisplay.length === 0) {
-    // Optionally render nothing or a simplified version if no products
     return null;
   }
 
   return (
-    <section className="relative py-12 md:py-20 lg:py-28 overflow-hidden rounded-lg shadow-2xl my-10">
+    <section className="relative w-full min-h-screen overflow-hidden flex items-center justify-center">
       {/* Background Image */}
       <Image
         src={backgroundImageUrl}
@@ -48,14 +48,17 @@ export default function CategoryShowcaseSection({
         quality={80}
         className="z-0"
         data-ai-hint={imageAiHint}
-        priority // Consider adding priority for LCP images
+        priority 
       />
       {/* Overlay for text contrast */}
       <div className="absolute inset-0 bg-black/60 z-10"></div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
-        <div className={`flex flex-col ${reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-8 lg:gap-12`}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 py-12 md:py-16">
+        <div className={cn(
+          "flex flex-col items-center gap-8 lg:gap-12",
+          reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'
+        )}>
           {/* Text Content */}
           <div className="lg:w-1/2 text-center lg:text-left space-y-5">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
@@ -73,8 +76,8 @@ export default function CategoryShowcaseSection({
           </div>
 
           {/* Highlighted Products */}
-          <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 mt-8 lg:mt-0">
-            {productsToDisplay.slice(0, 2).map(product => ( // Show max 2 products in this layout
+          <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 mt-8 lg:mt-0 w-full max-w-2xl">
+            {productsToDisplay.slice(0, 2).map(product => (
               <ProductCard 
                 key={product.id} 
                 product={product} 

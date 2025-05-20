@@ -44,9 +44,9 @@ const CATEGORIES_TO_SHOWCASE = [
   },
 ];
 const PRODUCTS_PER_SHOWCASE = 2;
-const BEST_SELLERS_COUNT = 4; // Number of best sellers to show
-const DEALS_COUNT = 4; // Number of items for "Today's Deals"
-const MORE_TO_EXPLORE_COUNT = 8; // Number of items for "More to Explore"
+const BEST_SELLERS_COUNT = 4; 
+const DEALS_COUNT = 4; 
+const MORE_TO_EXPLORE_COUNT = 8; 
 
 
 export default function HomePage() {
@@ -76,23 +76,27 @@ export default function HomePage() {
     // Skeleton for showcase sections while loading
     if (isLoading && productsForShowcase.length === 0) {
       return (
-        <div key={categoryConfig.name} className="py-10 my-10 container mx-auto px-4 sm:px-6 lg:px-8">
-          <Skeleton className="h-12 w-1/2 mb-4" />
-          <Skeleton className="h-8 w-3/4 mb-6" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {[...Array(PRODUCTS_PER_SHOWCASE)].map((_, i) => (
-              <div key={i} className="space-y-3 p-4 border rounded-lg bg-muted/30">
-                <Skeleton className="h-[150px] w-full rounded-lg" />
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-5 w-1/2" />
-              </div>
-            ))}
+        <div key={`showcase-skel-${categoryConfig.name}`} className="w-full min-h-screen flex items-center justify-center bg-muted">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
+            <Skeleton className="h-12 w-1/2 mb-4 mx-auto" />
+            <Skeleton className="h-8 w-3/4 mb-6 mx-auto" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              {[...Array(PRODUCTS_PER_SHOWCASE)].map((_, i) => (
+                <div key={i} className="space-y-3 p-4 border rounded-lg bg-background/50">
+                  <Skeleton className="h-[150px] w-full rounded-lg" />
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-5 w-1/2" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );
     }
     
+    // Don't render if no products for this showcase *after* loading and if there are some products overall
     if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0) return null;
+    // If still loading or no products at all, the skeleton above handles it, or the main empty state below will.
 
     return (
       <CategoryShowcaseSection
@@ -103,103 +107,98 @@ export default function HomePage() {
         backgroundImageAlt={categoryConfig.backgroundImageAlt}
         imageAiHint={categoryConfig.imageAiHint}
         ctaLink={`/products?category=${encodeURIComponent(categoryConfig.name)}`}
-        ctaText={`Explorer nos ${categoryConfig.name}`}
+        ctaText={`Explorer nos ${categoryConfig.name.toLowerCase()}`}
         productsToDisplay={productsForShowcase}
-        reverseLayout={index % 2 !== 0} // Alternate layout for visual variety
+        reverseLayout={index % 2 !== 0}
       />
     );
   }).filter(Boolean);
 
-  const dealsProducts = allProducts.sort(() => 0.5 - Math.random()).slice(0, DEALS_COUNT); 
-  const bestSellerProducts = allProducts.sort((a,b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT);
-  const moreToExploreProducts = allProducts.sort(() => 0.5 - Math.random()).slice(DEALS_COUNT, DEALS_COUNT + MORE_TO_EXPLORE_COUNT);
+  // Randomize deals and more to explore (client-side only, will change on re-render)
+  // For consistent "deals" you'd typically flag them in the DB
+  const dealsProducts = useMemo(() => 
+    [...allProducts].sort(() => 0.5 - Math.random()).slice(0, DEALS_COUNT), 
+    [allProducts]
+  );
+  const bestSellerProducts = useMemo(() => 
+    [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT),
+    [allProducts]
+  );
+  const moreToExploreProducts = useMemo(() =>
+    [...allProducts].sort(() => 0.5 - Math.random()).slice(DEALS_COUNT, DEALS_COUNT + MORE_TO_EXPLORE_COUNT),
+    [allProducts]
+  );
 
 
   return (
     <>
       <HeroSlideshow />
       
-      <div className="space-y-12 md:space-y-16 lg:space-y-20"> {/* Increased spacing */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 lg:pt-20">
+      {/* Full-width Category Showcases */}
+      {categoryShowcaseSections}
+      
+      {/* Container for the rest of the content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 lg:pt-20">
+        <div className="space-y-12 md:space-y-16 lg:space-y-20">
           <FeaturedCategories />
-        </div>
-
-        {/* Category Showcase Sections */}
-        {categoryShowcaseSections}
-        
-        {/* Today's Deals Section */}
-        {(isLoading && dealsProducts.length === 0) ? (
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <Skeleton className="h-8 w-1/3 mb-6" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {[...Array(DEALS_COUNT)].map((_, i) => <Skeleton key={`deal-skel-${i}`} className="h-64 w-full rounded-lg" />)}
+          
+          {(isLoading && dealsProducts.length === 0) ? (
+            <div>
+              <Skeleton className="h-8 w-1/3 mb-6" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {[...Array(DEALS_COUNT)].map((_, i) => <Skeleton key={`deal-skel-${i}`} className="h-64 w-full rounded-lg" />)}
+              </div>
             </div>
-          </div>
-        ) : dealsProducts.length > 0 && (
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-             <TodaysDeals products={dealsProducts} />
-          </div>
-        )}
-        
-        <Separator />
+          ) : dealsProducts.length > 0 && (
+            <TodaysDeals products={dealsProducts} />
+          )}
+          
+          <Separator />
 
-        {/* Best Sellers Section */}
-        {(isLoading && bestSellerProducts.length === 0) ? (
-           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <Skeleton className="h-8 w-1/3 mb-6" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {[...Array(BEST_SELLERS_COUNT)].map((_, i) => <Skeleton key={`bs-skel-${i}`} className="h-72 w-full rounded-lg" />)}
+          {(isLoading && bestSellerProducts.length === 0) ? (
+             <div>
+              <Skeleton className="h-8 w-1/3 mb-6" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {[...Array(BEST_SELLERS_COUNT)].map((_, i) => <Skeleton key={`bs-skel-${i}`} className="h-72 w-full rounded-lg" />)}
+              </div>
             </div>
-          </div>
-        ) : bestSellerProducts.length > 0 && (
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          ) : bestSellerProducts.length > 0 && (
             <BestSellerProducts products={bestSellerProducts} title="Nos Meilleures Ventes" itemsToShow={BEST_SELLERS_COUNT} />
-          </div>
-        )}
+          )}
 
-        <Separator />
-        
-        {/* More to Explore Section */}
-        {(isLoading && moreToExploreProducts.length === 0 && allProducts.length > 0) ? (
-           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <Skeleton className="h-8 w-1/3 mb-6" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"> {/* Changed to 4 cols */}
-               {[...Array(MORE_TO_EXPLORE_COUNT)].map((_, i) => <Skeleton key={`mte-skel-${i}`} className="h-64 w-full rounded-lg" />)}
+          <Separator />
+          
+          {(isLoading && moreToExploreProducts.length === 0 && allProducts.length > 0) ? (
+             <div>
+              <Skeleton className="h-8 w-1/3 mb-6" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                 {[...Array(MORE_TO_EXPLORE_COUNT)].map((_, i) => <Skeleton key={`mte-skel-${i}`} className="h-64 w-full rounded-lg" />)}
+              </div>
             </div>
-          </div>
-        ) : moreToExploreProducts.length > 0 && (
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-             <BestSellerProducts products={moreToExploreProducts} title="Plus d'Articles à Explorer" itemsToShow={MORE_TO_EXPLORE_COUNT} gridCols="sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" />
-          </div>
-        )}
-        
-        {!isLoading && allProducts.length === 0 && (
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
-                <p className="text-muted-foreground text-lg">
-                  Notre catalogue est actuellement vide. Revenez bientôt pour découvrir nos collections !
-                </p>
-            </div>
-        )}
+          ) : moreToExploreProducts.length > 0 && (
+            <BestSellerProducts products={moreToExploreProducts} title="Plus d'Articles à Explorer" itemsToShow={MORE_TO_EXPLORE_COUNT} gridCols="sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" />
+          )}
+          
+          {!isLoading && allProducts.length === 0 && (
+              <div className="py-10 text-center">
+                  <p className="text-muted-foreground text-lg">
+                    Notre catalogue est actuellement vide. Revenez bientôt pour découvrir nos collections !
+                  </p>
+              </div>
+          )}
 
-        {(isLoading || allProducts.length > 0) && (
-            <>
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {(isLoading || allProducts.length > 0) && (
+              <>
                 <ServiceHighlights />
-              </div>
-              <Separator />
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <Separator />
                 <Testimonials />
-              </div>
-              <Separator />
-               <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <Separator />
                 <PartnerLogos />
-              </div>
-              <Separator />
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <Separator />
                 <NewsletterSignup />
-              </div>
-            </>
-        )}
+              </>
+          )}
+        </div>
       </div>
     </>
   );
