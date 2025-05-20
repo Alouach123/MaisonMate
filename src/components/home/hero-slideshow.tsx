@@ -1,3 +1,4 @@
+
 // src/components/home/hero-slideshow.tsx
 "use client";
 
@@ -6,7 +7,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
-import WaveBottomSeparator from '@/components/layout/wave-bottom-separator'; // Import the separator
 
 const slidesData = [
   {
@@ -50,70 +50,70 @@ export default function HeroSlideshow() {
   }, [currentIndex, goToNext]);
 
   const currentSlide = slidesData[currentIndex];
-  const heroOverlayColor = "rgba(0,0,0,0.7)"; // Define overlay color for the wave
 
   return (
-    <section className="relative w-full min-h-screen overflow-hidden">
-      {slidesData.map((slide, index) => (
-        <Image
-          key={slide.imageSrc + index} // Ensure unique key for each image
-          src={slide.imageSrc}
-          alt={slide.imageAlt}
-          fill
-          priority={index === currentIndex} 
-          className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}
-          data-ai-hint={slide.aiHint}
-          quality={85}
-        />
-      ))}
-      
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent z-10"></div>
-      
-      <div className="absolute inset-0 flex items-center justify-center md:justify-start text-center md:text-left px-6 pt-24 pb-6 md:px-12 md:pt-32 md:pb-12 lg:px-16 lg:pt-40 lg:pb-16 z-20">
-        <div className="max-w-lg md:max-w-xl space-y-6">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
-            {currentSlide.headline}
-          </h1>
-          <p className="text-lg sm:text-xl text-neutral-200 leading-relaxed drop-shadow-sm">
-            {currentSlide.subheadline}
-          </p>
-          <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground group text-base px-8 py-6 shadow-lg transform hover:scale-105 transition-transform duration-300">
-            <Link href={currentSlide.ctaLink}>
-              {currentSlide.ctaText}
-              <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <button
-        onClick={goToPrevious}
-        className="absolute top-1/2 left-4 md:left-8 transform -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
-        aria-label="Previous slide"
-      >
-        <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
-      </button>
-      <button
-        onClick={goToNext}
-        className="absolute top-1/2 right-4 md:right-8 transform -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
-        aria-label="Next slide"
-      >
-        <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
-      </button>
-
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2">
-        {slidesData.map((_, slideIndex) => (
-          <button
-            key={slideIndex}
-            onClick={() => goToSlide(slideIndex)}
-            className={`h-3 w-3 md:h-3.5 md:w-3.5 rounded-full transition-all duration-300 ease-in-out
-                        ${currentIndex === slideIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/75'}`}
-            aria-label={`Go to slide ${slideIndex + 1}`}
+    <section className="relative w-full min-h-screen overflow-hidden transform -skew-y-3 mb-[-6vh]">
+      {/* Inner div to un-skew content and manage padding */}
+      <div className="relative w-full h-full transform skew-y-3">
+        {slidesData.map((slide, index) => (
+          <Image
+            key={slide.imageSrc + index}
+            src={slide.imageSrc}
+            alt={slide.imageAlt}
+            fill
+            priority={index === currentIndex} 
+            className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}
+            data-ai-hint={slide.aiHint}
+            quality={85}
           />
         ))}
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent z-10"></div>
+        
+        <div className="absolute inset-0 flex items-center justify-center md:justify-start text-center md:text-left px-6 pt-32 pb-12 md:px-12 md:pt-40 md:pb-16 lg:px-16 lg:pt-48 lg:pb-20 z-20">
+          <div className="max-w-lg md:max-w-xl space-y-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
+              {currentSlide.headline}
+            </h1>
+            <p className="text-lg sm:text-xl text-neutral-200 leading-relaxed drop-shadow-sm">
+              {currentSlide.subheadline}
+            </p>
+            <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground group text-base px-8 py-6 shadow-lg transform hover:scale-105 transition-transform duration-300">
+              <Link href={currentSlide.ctaLink}>
+                {currentSlide.ctaText}
+                <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <button
+          onClick={goToPrevious}
+          className="absolute top-1/2 left-4 md:left-8 transform -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
+        </button>
+        <button
+          onClick={goToNext}
+          className="absolute top-1/2 right-4 md:right-8 transform -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+          aria-label="Next slide"
+        >
+          <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
+        </button>
+
+        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2">
+          {slidesData.map((_, slideIndex) => (
+            <button
+              key={slideIndex}
+              onClick={() => goToSlide(slideIndex)}
+              className={`h-3 w-3 md:h-3.5 md:w-3.5 rounded-full transition-all duration-300 ease-in-out
+                          ${currentIndex === slideIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/75'}`}
+              aria-label={`Go to slide ${slideIndex + 1}`}
+            />
+          ))}
+        </div>
       </div>
-      {/* Add the wavy bottom separator */}
-      <WaveBottomSeparator fillColor={heroOverlayColor} />
     </section>
   );
 }

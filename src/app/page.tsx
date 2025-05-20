@@ -1,3 +1,4 @@
+
 // src/app/page.tsx
 "use client";
 
@@ -71,69 +72,59 @@ export default function HomePage() {
     loadProducts();
   }, []);
 
-  // Client-side effect for randomization to prevent hydration mismatch
   useEffect(() => {
-    if (allProducts.length > 0 && !isLoading) { // Ensure products are loaded and not still in initial loading state
-      setDealsProducts(
-        [...allProducts].sort(() => 0.5 - Math.random()).slice(0, DEALS_COUNT)
-      );
-      setMoreToExploreProducts(
-        [...allProducts].sort(() => 0.5 - Math.random()).slice(DEALS_COUNT, DEALS_COUNT + MORE_TO_EXPLORE_COUNT)
-      );
+    if (allProducts.length > 0 && !isLoading) {
+      const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
+      setDealsProducts(shuffled.slice(0, DEALS_COUNT));
+      setMoreToExploreProducts(shuffled.slice(DEALS_COUNT, DEALS_COUNT + MORE_TO_EXPLORE_COUNT));
     }
-  }, [allProducts, isLoading]); // Re-run when allProducts or isLoading changes
+  }, [allProducts, isLoading]);
 
-  const categoryShowcaseSections = CATEGORIES_TO_SHOWCASE.map((categoryConfig, index) => {
-    const productsForShowcase = allProducts
-      .filter(p => p.category === categoryConfig.name)
-      .slice(0, PRODUCTS_PER_SHOWCASE);
+  const categoryShowcaseSections = useMemo(() => 
+    CATEGORIES_TO_SHOWCASE.map((categoryConfig, index) => {
+      const productsForShowcase = allProducts
+        .filter(p => p.category === categoryConfig.name)
+        .slice(0, PRODUCTS_PER_SHOWCASE);
 
-    if (isLoading && index < 3) { // Only show skeletons for initial showcases if loading
-      return (
-        <div key={`showcase-skel-${categoryConfig.name}`} className="w-full min-h-screen flex items-center justify-center bg-muted">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
-            <Skeleton className="h-12 w-1/2 mb-4 mx-auto" />
-            <Skeleton className="h-8 w-3/4 mb-6 mx-auto" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              {[...Array(PRODUCTS_PER_SHOWCASE)].map((_, i) => (
-                <div key={i} className="space-y-3 p-4 border rounded-lg bg-background/50">
-                  <Skeleton className="h-[150px] w-full rounded-lg" />
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-5 w-1/2" />
-                </div>
-              ))}
+      if (isLoading && index < 3) {
+        return (
+          <div key={`showcase-skel-${categoryConfig.name}`} className="w-full min-h-screen flex items-center justify-center bg-muted transform -skew-y-3 mb-[-6vh] mt-[-11vh]">
+            <div className="transform skew-y-3 container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
+              <Skeleton className="h-12 w-1/2 mb-4 mx-auto" />
+              <Skeleton className="h-8 w-3/4 mb-6 mx-auto" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                {[...Array(PRODUCTS_PER_SHOWCASE)].map((_, i) => (
+                  <div key={i} className="space-y-3 p-4 border rounded-lg bg-background/50">
+                    <Skeleton className="h-[150px] w-full rounded-lg" />
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-5 w-1/2" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        );
+      }
+      
+      if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0) return null;
+
+      return (
+        <CategoryShowcaseSection
+          key={categoryConfig.name}
+          title={categoryConfig.title}
+          description={categoryConfig.description}
+          backgroundImageUrl={categoryConfig.backgroundImageUrl}
+          backgroundImageAlt={categoryConfig.backgroundImageAlt}
+          imageAiHint={categoryConfig.imageAiHint}
+          ctaLink={`/products?category=${encodeURIComponent(categoryConfig.name)}`}
+          ctaText={`Explorer nos ${categoryConfig.name.toLowerCase()}`}
+          productsToDisplay={productsForShowcase}
+          reverseLayout={index % 2 !== 0}
+          isFirstShowcase={index === 0}
+        />
       );
-    }
-    
-    // Render showcase only if products for it are available or if still loading (to show skeleton)
-    if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0) return null;
-
-
-    // Determine the background color for the separator of the *next* section.
-    // The last showcase section should transition to the main page background.
-    const isLastShowcase = index === CATEGORIES_TO_SHOWCASE.length - 1;
-    const nextSectionBgForSeparator = isLastShowcase ? 'hsl(var(--background))' : 'rgba(0,0,0,0.6)';
-
-
-    return (
-      <CategoryShowcaseSection
-        key={categoryConfig.name}
-        title={categoryConfig.title}
-        description={categoryConfig.description}
-        backgroundImageUrl={categoryConfig.backgroundImageUrl}
-        backgroundImageAlt={categoryConfig.backgroundImageAlt}
-        imageAiHint={categoryConfig.imageAiHint}
-        ctaLink={`/products?category=${encodeURIComponent(categoryConfig.name)}`}
-        ctaText={`Explorer nos ${categoryConfig.name.toLowerCase()}`}
-        productsToDisplay={productsForShowcase}
-        reverseLayout={index % 2 !== 0}
-        nextSectionBgColor={nextSectionBgForSeparator} // Pass this for the embedded separator
-      />
-    );
-  }).filter(Boolean);
+    }).filter(Boolean), [allProducts, isLoading]
+  );
 
   const bestSellerProducts = useMemo(() => 
     [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT),
@@ -144,11 +135,10 @@ export default function HomePage() {
     <>
       <HeroSlideshow />
       
-      {/* Full-width Category Showcases */}
       {categoryShowcaseSections}
       
-      {/* Container for the rest of the content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 lg:pt-20">
+      {/* Container for the rest of the content, needs top padding to account for skew of last showcase */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-28 lg:pt-32"> {/* Increased padding-top */}
         <div className="space-y-12 md:space-y-16 lg:space-y-20">
           <FeaturedCategories />
           
@@ -197,7 +187,6 @@ export default function HomePage() {
               </div>
           )}
 
-          {/* Render these sections regardless of product loading, unless they depend on product data */}
           {(isLoading || allProducts.length > 0) && ( 
               <>
                 <ServiceHighlights />
