@@ -3,13 +3,13 @@
 
 import Image from 'next/image';
 
-// Placeholder partner logos (replace with actual logos and links)
+// Representing real partner brands using placehold.co for visual placeholders
 const partners = [
-  { name: "BrandA", logoUrl: "https://placehold.co/150x60.png?text=Marque+A", dataAiHint: "company logo" },
-  { name: "BrandB", logoUrl: "https://placehold.co/150x60.png?text=Marque+B", dataAiHint: "company logo" },
-  { name: "BrandC", logoUrl: "https://placehold.co/150x60.png?text=Marque+C", dataAiHint: "company logo" },
-  { name: "BrandD", logoUrl: "https://placehold.co/150x60.png?text=Marque+D", dataAiHint: "company logo" },
-  { name: "BrandE", logoUrl: "https://placehold.co/150x60.png?text=Marque+E", dataAiHint: "company logo" },
+  { name: "IKEA", logoUrl: "https://placehold.co/150x60.png?text=IKEA", dataAiHint: "company logo" },
+  { name: "Roche Bobois", logoUrl: "https://placehold.co/150x60.png?text=Roche+Bobois", dataAiHint: "company logo" },
+  { name: "Kartell", logoUrl: "https://placehold.co/150x60.png?text=Kartell", dataAiHint: "company logo" },
+  { name: "Vitra", logoUrl: "https://placehold.co/150x60.png?text=Vitra", dataAiHint: "company logo" },
+  { name: "Herman Miller", logoUrl: "https://placehold.co/150x60.png?text=Herman+Miller", dataAiHint: "company logo" },
 ];
 
 export default function PartnerLogos() {
