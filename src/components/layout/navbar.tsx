@@ -2,7 +2,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, Armchair, Globe, UserCircle } from 'lucide-react'; // Added UserCircle
+import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, Armchair, Globe, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import { useAuth } from '@/hooks/use-auth-context';
@@ -66,7 +66,7 @@ export default function Navbar() {
     return user?.email?.[0]?.toUpperCase() || 'U';
   };
   
-  const avatarSeed = user?.user_metadata?.first_name || user?.user_metadata?.last_name || user?.email?.split('@')[0] || 'User';
+  const avatarSeed = user?.user_metadata?.avatar_url ? null : (user?.user_metadata?.first_name || user?.user_metadata?.last_name || user?.email?.split('@')[0] || 'User');
 
 
   return (
@@ -104,7 +104,7 @@ export default function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full md:h-10 md:w-auto md:px-3 md:py-2">
                    <Avatar className="h-7 w-7 md:mr-2">
-                      <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(avatarSeed)}`} alt={getUserDisplayName()} />
+                      <AvatarImage src={user.user_metadata?.avatar_url || (avatarSeed ? `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(avatarSeed)}` : undefined)} alt={getUserDisplayName()} />
                       <AvatarFallback>{getAvatarFallback()}</AvatarFallback>
                    </Avatar>
                   <span className="hidden md:inline text-sm font-medium text-foreground/90">

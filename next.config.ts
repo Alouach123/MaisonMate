@@ -31,9 +31,15 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.pinimg.com', // Added Pinterest domain
+        hostname: 'i.pinimg.com',
         port: '',
         pathname: '/**',
+      },
+      { // Added for Supabase Storage
+        protocol: 'https',
+        hostname: 'fuefhogrzjkhzuqzdrtx.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
       }
     ],
   },

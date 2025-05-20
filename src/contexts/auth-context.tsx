@@ -32,8 +32,9 @@ interface AuthContextType {
   signInUser: (credentials: Pick<SignUpWithPasswordCredentials, 'email' | 'password'>) => Promise<{ error: any | null }>;
   signOutUser: () => Promise<{ error: any | null }>;
   updateUserEmail: (newEmail: string) => Promise<{ error: any | null }>;
-  updateUserPassword: (newPassword: string) => Promise<{ error: any | null }>; // Simplified, Supabase typically requires current password
+  updateUserPassword: (newPassword: string) => Promise<{ error: any | null }>;
   updateUserNames: (payload: UpdateUserNamesPayload) => Promise<{ error: any | null }>;
+  updateUserAvatar: (avatarUrl: string) => Promise<{ error: any | null }>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,7 +57,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (event: AuthChangeEvent, sessionState: Session | null) => {
         setSession(sessionState);
         setUser(sessionState?.user ?? null);
-        // setIsLoading(false); // Already handled by initial getSession
       }
     );
 
@@ -73,7 +73,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Sign up error:", error.message);
       return { data: null, error };
     }
-    // Even if Supabase sends its own confirmation, we proceed to our simulated OTP flow
     return { data, error: null };
   }, []);
 
@@ -117,9 +116,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const updateUserPassword = useCallback(async (newPassword: string) => {
     setIsLoading(true);
-    // Note: For changing password, Supabase typically requires the current password or a reset flow.
-    // This simplified version directly sets the new password.
-    // In a real app, you might need a more secure flow if current password isn't known.
     const { data, error } = await supabase.auth.updateUser({ password: newPassword });
     setIsLoading(false);
     if (error) {
@@ -144,10 +140,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast({ variant: "destructive", title: "Erreur de mise à jour", description: error.message });
       return { error };
     }
-    // Update local user state optimistically or after refetch
     if (data.user) {
-        setUser(data.user); // Supabase returns the updated user object
+        setUser(data.user);
         toast({ title: "Profil mis à jour", description: "Vos nom et prénom ont été modifiés." });
+    }
+    return { error: null };
+  }, []);
+
+  const updateUserAvatar = useCallback(async (avatarUrl: string) => {
+    setIsLoading(true);
+    const { data, error } = await supabase.auth.updateUser({
+      data: {
+        avatar_url: avatarUrl,
+      },
+    });
+    setIsLoading(false);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur de mise à jour de l'avatar", description: error.message });
+      return { error };
+    }
+    if (data.user) {
+      setUser(data.user); // Update user state with new metadata
+      toast({ title: "Avatar mis à jour !", description: "Votre photo de profil a été modifiée." });
     }
     return { error: null };
   }, []);
@@ -155,7 +169,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, session, isAuthenticated, isLoading, signUpUser, signInUser, signOutUser, updateUserEmail, updateUserPassword, updateUserNames }}>
+    <AuthContext.Provider value={{ user, session, isAuthenticated, isLoading, signUpUser, signInUser, signOutUser, updateUserEmail, updateUserPassword, updateUserNames, updateUserAvatar }}>
       {children}
     </AuthContext.Provider>
   );

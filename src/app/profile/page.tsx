@@ -1,17 +1,20 @@
 
 "use client";
 
-import { useState, useEffect, type FormEvent } from 'react';
+import React, { useState, useEffect, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/use-auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserCircle2, Mail, KeyRound, Save, Loader2, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { UserCircle2, Mail, KeyRound, Save, Loader2, ShieldAlert, ShieldCheck, Camera, UploadCloud } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { supabase } from '@/lib/supabase/client'; // Import supabase client for storage
 
 interface PasswordValidation {
   minLength: boolean;
@@ -47,7 +50,7 @@ const getPasswordStrength = (validation: PasswordValidation): number => {
 
 
 export default function ProfilePage() {
-  const { user, updateUserEmail, updateUserPassword, updateUserNames, isLoading: authLoading, isAuthenticated } = useAuth();
+  const { user, updateUserEmail, updateUserPassword, updateUserNames, updateUserAvatar, isLoading: authLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   const [firstName, setFirstName] = useState('');
@@ -63,11 +66,15 @@ export default function ProfilePage() {
   const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push('/auth'); // Redirect if not authenticated
+      router.push('/auth'); 
     }
     if (user) {
       setFirstName(user.user_metadata?.first_name || '');
@@ -99,7 +106,7 @@ export default function ProfilePage() {
 
   const handleUpdateEmail = async (e: FormEvent) => {
     e.preventDefault();
-    if (!user || user.email === email) return; // No change
+    if (!user || user.email === email) return;
     setUpdateError(null);
     setIsUpdatingEmail(true);
     const { error } = await updateUserEmail(email);
@@ -139,6 +146,66 @@ export default function ProfilePage() {
     setIsUpdatingPassword(false);
   };
 
+  const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setSelectedFile(null);
+      setPreviewUrl(null);
+    }
+  };
+
+  const handlePhotoUpload = async () => {
+    if (!selectedFile || !user) {
+      toast({ variant: "destructive", title: "Erreur", description: "Veuillez sélectionner une photo et être connecté."});
+      return;
+    }
+    setIsUploadingPhoto(true);
+    setUpdateError(null);
+
+    const fileExt = selectedFile.name.split('.').pop();
+    const filePath = `${user.id}/profile.${fileExt}`;
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('avatars') // Make sure this bucket name matches your Supabase bucket
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          upsert: true, // Overwrite if file already exists
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: publicURLData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      if (!publicURLData?.publicUrl) {
+        throw new Error("Impossible d'obtenir l'URL publique de l'image.");
+      }
+      
+      const { error: avatarUpdateError } = await updateUserAvatar(publicURLData.publicUrl);
+      if (avatarUpdateError) {
+        throw avatarUpdateError;
+      }
+
+      toast({ title: "Photo de profil mise à jour !" });
+      setSelectedFile(null);
+      setPreviewUrl(null);
+
+    } catch (error: any) {
+      setUpdateError(error.message || "Erreur lors du téléchargement de la photo.");
+      toast({ variant: "destructive", title: "Erreur de téléchargement", description: error.message });
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+
   const renderPasswordStrength = () => {
     if (!newPassword) return null;
     let strengthColor = 'bg-destructive';
@@ -167,6 +234,14 @@ export default function ProfilePage() {
     );
   }
 
+  const currentAvatarUrl = user.user_metadata?.avatar_url;
+  const avatarSeed = user.user_metadata?.first_name || user.user_metadata?.last_name || user.email?.split('@')[0] || 'User';
+  const avatarFallback = (
+    (user.user_metadata?.first_name?.[0] || '') + (user.user_metadata?.last_name?.[0] || '') ||
+    user.email?.[0] || 'U'
+  ).toUpperCase();
+
+
   return (
     <div className="max-w-3xl mx-auto py-8 px-4 pt-20">
       <Card className="shadow-xl">
@@ -184,6 +259,25 @@ export default function ProfilePage() {
               <AlertDescription>{updateError}</AlertDescription>
             </Alert>
           )}
+
+          <div className="p-4 border rounded-md space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2"><Camera className="h-5 w-5" />Photo de Profil</h3>
+            <div className="flex flex-col items-center gap-4">
+              <Avatar className="h-32 w-32 border-2 border-primary">
+                <AvatarImage src={previewUrl || currentAvatarUrl || `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(avatarSeed)}`} alt="Photo de profil" />
+                <AvatarFallback className="text-4xl">{avatarFallback}</AvatarFallback>
+              </Avatar>
+              {previewUrl && <Image src={previewUrl} alt="Aperçu" width={100} height={100} className="rounded-md border" />}
+              <Input id="photo" type="file" accept="image/*" onChange={handlePhotoSelect} className="max-w-xs" />
+              {selectedFile && (
+                <Button onClick={handlePhotoUpload} disabled={isUploadingPhoto} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  {isUploadingPhoto ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                  Télécharger la photo
+                </Button>
+              )}
+            </div>
+          </div>
+
 
           <form onSubmit={handleUpdateNames} className="space-y-4 p-4 border rounded-md">
             <h3 className="text-lg font-semibold flex items-center gap-2"><UserCircle2 className="h-5 w-5" />Informations Personnelles</h3>
@@ -217,7 +311,6 @@ export default function ProfilePage() {
           
           <form onSubmit={handleUpdatePassword} className="space-y-4 p-4 border rounded-md">
             <h3 className="text-lg font-semibold flex items-center gap-2"><KeyRound className="h-5 w-5" />Changer le mot de passe</h3>
-             {/* In a real app, you would add a field for 'Current Password' here for security */}
             <div>
               <Label htmlFor="newPassword">Nouveau mot de passe</Label>
               <Input id="newPassword" type="password" value={newPassword} onChange={(e) => handlePasswordChange(e.target.value)} required />
