@@ -22,6 +22,7 @@ interface PasswordValidation {
   uppercase: boolean;
   lowercase: boolean;
   number: boolean;
+  // symbol: boolean; // Example: can add symbol validation
 }
 
 const initialPasswordValidation: PasswordValidation = {
@@ -29,6 +30,7 @@ const initialPasswordValidation: PasswordValidation = {
   uppercase: false,
   lowercase: false,
   number: false,
+  // symbol: false,
 };
 
 const validatePassword = (password: string): PasswordValidation => {
@@ -37,15 +39,18 @@ const validatePassword = (password: string): PasswordValidation => {
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /[0-9]/.test(password),
+    // symbol: /[!@#$%^&*]/.test(password),
   };
 };
 
 const getPasswordStrength = (validation: PasswordValidation): number => {
   let strength = 0;
-  if (validation.minLength) strength += 25; 
+  if (validation.minLength) strength += 25; // Min length is crucial
   if (validation.uppercase) strength += 20;
   if (validation.lowercase) strength += 20;
   if (validation.number) strength += 20;
+  // if (validation.symbol) strength += 15;
+  // Ensure minimum 25% if only minLength is met, otherwise scale up
   return Math.min(100, strength > 25 ? strength : (validation.minLength ? 25: 0) ); 
 };
 
@@ -73,8 +78,10 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (!isAuthContextLoading && isUserAuthenticated && (view === 'userSignin' || view === 'userSignup')) {
+      // If user is authenticated and tries to access signin/signup, redirect to home
       router.push('/');
     }
+    // If admin is authenticated and tries to access admin login, redirect to admin dashboard
     if (typeof window !== 'undefined' && localStorage.getItem(ADMIN_AUTH_KEY) === 'true' && view === 'admin') {
       router.push('/admin');
     }
@@ -135,13 +142,20 @@ export default function AuthPage() {
       }
     };
 
-    const { error } = await signUpUser(credentials);
+    const { data: signUpData, error } = await signUpUser(credentials);
     setIsUserAuthLoading(false);
     if (error) {
       setUserAuthError(error.message || "Erreur lors de l'inscription.");
     } else {
-      toast({ title: "Inscription demandée", description: "Veuillez vérifier votre e-mail pour confirmer votre compte."});
-      setView('userSignin'); 
+      toast({ title: "Inscription demandée", description: "Veuillez vérifier votre e-mail pour confirmer votre compte (si activé) et procéder à la vérification OTP."});
+      // Store email for OTP page if needed, or Supabase session might handle it
+      if (signUpData && signUpData.user) {
+        // Optionally pass user email to OTP page if needed, e.g., via query params or context
+        router.push(`/auth/verify-otp?email=${encodeURIComponent(email)}`);
+      } else {
+         router.push(`/auth/verify-otp`); // Fallback if user data is not immediately available
+      }
+      // Reset form fields after sign up submission attempt
       setEmail(''); setPassword(''); setConfirmPassword(''); setFirstName(''); setLastName('');
       setPasswordValidation(initialPasswordValidation); setPasswordStrength(0);
     }
@@ -156,7 +170,7 @@ export default function AuthPage() {
     if (error) {
       setUserAuthError(error.message || "Erreur lors de la connexion.");
     } else {
-      router.push('/');
+      router.push('/'); // Redirect to home page on successful sign-in
     }
   };
 
@@ -199,10 +213,13 @@ export default function AuthPage() {
   );
 
   const renderPasswordStrength = () => {
+    // Only show strength if password field is not empty
     if (!password) return null; 
-    let strengthColor = 'bg-destructive'; 
-    if (passwordStrength > 70) strengthColor = 'bg-green-500'; 
-    else if (passwordStrength > 40) strengthColor = 'bg-yellow-500'; 
+    
+    // Determine color based on strength
+    let strengthColor = 'bg-destructive'; // Default to weak
+    if (passwordStrength > 70) strengthColor = 'bg-green-500'; // Strong
+    else if (passwordStrength > 40) strengthColor = 'bg-yellow-500'; // Medium
 
     return (
       <div className="mt-2 space-y-1">
@@ -212,6 +229,7 @@ export default function AuthPage() {
           <li className={passwordValidation.uppercase ? 'text-green-600' : 'text-destructive'}>Une lettre majuscule</li>
           <li className={passwordValidation.lowercase ? 'text-green-600' : 'text-destructive'}>Une lettre minuscule</li>
           <li className={passwordValidation.number ? 'text-green-600' : 'text-destructive'}>Un chiffre</li>
+          {/* <li className={passwordValidation.symbol ? 'text-green-600' : 'text-destructive'}>Un caractère spécial</li> */}
         </ul>
       </div>
     );
@@ -325,9 +343,9 @@ export default function AuthPage() {
     </Card>
   );
 
-  if (isAuthContextLoading && !user) {
+  if (isAuthContextLoading && !user) { // Show loading spinner if auth context is loading and no user is present
      return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20"> {/* Increased pt-8 to pt-20 */}
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="mt-4 text-muted-foreground">Chargement de l'authentification...</p>
       </div>
@@ -335,7 +353,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20"> {/* Increased pt-8 to pt-20 */}
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
       {view === 'select' && renderSelection()}
       {view === 'admin' && renderAdminLogin()}
       {view === 'userSignup' && renderUserSignUpForm()}

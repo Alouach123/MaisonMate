@@ -2,7 +2,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, Armchair, Globe } from 'lucide-react';
+import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, Armchair, Globe, UserCircle } from 'lucide-react'; // Added UserCircle
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import { useAuth } from '@/hooks/use-auth-context';
@@ -56,10 +56,10 @@ export default function Navbar() {
     if (user?.user_metadata) {
       const firstName = user.user_metadata.first_name;
       const lastName = user.user_metadata.last_name;
-      if (firstName && lastName) {
+      if (firstName && lastName && firstName.length > 0 && lastName.length > 0) {
         return `${firstName[0]}${lastName[0]}`.toUpperCase();
       }
-      if (firstName) {
+      if (firstName && firstName.length > 0) {
         return firstName[0].toUpperCase();
       }
     }
@@ -121,6 +121,13 @@ export default function Navbar() {
                     </p>
                   </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/profile">
+                        <UserCircle className="mr-2 h-4 w-4" />
+                        <span>Mon Profil</span>
+                    </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOutUser} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
