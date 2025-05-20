@@ -167,29 +167,43 @@ export default function ProfilePage() {
 
     const fileExt = selectedFile.name.split('.').pop();
     const filePath = `${user.id}/profile.${fileExt}`;
+    const bucketName = 'avatars';
+
+    console.log("Attempting to upload photo...");
+    console.log("User ID:", user.id);
+    console.log("File Path:", filePath);
+    console.log("Bucket Name:", bucketName);
+    console.log("Selected File:", selectedFile);
+
 
     try {
       const { error: uploadError } = await supabase.storage
-        .from('avatars') // Make sure this bucket name matches your Supabase bucket
+        .from(bucketName) // Make sure this bucket name matches your Supabase bucket
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
           upsert: true, // Overwrite if file already exists
         });
 
       if (uploadError) {
+        console.error("Supabase storage upload error:", uploadError);
         throw uploadError;
       }
 
       const { data: publicURLData } = supabase.storage
-        .from('avatars')
+        .from(bucketName)
         .getPublicUrl(filePath);
+        
+      console.log("Public URL Data from Supabase:", publicURLData);
+
 
       if (!publicURLData?.publicUrl) {
+        console.error("Failed to get public URL after upload.");
         throw new Error("Impossible d'obtenir l'URL publique de l'image.");
       }
       
       const { error: avatarUpdateError } = await updateUserAvatar(publicURLData.publicUrl);
       if (avatarUpdateError) {
+        console.error("Error updating user avatar metadata:", avatarUpdateError);
         throw avatarUpdateError;
       }
 
@@ -198,6 +212,7 @@ export default function ProfilePage() {
       setPreviewUrl(null);
 
     } catch (error: any) {
+      console.error("Full error in handlePhotoUpload:", error);
       setUpdateError(error.message || "Erreur lors du téléchargement de la photo.");
       toast({ variant: "destructive", title: "Erreur de téléchargement", description: error.message });
     } finally {
@@ -331,3 +346,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
