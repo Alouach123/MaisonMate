@@ -26,11 +26,13 @@ export default function ProductForm({ productToEdit, onFormSubmit, onCancel, isL
     resolver: zodResolver(ProductSchema),
     defaultValues: productToEdit ? {
       ...productToEdit,
+      shortDescription: productToEdit.shortDescription || '',
       colors: productToEdit.colors?.join(', ') || '',
       materials: productToEdit.materials?.join(', ') || '',
     } : {
       name: '',
       description: '',
+      shortDescription: '',
       price: 0,
       imageUrl: 'https://placehold.co/600x400.png',
       category: '',
@@ -47,6 +49,7 @@ export default function ProductForm({ productToEdit, onFormSubmit, onCancel, isL
     if (productToEdit) {
       reset({
         ...productToEdit,
+        shortDescription: productToEdit.shortDescription || '',
         colors: productToEdit.colors?.join(', ') || '',
         materials: productToEdit.materials?.join(', ') || '',
         rating: productToEdit.rating ?? null,
@@ -56,6 +59,7 @@ export default function ProductForm({ productToEdit, onFormSubmit, onCancel, isL
       reset({
         name: '',
         description: '',
+        shortDescription: '',
         price: 0,
         imageUrl: 'https://placehold.co/600x400.png',
         category: '',
@@ -87,7 +91,8 @@ export default function ProductForm({ productToEdit, onFormSubmit, onCancel, isL
   
   const formFields: Array<{name: keyof ProductFormData, label: string, type?: string, placeholder?: string, component?: 'textarea'}> = [
     { name: 'name', label: 'Nom du produit', placeholder: 'Ex: Chaise Moderne' },
-    { name: 'description', label: 'Description', component: 'textarea', placeholder: 'Description détaillée du produit...' },
+    { name: 'shortDescription', label: 'Description courte (max 150 caractères)', component: 'textarea', placeholder: 'Brève description pour les aperçus...' },
+    { name: 'description', label: 'Description complète', component: 'textarea', placeholder: 'Description détaillée du produit...' },
     { name: 'price', label: 'Prix', type: 'number', placeholder: 'Ex: 99.99' },
     { name: 'imageUrl', label: 'URL de l\'image', placeholder: 'https://...' },
     { name: 'category', label: 'Catégorie', placeholder: 'Ex: Chaises' },
@@ -124,7 +129,7 @@ export default function ProductForm({ productToEdit, onFormSubmit, onCancel, isL
                     {...register(field.name)}
                     placeholder={field.placeholder}
                     className={errors[field.name] ? 'border-destructive' : ''}
-                    rows={3}
+                    rows={field.name === 'shortDescription' ? 2 : 3} // Fewer rows for short description
                   />
                 ) : (
                   <Input

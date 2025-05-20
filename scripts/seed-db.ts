@@ -7,11 +7,11 @@ import type { Product } from '@/types';
 // Load environment variables from .env.local
 dotenv.config({ path: '.env.local' });
 
-const productsToSeed: Product[] = [
+const productsToSeed: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[] = [
   // Lits (8)
   {
-    id: '9',
     name: 'IKEA HEMNES Lit 2',
+    shortDescription: 'Lit double HEMNES classique et robuste.',
     description: 'Un lit double HEMNES classique et robuste d\'IKEA, avec une tête de lit haute. Parfait pour un style intemporel et une chambre accueillante.',
     price: 329.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/020_IKEA_HEMNES_bed_2/IKEA_HEMNES_bed_2_1000_0001-551x551.webp',
@@ -24,8 +24,8 @@ const productsToSeed: Product[] = [
     dimensions: '170cm L x 211cm P x 120cm H (couchage 160x200)',
   },
   {
-    id: '10',
     name: 'IKEA Malm Lit',
+    shortDescription: 'Lit IKEA Malm au design épuré.',
     description: 'Lit IKEA Malm avec un design épuré et des lignes droites. Offre des rangements optionnels sous le lit pour optimiser l\'espace.',
     price: 279.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/081_IKEA_Malm_Bed/IKEA_Malm_Bed_1000_0001-551x551.webp',
@@ -38,8 +38,8 @@ const productsToSeed: Product[] = [
     dimensions: '176cm L x 209cm P x 100cm H (couchage 160x200)',
   },
   {
-    id: '11',
     name: 'Roche Bobois Bubble Lit',
+    shortDescription: 'Lit Bubble Roche Bobois, design audacieux.',
     description: 'Le lit Bubble de Roche Bobois, un design audacieux et confortable avec ses formes organiques et son revêtement en tissu Techno 3D. Une pièce maîtresse.',
     price: 4500.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Roche-Bobois/026_Roche-Bobois_Bubble_Bed/Roche-Bobois_Bubble_Bed_1000_0001-551x551.webp',
@@ -52,8 +52,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Taille Queen, approx. 180cm L x 220cm P x 90cm H',
   },
   {
-    id: '12',
     name: 'Natuzzi Fenice Lit',
+    shortDescription: 'Lit Fenice Natuzzi Italia, élégance et confort.',
     description: 'Lit Fenice de Natuzzi Italia, alliant élégance et confort avec une tête de lit capitonnée et des finitions soignées. Luxe italien.',
     price: 3800.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Natuzzi/001_Natuzzi_Fenice_Bed/Natuzzi_Fenice_Bed_1000_0001-551x551.webp',
@@ -66,8 +66,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Taille King, approx. 200cm L x 225cm P x 110cm H',
   },
   {
-    id: '13',
     name: 'IKEA HEMNES Lit',
+    shortDescription: 'Structure de lit HEMNES simple et élégante.',
     description: 'Structure de lit HEMNES d\'IKEA, simple et élégante, en pin massif. Un classique intemporel pour une chambre cosy et chaleureuse.',
     price: 249.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/019_IKEA_HEMNES_bed/IKEA_HEMNES_bed_1000_0001-551x551.webp',
@@ -80,8 +80,8 @@ const productsToSeed: Product[] = [
     dimensions: '150cm L x 211cm P x 120cm H (couchage 140x200)',
   },
   {
-    id: '14',
     name: 'Minotti Andersen Quilt Lit',
+    shortDescription: 'Lit Andersen Quilt Minotti, design sophistiqué.',
     description: 'Lit Andersen Quilt par Minotti, caractérisé par une tête de lit matelassée raffinée et un design sophistiqué. Confort et élégance suprêmes.',
     price: 5200.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Minotti/007_Minotti_Andersen_Quilt_Bed/Minotti_Andersen_Quilt_Bed_1000_0001-551x551.webp',
@@ -94,8 +94,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Taille King, approx. 210cm L x 230cm P x 105cm H',
   },
   {
-    id: '15',
     name: 'Lit en métal vintage victorien',
+    shortDescription: 'Charmant lit en métal style victorien.',
     description: 'Un charmant lit en métal de style victorien, avec des détails ornementaux. Idéal pour une ambiance romantique et rétro, pour une personne.',
     price: 450.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Generic/172_Generic_Victorian_Vintage_Twin_Size_Metal_Bed/Generic_Victorian_Vintage_Twin_Size_Metal_Bed_1000_0001-551x551.webp',
@@ -108,8 +108,8 @@ const productsToSeed: Product[] = [
     dimensions: '100cm L x 200cm P x 115cm H (couchage 90x190)',
   },
   {
-    id: '16',
     name: 'Savio Firmino 3058 Lit',
+    shortDescription: 'Lit Savio Firmino, artisanat florentin luxueux.',
     description: 'Lit 3058 de Savio Firmino, une pièce d\'exception avec des sculptures faites à la main et des finitions luxueuses. Un chef-d\'œuvre de l\'artisanat florentin.',
     price: 8900.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Savio-Firmino/006_Savio-Firmino_3058_Bed/Savio-Firmino_3058_Bed_1000_0001-551x551.webp',
@@ -123,8 +123,8 @@ const productsToSeed: Product[] = [
   },
   // Canapés (8)
   {
-    id: '1',
     name: 'Roche Bobois Bubble Grand canapé',
+    shortDescription: 'Canapé Bubble Roche Bobois, design iconique.',
     description: 'Un design iconique et ludique, offrant un confort enveloppant avec ses formes arrondies. Parfait pour un intérieur contemporain et audacieux. Un véritable appel à la détente.',
     price: 3499.99,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Roche-Bobois/003_Roche-Bobois_Bubble_Large_Sofa/Roche-Bobois_Bubble_Large_Sofa_1000_0001-551x551.webp',
@@ -137,8 +137,8 @@ const productsToSeed: Product[] = [
     dimensions: '248cm L x 132cm P x 77cm H',
   },
   {
-    id: '2',
     name: 'Chesterfield Canapé',
+    shortDescription: 'Canapé Chesterfield, élégance intemporelle.',
     description: 'L\'élégance intemporelle du style Chesterfield, avec son capitonnage profond caractéristique et ses accoudoirs enroulés. Une pièce de caractère en cuir véritable.',
     price: 2190.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/340_Chesterfield_Sofa/Chesterfield_Sofa_600_lq_0001-551x551.webp',
@@ -151,8 +151,8 @@ const productsToSeed: Product[] = [
     dimensions: '215cm L x 95cm P x 78cm H',
   },
   {
-    id: '3',
     name: 'Canapé marocain',
+    shortDescription: 'Canapé marocain, ambiance chaleureuse.',
     description: 'Un canapé d\'inspiration marocaine, invitant à la convivialité avec ses assises basses, ses coussins colorés et ses motifs orientaux. Parfait pour une ambiance chaleureuse.',
     price: 1750.50,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Generic/155_Generic_Moroccan_Sofa/Generic_Moroccan_Sofa_1000_0001-551x551.webp',
@@ -165,8 +165,8 @@ const productsToSeed: Product[] = [
     dimensions: '260cm L x 85cm P x 70cm H',
   },
   {
-    id: '4',
     name: 'IKEA Soderhamn Sofa',
+    shortDescription: 'Canapé Soderhamn IKEA, modulable et confortable.',
     description: 'Modulable et confortable, le canapé Soderhamn d\'IKEA offre une assise profonde et des coussins moelleux. Son design épuré s\'intègre facilement à divers styles d\'intérieurs.',
     price: 799.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/094_IKEA_Soderhamn_Sofa/IKEA_Soderhamn_Sofa_1000_0001-551x551.webp',
@@ -179,8 +179,8 @@ const productsToSeed: Product[] = [
     dimensions: '198cm L x 99cm P x 83cm H',
   },
   {
-    id: '5',
     name: 'Ethnicraft N701 Sofa',
+    shortDescription: 'Canapé N701 Ethnicraft, design minimaliste.',
     description: 'Le canapé N701 d\'Ethnicraft se distingue par ses lignes minimalistes et son design modulaire. Disponible en plusieurs éléments pour créer une configuration personnalisée.',
     price: 2450.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Ethnicraft/001_Ethnicraft_N701_Sofa/Ethnicraft_N701_Sofa_1000_0001-551x551.webp',
@@ -193,8 +193,8 @@ const productsToSeed: Product[] = [
     dimensions: '210cm L x 91cm P x 76cm H (pour le 3 places)',
   },
   {
-    id: '6',
     name: 'BoConcept Bergamo Sofa',
+    shortDescription: 'Canapé Bergamo BoConcept, design italien.',
     description: 'Le canapé Bergamo de BoConcept allie design italien et confort exceptionnel. Ses lignes organiques et ses détails raffinés en font une pièce maîtresse de votre salon.',
     price: 3200.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/BoConcept/023_BoConcept_Bergamo_Sofa/BoConcept_Bergamo_Sofa_1000_0001-551x551.webp',
@@ -207,8 +207,8 @@ const productsToSeed: Product[] = [
     dimensions: '240cm L x 105cm P x 70cm H',
   },
   {
-    id: '7',
     name: 'Sarah Ellison Muse Sofa',
+    shortDescription: 'Canapé Muse Sarah Ellison, allure sculpturale.',
     description: 'Avec ses courbes douces et son allure sculpturale, le canapé Muse de Sarah Ellison est une invitation à la relaxation. Un design australien contemporain et élégant.',
     price: 2950.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Sarah-Ellison/001_Sarah-Ellison_Muse_Sofa/Sarah-Ellison_Muse_Sofa_1000_0001-551x551.webp',
@@ -221,8 +221,8 @@ const productsToSeed: Product[] = [
     dimensions: '220cm L x 100cm P x 75cm H',
   },
   {
-    id: '8',
     name: 'IKEA Friheten Sofa',
+    shortDescription: 'Canapé Friheten IKEA, convertible et pratique.',
     description: 'Le canapé convertible Friheten d\'IKEA est une solution pratique et polyvalente. Il se transforme facilement en lit et dispose d\'un espace de rangement intégré.',
     price: 549.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/110_IKEA_Friheten_Sofa/IKEA_Friheten_Sofa_1000_0001-551x551.webp',
@@ -236,8 +236,8 @@ const productsToSeed: Product[] = [
   },
   // Chaises (8)
   {
-    id: '17',
     name: 'Cassina Dudet Chaise',
+    shortDescription: 'Chaise Dudet Cassina, confort moelleux.',
     description: 'La chaise Dudet de Cassina, design Patricia Urquiola, offre un confort moelleux avec une esthétique ludique et contemporaine. Ses formes arrondies invitent à la détente.',
     price: 850.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Cassina/004_Cassina_Dudet_Chair/Cassina_Dudet_Chair_1000_0001-551x551.webp',
@@ -250,8 +250,8 @@ const productsToSeed: Product[] = [
     dimensions: '60cm L x 55cm P x 78cm H',
   },
   {
-    id: '18',
     name: 'Mawu Chaise',
+    shortDescription: 'Chaise Mawu, design sculptural organique.',
     description: 'Chaise Mawu au design sculptural et organique, souvent réalisée en bois avec des lignes fluides. Une pièce artistique qui attire le regard.',
     price: 680.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Generic/188_Generic_Mawu_Chair/Generic_Mawu_Chair_1000_0001-551x551.webp',
@@ -264,8 +264,8 @@ const productsToSeed: Product[] = [
     dimensions: '50cm L x 52cm P x 80cm H',
   },
   {
-    id: '19',
     name: 'IKEA Lisabo Chaise',
+    shortDescription: 'Chaise Lisabo IKEA, simple et élégante.',
     description: 'Chaise IKEA Lisabo, simple et élégante avec un design épuré scandinave. Fabriquée en frêne, elle est légère et robuste.',
     price: 59.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/113_IKEA_Lisabo_Chair/IKEA_Lisabo_Chair_1000_0001-551x551.webp',
@@ -278,8 +278,8 @@ const productsToSeed: Product[] = [
     dimensions: '44cm L x 51cm P x 80cm H',
   },
   {
-    id: '20',
     name: 'Magis Chair One',
+    shortDescription: 'Chair One Magis, icône design industriel.',
     description: 'La Chair One de Magis, design Konstantin Grcic, est une icône du design industriel. Sa structure en fonte d\'aluminium lui confère un look unique et une grande durabilité, utilisable en intérieur comme en extérieur.',
     price: 350.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/355_Chair_One/Chair_One_600_lq_0001-551x551.webp',
@@ -292,8 +292,8 @@ const productsToSeed: Product[] = [
     dimensions: '55cm L x 59cm P x 82cm H',
   },
   {
-    id: '21',
     name: 'Cassina Capitol Chaise de Bureau',
+    shortDescription: 'Chaise bureau Capitol Cassina, élégance et fonction.',
     description: 'La chaise de bureau Capitol de Cassina, inspirée des designs de Pierre Jeanneret, allie élégance et fonctionnalité. Structure en bois et assise confortable.',
     price: 1200.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Cassina/007_Cassina_Capitol_Office_Chair/Cassina_Capitol_Office_Chair_1000_0001-551x551.webp',
@@ -306,8 +306,8 @@ const productsToSeed: Product[] = [
     dimensions: '65cm L x 60cm P x 85cm H (ajustable)',
   },
   {
-    id: '22',
     name: 'Steelcase Think Chaise de Bureau',
+    shortDescription: 'Chaise bureau Think Steelcase, confort intelligent.',
     description: 'La chaise de bureau Think de Steelcase est conçue pour un confort intelligent et durable. Elle s\'adapte intuitivement aux mouvements de l\'utilisateur.',
     price: 780.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Steelcase/003_Steelcase_Think_Offie_Chairs/Steelcase_Think_Offie_Chairs_1000_0001-551x551.webp',
@@ -320,8 +320,8 @@ const productsToSeed: Product[] = [
     dimensions: '72cm L x 60cm P x 100-113cm H (ajustable)',
   },
   {
-    id: '23',
     name: 'Acapulco Chaise',
+    shortDescription: 'Chaise Acapulco, classique design mexicain.',
     description: 'La chaise Acapulco, un classique du design mexicain des années 50. Sa structure en acier et son tressage en fils de PVC la rendent confortable et résistante, idéale pour l\'extérieur.',
     price: 150.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/406_Acapulco_Chair/Acapulco_Chair_600_lq_0001-551x551.webp',
@@ -334,8 +334,8 @@ const productsToSeed: Product[] = [
     dimensions: '73cm L x 80cm P x 88cm H',
   },
   {
-    id: '24',
     name: 'Chaise de jeu',
+    shortDescription: 'Chaise de jeu ergonomique pour longues sessions.',
     description: 'Une chaise de jeu ergonomique conçue pour de longues sessions. Offre un soutien lombaire, des accoudoirs réglables et un design sportif.',
     price: 280.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/477_Gaming_Chair/Gaming_Chair_600_lq_0001-551x551.webp',
@@ -349,8 +349,8 @@ const productsToSeed: Product[] = [
   },
   // Lampes (8)
   {
-    id: '25',
     name: 'West-Elm Olivia Lampe à Suspension',
+    shortDescription: 'Lampe Olivia West Elm, élégance moderne.',
     description: 'Lampe à suspension Olivia de West Elm, avec un abat-jour en verre texturé et des accents en laiton. Apporte une touche d\'élégance moderne à n\'importe quel espace.',
     price: 199.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/West-Elm/009_West-Elm_Olivia_Pendant_Lamp/West-Elm_Olivia_Pendant_Lamp_1000_0001-551x551.webp',
@@ -363,8 +363,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Abat-jour: 25cm Diam. x 30cm H',
   },
   {
-    id: '26',
     name: 'Lustre',
+    shortDescription: 'Lustre classique, pampilles en cristal.',
     description: 'Un lustre classique avec de multiples branches et des pampilles en cristal. Idéal pour ajouter une touche de glamour et d\'opulence à une salle à manger ou un hall d\'entrée.',
     price: 450.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/417_Chandelier/Chandelier_600_lq_0001-551x551.webp',
@@ -377,8 +377,8 @@ const productsToSeed: Product[] = [
     dimensions: '60cm Diam. x 70cm H (variable)',
   },
   {
-    id: '27',
     name: 'IKEA Ranarp Lampadaire',
+    shortDescription: 'Lampadaire Ranarp IKEA, style industriel.',
     description: 'Lampadaire Ranarp d\'IKEA, avec un design inspiré de l\'époque industrielle. Tête et bras réglables pour diriger la lumière là où vous en avez besoin.',
     price: 49.99,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/080_IKEA_Ranarp_Lamp/IKEA_Ranarp_Lamp_1000_0001-551x551.webp',
@@ -391,8 +391,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Hauteur: 153cm',
   },
   {
-    id: '28',
     name: 'Louis Poulsen PH Artichoke Lampe',
+    shortDescription: 'Lampe Artichoke Louis Poulsen, design scandinave.',
     description: 'La lampe PH Artichoke de Louis Poulsen, un chef-d\'œuvre du design scandinave créé par Poul Henningsen. Fournit une lumière douce et non éblouissante grâce à ses 72 feuilles.',
     price: 9800.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Louis-Poulsen/001_Louis-Poulsen_PH_Artichoke_Lamp/Louis-Poulsen_PH_Artichoke_Lamp_1000_0001-551x551.webp',
@@ -405,8 +405,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Diamètres: 48cm, 60cm, 72cm, 84cm',
   },
   {
-    id: '29',
     name: 'IKEA Tallbyn Lampe de Table',
+    shortDescription: 'Lampe de table Tallbyn IKEA, style classique.',
     description: 'Lampe de table Tallbyn d\'IKEA, style classique avec un pied en métal nickelé et un abat-jour en textile. Diffuse une lumière douce et agréable.',
     price: 29.99,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/106_IKEA_Tallbyn_Table_Lamp/IKEA_Tallbyn_Table_Lamp_1000_0001-551x551.webp',
@@ -419,8 +419,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Hauteur: 56cm, Diam. abat-jour: 30cm',
   },
   {
-    id: '30',
     name: 'Bougeoir',
+    shortDescription: 'Ensemble de bougeoirs élégants.',
     description: 'Un ensemble de bougeoirs élégants, parfaits pour créer une ambiance chaleureuse et intime. Design simple et intemporel, adapté à différents styles de décoration.',
     price: 35.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/460_Candlestick/Candlesticks_600_lq_0001-551x551.webp',
@@ -433,8 +433,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Hauteurs variables (ex: 15cm, 20cm, 25cm)',
   },
   {
-    id: '31',
     name: 'IKEA Tallbyn Lampe à Suspension',
+    shortDescription: 'Lampe suspension Tallbyn IKEA, éclairage doux.',
     description: 'Lampe à suspension Tallbyn d\'IKEA, assortie à la lampe de table. Offre un éclairage général doux et confortable pour une pièce.',
     price: 39.99,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/105_IKEA_Tallbyn_Pendant_Lamp/IKEA_Tallbyn_Pendant_Lamp_1000_0001-551x551.webp',
@@ -447,8 +447,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Diam. abat-jour: 38cm',
   },
   {
-    id: '32',
     name: 'Louis Poulsen Patera Lampe',
+    shortDescription: 'Lampe Patera Louis Poulsen, sphère lumineuse.',
     description: 'La lampe Patera de Louis Poulsen, design Øivind Slaatto, est une sphère lumineuse moderne inspirée de la suite de Fibonacci. Elle diffuse une lumière douce et agréable dans toutes les directions.',
     price: 1200.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Louis-Poulsen/004_Louis-Poulsen_Patera_Lamp/Louis-Poulsen_Patera_Lamp_1000_0001-551x551.webp',
@@ -462,8 +462,8 @@ const productsToSeed: Product[] = [
   },
   // Tables (8)
   {
-    id: '33',
     name: 'Urban Wood Slab Table à manger',
+    shortDescription: 'Table Urban Wood, bois massif et métal.',
     description: 'Table à manger robuste en bois massif avec un plateau épais et des pieds en métal. Parfaite pour un style industriel ou rustique.',
     price: 1250.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Urban-Wood/001_Urban-Wood_Wood_Slab_Dining_Table/Urban-Wood_Wood_Slab_Dining_Table_1000_0001-551x551.webp',
@@ -476,8 +476,8 @@ const productsToSeed: Product[] = [
     dimensions: '200cm L x 100cm P x 76cm H',
   },
   {
-    id: '34',
     name: 'Kave Home Naanim Table',
+    shortDescription: 'Table Naanim Kave Home, design scandinave.',
     description: 'Table à manger Naanim de Kave Home au design épuré et scandinave, avec un plateau en bois clair et des pieds fins et élégants.',
     price: 480.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Kave-Home/010_Kave-Home_Naanim_Table/Kave-Home_Naanim_Table_1000_0001-551x551.webp',
@@ -490,8 +490,8 @@ const productsToSeed: Product[] = [
     dimensions: '160cm L x 90cm P x 75cm H',
   },
   {
-    id: '35',
     name: 'Kave Home Jeanette Table d\'appoint',
+    shortDescription: 'Table Jeanette Kave Home, marbre et doré.',
     description: 'Table d\'appoint Jeanette par Kave Home, un bijou de design avec son plateau en marbre véritable et sa structure métallique dorée.',
     price: 129.99,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Kave-Home/005_Kave-Home_Jeanette_Side_Table/Kave-Home_Jeanette_Side_Table_1000_0001-551x551.webp',
@@ -504,8 +504,8 @@ const productsToSeed: Product[] = [
     dimensions: '45cm Diam. x 50cm H',
   },
   {
-    id: '36',
     name: 'Bolia Story Table Basse',
+    shortDescription: 'Table basse Story Bolia, esthétique scandinave.',
     description: 'Table basse Story de Bolia, alliant fonctionnalité et esthétique scandinave. Comprend un espace de rangement discret sous le plateau.',
     price: 390.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Bolia/008_Bolia_Story_Coffee_Table/Bolia_Story_Coffee_Table_1000_0001-551x551.webp',
@@ -518,8 +518,8 @@ const productsToSeed: Product[] = [
     dimensions: '110cm L x 60cm P x 40cm H',
   },
   {
-    id: '37',
     name: 'Roche Bobois Hauteville Table',
+    shortDescription: 'Table Hauteville Roche Bobois, pièce sculpturale.',
     description: 'Table de repas Hauteville de Roche Bobois, une pièce sculpturale avec un piètement central original et un plateau en verre ou céramique.',
     price: 2750.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Roche-Bobois/015_Roche-Bobois_Hauteville_Table/Roche-Bobois_Hauteville_Table_1000_0001-551x551.webp',
@@ -532,8 +532,8 @@ const productsToSeed: Product[] = [
     dimensions: '180cm L x 100cm P x 76cm H',
   },
   {
-    id: '38',
     name: 'Poliform Concorde Table',
+    shortDescription: 'Table Concorde Poliform, design raffiné.',
     description: 'Table de repas Concorde par Poliform, un design raffiné en bois noble avec des détails soignés et une présence élégante.',
     price: 3600.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Poliform-Concorde/001_Poliform-Concorde_Table/Poliform-Concorde_Table_1000_0001-551x551.webp',
@@ -546,8 +546,8 @@ const productsToSeed: Product[] = [
     dimensions: '220cm L x 108cm P x 74cm H',
   },
   {
-    id: '39',
     name: 'Cattelan Stratos Wood Table',
+    shortDescription: 'Table Stratos Wood Cattelan, design affirmé.',
     description: 'Table Stratos Wood de Cattelan Italia, caractérisée par un piètement en acier au design affirmé et un plateau en bois massif aux bords irréguliers.',
     price: 2990.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Cattelan/005_Cattelan_Stratos_Wood_Table/Cattelan_Stratos_Wood_Table_1000_0001-551x551.webp',
@@ -560,8 +560,8 @@ const productsToSeed: Product[] = [
     dimensions: '240cm L x 120cm P x 75cm H',
   },
   {
-    id: '40',
     name: 'Knoll Saarinen Table à manger',
+    shortDescription: 'Table Tulipe Saarinen Knoll, classique intemporel.',
     description: 'Table Tulipe iconique de Saarinen éditée par Knoll, un classique intemporel du design du milieu du XXe siècle. Piètement central et plateau rond ou ovale.',
     price: 2250.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Knoll/003_Knoll_Saarinen_Dining_Table/Knoll_Saarinen_Dining_Table_1000_0001-551x551.webp',
@@ -575,8 +575,8 @@ const productsToSeed: Product[] = [
   },
   // Armoires (8)
   {
-    id: '41',
     name: 'Keane Driftwood Armoire',
+    shortDescription: 'Armoire Keane, bois flotté rustique.',
     description: 'Armoire Keane en bois flotté avec une finition naturelle texturée, apportant une touche rustique et côtière à votre chambre.',
     price: 980.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Generic/260_Generic_Keane_Driftwood_Armoire/Generic_Keane_Driftwood_Armoire_1000_0001-551x551.webp',
@@ -589,8 +589,8 @@ const productsToSeed: Product[] = [
     dimensions: '100cm L x 55cm P x 190cm H',
   },
   {
-    id: '42',
     name: 'Flou Guardaroba Penderie',
+    shortDescription: 'Penderie Guardaroba Flou, design épuré.',
     description: 'Penderie Guardaroba de Flou, un système modulaire au design épuré avec de grandes portes lisses pour un rangement optimisé et élégant.',
     price: 1850.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Flou/001_Flou_Guardaroba_Wardrobe/Flou_Guardaroba_Wardrobe_1000_0001-551x551.webp',
@@ -603,8 +603,8 @@ const productsToSeed: Product[] = [
     dimensions: '240cm L x 60cm P x 230cm H (configurable)',
   },
   {
-    id: '43',
     name: 'Modern Wardrobe Unit',
+    shortDescription: 'Unité penderie moderne, finitions brillantes.',
     description: 'Unité de penderie moderne avec plusieurs compartiments, tiroirs et finitions laquées brillantes. Parfaite pour une chambre contemporaine.',
     price: 1350.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion/074_AM277_008/AM277_008_1000_0001-551x551.webp',
@@ -617,8 +617,8 @@ const productsToSeed: Product[] = [
     dimensions: '180cm L x 60cm P x 210cm H',
   },
   {
-    id: '44',
     name: 'Modern Wardrobe Closet Organizer',
+    shortDescription: 'Organisateur placard moderne, astucieux.',
     description: 'Organisateur de placard moderne avec une combinaison astucieuse de tiroirs, étagères et tringles pour maximiser l\'espace de rangement.',
     price: 1150.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion/078_AM277_012/AM277_012_1000_0001-551x551.webp',
@@ -631,8 +631,8 @@ const productsToSeed: Product[] = [
     dimensions: '200cm L x 58cm P x 220cm H',
   },
   {
-    id: '45',
     name: 'IKEA BIRKELAND Penderie',
+    shortDescription: 'Penderie Birkeland IKEA, style romantique.',
     description: 'Penderie IKEA Birkeland au style classique et romantique, avec des détails travaillés, des portes vitrées et une finition blanche intemporelle.',
     price: 470.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/015_IKEA_BIRKELAND_Wardrobe/IKEA_BIRKELAND_Wardrobe_1000_0001-551x551.webp',
@@ -645,8 +645,8 @@ const productsToSeed: Product[] = [
     dimensions: '109cm L x 58cm P x 200cm H',
   },
   {
-    id: '46',
     name: 'Modern Wooden Wardrobe 02',
+    shortDescription: 'Penderie bois moderne, portes coulissantes.',
     description: 'Penderie en bois moderne avec des portes coulissantes épurées, offrant un look scandinave et une grande capacité de rangement.',
     price: 1280.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion/067_AM277_001/AM277_001_1000_0001-551x551.webp',
@@ -659,8 +659,8 @@ const productsToSeed: Product[] = [
     dimensions: '160cm L x 62cm P x 215cm H',
   },
   {
-    id: '47',
     name: 'Modern Wooden Wardrobe 03',
+    shortDescription: 'Grande penderie bois, design sobre.',
     description: 'Grande penderie en bois au design sobre et élégant, avec une finition minimaliste et des portes battantes. Parfaite pour une chambre contemporaine.',
     price: 1420.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion2/7397_AM112_01/AM112_01_1000_0001-551x551.webp',
@@ -673,8 +673,8 @@ const productsToSeed: Product[] = [
     dimensions: '220cm L x 60cm P x 240cm H',
   },
   {
-    id: '48',
     name: 'Ellipse Elit 3-door Wardrobe',
+    shortDescription: 'Penderie Ellipse Elit, design luxueux.',
     description: 'Penderie Ellipse Elit à trois portes, offrant des finitions haut de gamme et un design moderne et luxueux pour un rangement optimal.',
     price: 2250.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/hq3dmod/5419_Ellipse_Elit_3-door_Wardrobe/Ellipse_Elit_3-door_Wardrobe_1000_0001-551x551.webp',
@@ -688,8 +688,8 @@ const productsToSeed: Product[] = [
   },
   // Étagères (8)
   {
-    id: '49',
     name: 'Bibliothèque simple en bois',
+    shortDescription: 'Bibliothèque classique, étagères robustes.',
     description: 'Bibliothèque classique en bois avec plusieurs étagères robustes, idéale pour ranger une grande collection de livres.',
     price: 190.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/476_Bookshelf/Bookshelf_600_lq_0001-551x551.webp',
@@ -702,8 +702,8 @@ const productsToSeed: Product[] = [
     dimensions: '80cm L x 30cm P x 180cm H',
   },
   {
-    id: '50',
     name: 'IKEA Kallax Bibliothèque',
+    shortDescription: 'Étagère Kallax IKEA, polyvalente.',
     description: 'Étagère Kallax iconique d\'IKEA, polyvalente et personnalisable avec des portes, tiroirs ou paniers. Parfaite pour tous types de rangements.',
     price: 75.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/079_IKEA_Kallax_Bookcase/IKEA_Kallax_Bookcase_1000_0001-551x551.webp',
@@ -716,8 +716,8 @@ const productsToSeed: Product[] = [
     dimensions: '77cm L x 39cm P x 147cm H (pour 2x4 cases)',
   },
   {
-    id: '51',
     name: 'IKEA Billy Bibliothèque',
+    shortDescription: 'Bibliothèque Billy IKEA, classique intemporel.',
     description: 'Bibliothèque Billy, un classique intemporel d\'IKEA pour tous les rangements de livres. Simple, fonctionnelle et adaptable.',
     price: 55.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/IKEA/078_IKEA_Billy_Bookcase/IKEA_Billy_Bookcase_1000_0001-551x551.webp',
@@ -730,8 +730,8 @@ const productsToSeed: Product[] = [
     dimensions: '80cm L x 28cm P x 202cm H',
   },
   {
-    id: '52',
     name: 'Charlotte Perriand Bibliothèque',
+    shortDescription: 'Bibliothèque Perriand, design Mid-Century.',
     description: 'Bibliothèque inspirée du design de Charlotte Perriand, alliant une structure en métal noir et des étagères en bois. Un design Mid-Century Moderne.',
     price: 1450.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Generic/448_Generic_Charlotte_Perriand_Bookcase/Generic_Charlotte_Perriand_Bookcase_1000_0001-551x551.webp',
@@ -744,8 +744,8 @@ const productsToSeed: Product[] = [
     dimensions: '150cm L x 35cm P x 160cm H',
   },
   {
-    id: '53',
     name: 'Vasagle Ladder Étagère',
+    shortDescription: 'Étagère échelle Vasagle, style industriel.',
     description: 'Étagère échelle Vasagle au style industriel, avec une structure en métal robuste et des tablettes en bois rustique.',
     price: 95.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Vasagle/001_Vasagle_Ladder_Shelf/Vasagle_Ladder_Shelf_1000_0001-551x551.webp',
@@ -758,8 +758,8 @@ const productsToSeed: Product[] = [
     dimensions: '60cm L x 30cm P x 170cm H',
   },
   {
-    id: '54',
     name: 'Hem Zig Zag Shelf',
+    shortDescription: 'Étagère murale Zig Zag Hem, design graphique.',
     description: 'Étagère murale Zig Zag de Hem, un design ludique et graphique qui met en valeur vos objets décoratifs. En métal laqué coloré.',
     price: 260.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Hem/002_Hem_Zig_Zag_Shelf/Hem_Zig_Zag_Shelf_1000_0001-551x551.webp',
@@ -772,8 +772,8 @@ const productsToSeed: Product[] = [
     dimensions: '60cm L x 15cm P x 50cm H',
   },
   {
-    id: '55',
     name: 'Cattelan Tokyo Bookcase',
+    shortDescription: 'Bibliothèque Tokyo Cattelan, pièce sculpturale.',
     description: 'Bibliothèque Tokyo de Cattelan Italia, une pièce maîtresse sculpturale avec une structure rotative et des étagères en verre.',
     price: 3100.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/hq3dmod/4363_Cattelan_Tokyo_bookcase/Cattelan_Tokyo_bookcase_1000_0001-551x551.webp',
@@ -786,8 +786,8 @@ const productsToSeed: Product[] = [
     dimensions: '50cm L x 50cm P x 185cm H',
   },
   {
-    id: '56',
     name: 'Novogratz Concord Turntable Stand',
+    shortDescription: 'Meuble vinyle Concord Novogratz, style rétro.',
     description: 'Meuble pour platine vinyle Concord par Novogratz, au style rétro Mid-Century, avec rangement pour disques et pieds en épingle.',
     price: 135.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Novogratz/002_Novogratz_Concord_Turntable_Stand/Novogratz_Concord_Turntable_Stand_1000_0001-551x551.webp',
@@ -801,8 +801,8 @@ const productsToSeed: Product[] = [
   },
   // Décorations (8)
   {
-    id: '57',
     name: 'Globe Terrestre Décoratif',
+    shortDescription: 'Globe terrestre, touche classique intellectuelle.',
     description: 'Globe terrestre décoratif et instructif, parfait pour un bureau ou une étagère. Ajoute une touche classique et intellectuelle.',
     price: 48.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/375_Earth_Globe/Earth_Globe_600_lq_0001-551x551.webp',
@@ -815,8 +815,8 @@ const productsToSeed: Product[] = [
     dimensions: '25cm Diam. x 35cm H',
   },
   {
-    id: '58',
     name: 'Jeu d\'Échecs Classiques en Bois',
+    shortDescription: 'Jeu d\'échecs classique, pièces sculptées.',
     description: 'Jeu d\'échecs classique en bois, avec des pièces sculptées et un échiquier pliable. Idéal pour les amateurs ou comme objet de décoration.',
     price: 65.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/099_Classic_Chess_Set/Classic_Chess_Set_1000_0001-551x551.webp',
@@ -829,8 +829,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Échiquier: 30cm x 30cm',
   },
   {
-    id: '59',
     name: 'Cage à Oiseaux Décorative Vintage',
+    shortDescription: 'Cage à oiseaux vintage, objet de charme.',
     description: 'Cage à oiseaux décorative en métal, style vintage. Parfaite pour y placer des plantes, des bougies ou comme simple objet de charme.',
     price: 38.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/374_Bird_Cage/Bird_Cage_600_lq_0001-551x551.webp',
@@ -843,8 +843,8 @@ const productsToSeed: Product[] = [
     dimensions: '20cm Diam. x 40cm H',
   },
   {
-    id: '60',
     name: 'Pendule à Coucou en Bois Sculpté',
+    shortDescription: 'Pendule à coucou, charme traditionnel.',
     description: 'Pendule à coucou traditionnelle en bois sculpté, évoquant le charme des chalets de la Forêt Noire. Un classique de l\'horlogerie décorative.',
     price: 125.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/1231_Wooden_Cuckoo_Clock/Wooden_Cuckoo_Clock_1000_0001-551x551.webp',
@@ -857,8 +857,8 @@ const productsToSeed: Product[] = [
     dimensions: '30cm L x 15cm P x 45cm H (sans balancier)',
   },
   {
-    id: '61',
     name: 'Sablier Décoratif en Verre',
+    shortDescription: 'Sablier décoratif, objet intemporel.',
     description: 'Sablier décoratif en verre et structure en bois ou métal. Un objet intemporel pour mesurer le temps ou simplement décorer.',
     price: 28.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/451_Hourglass/Hourglass_600_lq_0001-551x551.webp',
@@ -871,8 +871,8 @@ const productsToSeed: Product[] = [
     dimensions: '8cm Diam. x 15cm H',
   },
   {
-    id: '62',
     name: 'Chevalet d\'Artiste avec Palette',
+    shortDescription: 'Chevalet d\'artiste miniature, touche artistique.',
     description: 'Chevalet d\'artiste décoratif miniature en bois, accompagné d\'une palette de peinture. Parfait pour une touche artistique dans votre intérieur.',
     price: 42.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Tools/1250_Easel_with_Painting_Palette/Easel_with_Painting_Palette_1000_0001-551x551.webp',
@@ -885,8 +885,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Chevalet: 20cm L x 50cm H',
   },
   {
-    id: '63',
     name: 'Lanterne Décorative Ramadan',
+    shortDescription: 'Lanterne Ramadan, ambiance exotique.',
     description: 'Lanterne décorative de style oriental, idéale pour les célébrations de Ramadan ou pour ajouter une ambiance chaleureuse et exotique.',
     price: 33.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/hq3dmod/2941_Ramadan_Lantern/Ramadan_Lantern_1000_0001-551x551.webp',
@@ -899,8 +899,8 @@ const productsToSeed: Product[] = [
     dimensions: '15cm L x 15cm P x 30cm H',
   },
   {
-    id: '64',
     name: 'Sooyee Corbeille à Fruits en Fil Métallique',
+    shortDescription: 'Corbeille à fruits Sooyee, design géométrique.',
     description: 'Corbeille à fruits design en fil métallique noir ou doré. Une pièce moderne et géométrique pour votre cuisine ou salle à manger.',
     price: 29.90,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Generic/006_Generic_Sooyee_Metal_Wire_Fruit_Basket/Generic_Sooyee_Metal_Wire_Fruit_Basket_1000_0001-551x551.webp',
@@ -914,8 +914,8 @@ const productsToSeed: Product[] = [
   },
   // Mirroirs (8)
   {
-    id: '65',
     name: 'Ashley Doll House Sleigh Dresser & Miroir',
+    shortDescription: 'Miroir Ashley Doll House, style Shabby Chic.',
     description: 'Ensemble commode et miroir Ashley Doll House, idéal pour une chambre d\'enfant ou un style Shabby Chic. Le miroir possède un cadre orné.',
     price: 180.00, 
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Ashley/093_Ashley_Doll_House_Sleigh_Bedroom_dresser/Ashley_Doll_House_Sleigh_Bedroom_dresser_1000_0001-551x551.webp',
@@ -928,8 +928,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Miroir: 70cm L x 90cm H',
   },
   {
-    id: '66',
     name: 'Ashley Silverglade Dresser & Miroir',
+    shortDescription: 'Miroir Silverglade Ashley, détails traditionnels.',
     description: 'Miroir de commode Silverglade par Ashley Furniture, avec un cadre en bois sombre et des détails traditionnels élégants.',
     price: 210.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Ashley/137_Ashley_Silverglade_Sleigh_Bedroom_Set_Dresser/Ashley_Silverglade_Sleigh_Bedroom_Set_Dresser_1000_0001-551x551.webp',
@@ -942,8 +942,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Miroir: 100cm L x 80cm H',
   },
   {
-    id: '67',
     name: 'Hawthorn Hill Pivoting Shaving Mirror HH-Mirrorpivshave',
+    shortDescription: 'Miroir rasage Hawthorn Hill, pivotant.',
     description: 'Miroir de rasage pivotant Hawthorn Hill, en métal chromé, avec un design classique et fonctionnel. Idéal pour une salle de bain élégante.',
     price: 120.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/3dxin/245_Hawthorn_Hill_Pivoting_Shaving_Mirror_HH-Mirrorpivshave/Hawthorn_Hill_Pivoting_Shaving_Mirror_HH-Mirrorpivshave_1000_0001-551x551.webp',
@@ -956,8 +956,8 @@ const productsToSeed: Product[] = [
     dimensions: '20cm Diam. x 35cm H (bras étendu)',
   },
   {
-    id: '68',
     name: 'Ashley Benjamin Dresser & Miroir',
+    shortDescription: 'Miroir Benjamin Ashley, style rustique.',
     description: 'Miroir de commode Benjamin par Ashley, avec un large cadre en bois au style classique et rustique. Robuste et intemporel.',
     price: 195.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/Furniture/Ashley/038_Ashley_Benjamin_Dresser_and_Mirror/Ashley_Benjamin_Dresser_and_Mirror_1000_0001-551x551.webp',
@@ -970,8 +970,8 @@ const productsToSeed: Product[] = [
     dimensions: 'Miroir: 90cm L x 70cm H',
   },
   {
-    id: '69',
     name: 'Antique Standing Mirror (Psyché)',
+    shortDescription: 'Psyché antique, miroir sur pied.',
     description: 'Psyché antique, miroir sur pied pleine longueur avec un cadre en bois orné. Parfait pour une chambre au style vintage.',
     price: 360.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion2/6908_AM122_050/AM122_050_1000_0001-551x551.webp',
@@ -984,8 +984,8 @@ const productsToSeed: Product[] = [
     dimensions: '60cm L x 170cm H',
   },
   {
-    id: '70',
     name: 'Table Mirror (Miroir de Table)',
+    shortDescription: 'Miroir de table, simple et fonctionnel.',
     description: 'Petit miroir de table simple et fonctionnel, idéal pour une coiffeuse, une salle de bain ou comme accessoire décoratif.',
     price: 45.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/cgaxis/3426_Table_Mirror/Table_Mirror_1000_0001-551x551.webp',
@@ -998,8 +998,8 @@ const productsToSeed: Product[] = [
     dimensions: '20cm L x 25cm H',
   },
   {
-    id: '71',
     name: 'Salon Mirror with Lights',
+    shortDescription: 'Miroir de salon, éclairage intégré.',
     description: 'Miroir de salon professionnel avec éclairage intégré. Parfait pour les coiffeurs, maquilleurs ou pour un dressing glamour.',
     price: 280.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/cgaxis/077_Salon_Mirror_with_Lights_2/Salon_Mirror_with_Lights_2_1000_0001-551x551.webp',
@@ -1012,8 +1012,8 @@ const productsToSeed: Product[] = [
     dimensions: '80cm L x 100cm H',
   },
   {
-    id: '72',
     name: 'Antique Purple Standing Mirror',
+    shortDescription: 'Miroir sur pied antique, finition violette.',
     description: 'Miroir sur pied antique avec une finition violette audacieuse et un cadre ornemental. Apporte une touche bohème et vintage.',
     price: 390.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion2/6910_AM122_052/AM122_052_1000_0001-551x551.webp',
@@ -1027,8 +1027,8 @@ const productsToSeed: Product[] = [
   },
   // Tapis (8)
   {
-    id: '73',
     name: 'Red Carpet 02 (Tapis Rouge)',
+    shortDescription: 'Tapis rouge classique, touche de luxe.',
     description: 'Tapis rouge classique, idéal pour des événements, des couloirs ou pour ajouter une touche de couleur et de luxe.',
     price: 160.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion3/8100_Am102_78/Am102_78_1000_0001-551x551.webp',
@@ -1041,8 +1041,8 @@ const productsToSeed: Product[] = [
     dimensions: '120cm x 180cm',
   },
   {
-    id: '74',
     name: 'Textured Black Carpet (Tapis Noir Texturé)',
+    shortDescription: 'Tapis noir texturé, sophistication moderne.',
     description: 'Tapis noir texturé, apportant profondeur et sophistication à un intérieur moderne ou minimaliste.',
     price: 210.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion3/8099_AM102_77/AM102_77_1000_0001-551x551.webp',
@@ -1055,8 +1055,8 @@ const productsToSeed: Product[] = [
     dimensions: '160cm x 230cm',
   },
   {
-    id: '75',
     name: 'Brown-Orange Rug (Tapis Marron-Orange)',
+    shortDescription: 'Tapis marron-orange, ambiance rétro.',
     description: 'Tapis avec des motifs dans les tons marron et orange, idéal pour une ambiance rétro, bohème ou chaleureuse.',
     price: 185.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/cgaxis/3261_Brown-Orange_Rug/Brown-Orange_Rug_1000_0001-551x551.webp',
@@ -1069,8 +1069,8 @@ const productsToSeed: Product[] = [
     dimensions: '140cm x 200cm',
   },
   {
-    id: '76',
     name: 'Round Light Grey Rug (Tapis Rond Gris Clair)',
+    shortDescription: 'Tapis rond gris clair, doux et polyvalent.',
     description: 'Tapis rond gris clair, doux et polyvalent, parfait pour un style scandinave ou pour délimiter un espace avec douceur.',
     price: 130.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/cgaxis/3263_Round_Light_Grey_Rug/Round_Light_Grey_Rug_1000_0001-551x551.webp',
@@ -1083,8 +1083,8 @@ const productsToSeed: Product[] = [
     dimensions: '150cm Diamètre',
   },
   {
-    id: '77',
     name: 'Mischioff Tibey TB20 Carpet',
+    shortDescription: 'Tapis Tibey TB20 Mischioff, design abstrait.',
     description: 'Tapis design Tibey TB20 par Mischioff, avec des motifs abstraits et contemporains. Une véritable œuvre d\'art pour le sol.',
     price: 470.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/design-connected/804_Tibey_TB20_Carpet/Tibey_TB20_Carpet_1000_0001-551x551.webp',
@@ -1097,8 +1097,8 @@ const productsToSeed: Product[] = [
     dimensions: '170cm x 240cm',
   },
   {
-    id: '78',
     name: 'Decorative Wooden Floor Tiles (Tapis Imitation Carrelage Bois)',
+    shortDescription: 'Tapis imitation carrelage bois, rustique.',
     description: 'Grand tapis décoratif imitant des carreaux de bois anciens ou des motifs de marqueterie. Apporte une touche rustique et originale.',
     price: 290.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion3/9420_am79_092/am79_092_1000_0001-551x551.webp',
@@ -1111,8 +1111,8 @@ const productsToSeed: Product[] = [
     dimensions: '200cm x 300cm',
   },
   {
-    id: '79',
     name: 'Indoor Rectangle Soft Rug Carpet Light (Tapis Doux Rectangulaire Clair)',
+    shortDescription: 'Tapis shaggy doux et clair, confort.',
     description: 'Tapis rectangulaire doux et clair, à poils longs (shaggy), apportant confort et chaleur à n\'importe quelle pièce.',
     price: 230.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/hq3dmod/5475_Indoor_rectangle_soft_rug_carpet_light/Indoor_rectangle_soft_rug_carpet_light_1000_0001-551x551.webp',
@@ -1125,8 +1125,8 @@ const productsToSeed: Product[] = [
     dimensions: '160cm x 230cm',
   },
   {
-    id: '80',
     name: 'Geometric Carpet (Tapis Géométrique)',
+    shortDescription: 'Tapis géométrique, motifs graphiques.',
     description: 'Tapis avec des motifs géométriques modernes et graphiques. Parfait pour dynamiser un intérieur contemporain.',
     price: 195.00,
     imageUrl: 'https://cdn.3dmodels.org/wp-content/uploads/evermotion3/8095_Am102_73/Am102_73_1000_0001-551x551.webp',
@@ -1162,7 +1162,8 @@ async function seedDB() {
     console.log(`Deleted ${deleteResult.deletedCount} products.`);
 
     const productsForDB = productsToSeed.map(p => {
-      const { id, ...dbProduct } = p; 
+      // Omit 'id' as MongoDB will generate '_id'
+      const { ...dbProduct } = p; 
       return {
         ...dbProduct,
         price: Number(dbProduct.price),
@@ -1170,6 +1171,7 @@ async function seedDB() {
         stock: dbProduct.stock ? Number(dbProduct.stock) : null,
         colors: dbProduct.colors || [],
         materials: dbProduct.materials || [],
+        shortDescription: dbProduct.shortDescription || '', // Ensure shortDescription is handled
         createdAt: new Date(),
         updatedAt: new Date(),
       };

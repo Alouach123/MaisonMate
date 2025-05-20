@@ -7,6 +7,7 @@ export interface ProductDocument {
   _id: ObjectId;
   name: string;
   description: string;
+  shortDescription?: string; // New field
   price: number;
   imageUrl: string;
   category: string;
@@ -25,6 +26,7 @@ export interface Product {
   id: string; // Changed from _id: ObjectId
   name: string;
   description: string;
+  shortDescription?: string; // New field
   price: number;
   imageUrl: string;
   category: string;
@@ -58,6 +60,7 @@ export const ProductSchema = z.object({
   id: z.string().optional(), // id is a string in the app, will be mapped to _id for DB ops
   name: z.string().min(3, { message: "Le nom doit contenir au moins 3 caractères." }),
   description: z.string().min(10, { message: "La description doit contenir au moins 10 caractères." }),
+  shortDescription: z.string().max(150, { message: "La description courte ne doit pas dépasser 150 caractères." }).optional().nullable(), // New field
   price: z.coerce.number().positive({ message: "Le prix doit être un nombre positif." }),
   imageUrl: z.string().url({ message: "L'URL de l'image doit être valide." }).default('https://placehold.co/600x400.png'),
   category: z.string().min(1, { message: "La catégorie est requise." }),
@@ -82,6 +85,7 @@ export function fromProductDocument(doc: ProductDocument): Product {
   return {
     ...doc,
     id: doc._id.toString(), // Convert ObjectId to string
+    shortDescription: doc.shortDescription, // Ensure mapping
   };
 }
 

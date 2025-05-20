@@ -31,6 +31,7 @@ export async function getProductsAction(filters: { category?: string } = {}): Pr
     return productDocs.map(doc => ({
       ...doc,
       id: doc._id.toString(),
+      shortDescription: doc.shortDescription, // Ensure mapping
     }));
   } catch (error) {
     console.error("Failed to fetch products:", error);
@@ -53,6 +54,7 @@ export async function getProductByIdAction(productId: string): Promise<Product |
     return {
       ...productDoc,
       id: productDoc._id.toString(),
+      shortDescription: productDoc.shortDescription, // Ensure mapping
     };
   } catch (error) {
     console.error("Failed to fetch product by ID:", error);
@@ -71,8 +73,9 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
     const db = await connectToDatabase();
     const productsCollection = db.collection<Omit<ProductDocument, '_id'>>('products');
     
-    const newProductData = {
+    const newProductData: Omit<ProductDocument, '_id'> = {
       ...validation.data,
+      shortDescription: validation.data.shortDescription || undefined,
       imageUrl: validation.data.imageUrl || 'https://placehold.co/600x400.png',
       colors: validation.data.colors ?? [],
       materials: validation.data.materials ?? [],
@@ -90,7 +93,7 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
     }
 
     const insertedProduct: Product = {
-      ...newProductData,
+      ...(newProductData as Omit<ProductDocument, '_id' | 'createdAt' | 'updatedAt'> & { createdAt: Date, updatedAt: Date }), // Type assertion
       id: result.insertedId.toString(),
     };
     
@@ -120,6 +123,7 @@ export async function updateProductAction(data: ProductFormData): Promise<{ succ
     const { id: formId, ...updateData } = validation.data;
     const productToUpdate = {
       ...updateData,
+      shortDescription: updateData.shortDescription || undefined,
       imageUrl: updateData.imageUrl || 'https://placehold.co/600x400.png',
       colors: updateData.colors ?? [],
       materials: updateData.materials ?? [],
@@ -140,7 +144,7 @@ export async function updateProductAction(data: ProductFormData): Promise<{ succ
          return { success: false, error: "Failed to retrieve updated product." };
     }
 
-    return { success: true, product: { ...updatedDoc, id: updatedDoc._id.toString() } };
+    return { success: true, product: { ...updatedDoc, id: updatedDoc._id.toString(), shortDescription: updatedDoc.shortDescription } };
   } catch (error) {
     console.error("Error updating product:", error);
     return { success: false, error: "An error occurred while updating the product." };

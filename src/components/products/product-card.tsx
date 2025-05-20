@@ -65,10 +65,11 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.name}
             </CardTitle>
         </Link>
-        {/* Optional: Could add a very short description or style here if space allows */}
-        {/* <CardDescription className="text-xs text-muted-foreground mt-1 h-8 overflow-hidden text-ellipsis">
-          {product.category} {product.style ? `- ${product.style}`: ''}
-        </CardDescription> */}
+        {product.shortDescription && (
+          <CardDescription className="text-xs text-muted-foreground mt-1 h-8 overflow-hidden text-ellipsis line-clamp-2">
+            {product.shortDescription}
+          </CardDescription>
+        )}
         {product.rating && (
           <div className="flex items-center mt-1.5">
             {[...Array(5)].map((_, i) => (
@@ -92,4 +93,3 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Card>
   );
 }
-
