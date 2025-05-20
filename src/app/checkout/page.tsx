@@ -10,13 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Home, Phone, Building, MapPin, Globe2, UserCircle, AlertCircle, Loader2, ShoppingBag, CheckCircle } from 'lucide-react';
+import { Home, Phone, Building, MapPin, Globe2, UserCircle, AlertCircle, Loader2, ShoppingBag, CheckCircle, CreditCard } from 'lucide-react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ShippingFormData, Order, CartItem } from '@/types';
 import { ShippingAddressSchema } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const ORDER_CONFIRMATION_SESSION_KEY = 'maisonmate-order-confirmation';
 
@@ -25,6 +26,11 @@ export default function CheckoutPage() {
   const { user, profile, isLoading: authLoading, fetchUserProfile } = useAuth();
   const { cartItems, getSubtotal, getTotalItems, clearCart } = useCart();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ShippingFormData>({
     resolver: zodResolver(ShippingAddressSchema),
@@ -41,17 +47,17 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !user && isMounted) {
       toast({ title: "Authentification requise", description: "Veuillez vous connecter pour passer à la caisse.", variant: "destructive" });
       router.push('/auth');
     }
-    if (user && !profile) {
-        fetchUserProfile(); // Fetch profile if not already loaded
+    if (user && !profile && isMounted) {
+        fetchUserProfile();
     }
-  }, [authLoading, user, router, profile, fetchUserProfile]);
+  }, [authLoading, user, router, profile, fetchUserProfile, isMounted]);
 
   useEffect(() => {
-    if (profile) {
+    if (profile && isMounted) {
       reset({
         first_name: profile.first_name || user?.user_metadata?.first_name || '',
         last_name: profile.last_name || user?.user_metadata?.last_name || '',
@@ -62,15 +68,15 @@ export default function CheckoutPage() {
         postal_code: profile.postal_code || '',
         country: profile.country || '',
       });
-    } else if (user && !profile) { // Fallback to user_metadata if profile is null
+    } else if (user && !profile && isMounted) {
         reset({
             first_name: user.user_metadata?.first_name || '',
             last_name: user.user_metadata?.last_name || '',
-            phone: '', // No phone in user_metadata by default
+            phone: '',
             address_line1: '', address_line2: '', city: '', postal_code: '', country: '',
         });
     }
-  }, [profile, user, reset]);
+  }, [profile, user, reset, isMounted]);
 
   const onSubmit: SubmitHandler<ShippingFormData> = (data) => {
     setIsPlacingOrder(true);
@@ -92,21 +98,19 @@ export default function CheckoutPage() {
       orderDate: new Date(),
     };
 
-    // Store orderData in sessionStorage to pass to confirmation page
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(ORDER_CONFIRMATION_SESSION_KEY, JSON.stringify(orderData));
     }
     
-    clearCart(); // Clear cart after "placing" order
+    clearCart(); 
     router.push('/order-confirmation');
-    // setIsPlacingOrder will be false on the new page
   };
 
-  if (authLoading || (!user && !authLoading)) {
+  if (!isMounted || authLoading || (!user && !authLoading)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4 text-muted-foreground">Chargement...</p>
+        <p className="mt-4 text-muted-foreground">Chargement de la caisse...</p>
       </div>
     );
   }
@@ -134,7 +138,6 @@ export default function CheckoutPage() {
           <CardDescription>Veuillez confirmer vos informations de livraison. Le paiement s'effectuera à la livraison.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
-          {/* Order Summary */}
           <section>
             <h3 className="text-lg font-semibold mb-3">Récapitulatif de votre commande</h3>
             <div className="space-y-3 max-h-60 overflow-y-auto pr-2 border rounded-md p-3 bg-muted/30">
@@ -161,7 +164,6 @@ export default function CheckoutPage() {
 
           <Separator />
 
-          {/* Shipping Information Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <h3 className="text-lg font-semibold">Informations de livraison</h3>
             
@@ -227,3 +229,5 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+    

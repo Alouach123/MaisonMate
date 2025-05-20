@@ -60,15 +60,20 @@ export default function ProfilePage() {
     profile,
     updateUserEmail, 
     updateUserPassword, 
-    updateUserNames, // This updates user_metadata directly
+    updateUserNames, 
     updateUserAvatar, 
-    updateUserProfile, // This updates the 'profiles' table
+    updateUserProfile, 
     fetchUserProfile,
     isLoading: authLoading, 
     isLoadingProfile,
     isAuthenticated 
   } = useAuth();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting: isSubmittingProfileForm } } = useForm<ProfileFormData>({
     resolver: zodResolver(ProfileFormSchema),
@@ -84,7 +89,7 @@ export default function ProfilePage() {
     }
   });
   
-  const [currentEmail, setCurrentEmail] = useState(''); // Renamed from 'email' to avoid conflict with form's email
+  const [currentEmail, setCurrentEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>(initialPasswordValidation);
@@ -97,36 +102,38 @@ export default function ProfilePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  const [formError, setFormError] = useState<string | null>(null); // General form error
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/auth'); 
-    }
-    if (user && !profile && !isLoadingProfile) { 
-        fetchUserProfile();
-    }
-    if (user) {
-      setCurrentEmail(user.email || '');
-    }
-    if (profile) {
-      reset({ 
-        first_name: profile.first_name || user?.user_metadata?.first_name || '',
-        last_name: profile.last_name || user?.user_metadata?.last_name || '',
-        phone: profile.phone || '',
-        address_line1: profile.address_line1 || '',
-        address_line2: profile.address_line2 || '',
-        city: profile.city || '',
-        postal_code: profile.postal_code || '',
-        country: profile.country || '',
-      });
-    } else if (user && !profile) { // Fallback to user_metadata if profile is null but user exists
-        reset({
-            first_name: user.user_metadata?.first_name || '',
-            last_name: user.user_metadata?.last_name || '',
+    if (isMounted) {
+      if (!authLoading && !isAuthenticated) {
+        router.push('/auth'); 
+      }
+      if (user && !profile && !isLoadingProfile) { 
+          fetchUserProfile();
+      }
+      if (user) {
+        setCurrentEmail(user.email || '');
+      }
+      if (profile) {
+        reset({ 
+          first_name: profile.first_name || user?.user_metadata?.first_name || '',
+          last_name: profile.last_name || user?.user_metadata?.last_name || '',
+          phone: profile.phone || '',
+          address_line1: profile.address_line1 || '',
+          address_line2: profile.address_line2 || '',
+          city: profile.city || '',
+          postal_code: profile.postal_code || '',
+          country: profile.country || '',
         });
+      } else if (user && !profile) {
+          reset({
+              first_name: user.user_metadata?.first_name || '',
+              last_name: user.user_metadata?.last_name || '',
+          });
+      }
     }
-  }, [user, profile, authLoading, isAuthenticated, isLoadingProfile, router, reset, fetchUserProfile]);
+  }, [user, profile, authLoading, isAuthenticated, isLoadingProfile, router, reset, fetchUserProfile, isMounted]);
 
   const handlePasswordChange = (pass: string) => {
     setNewPassword(pass);
@@ -141,11 +148,6 @@ export default function ProfilePage() {
     if (result?.error) {
       setFormError(result.error.message || "Erreur lors de la mise à jour du profil.");
     } else {
-      // If names were part of the 'profiles' table and also exist in user_metadata,
-      // we should ensure user_metadata is also up-to-date for consistency (e.g., navbar display).
-      // The trigger `handle_user_meta_data_update` in Supabase should sync metadata changes TO profiles,
-      // but not necessarily FROM profiles TO metadata.
-      // So, if profile update is successful, and names changed, update metadata too.
       if (user && (data.first_name !== user.user_metadata.first_name || data.last_name !== user.user_metadata.last_name)) {
          await updateUserNames({ firstName: data.first_name || '', lastName: data.last_name || '' });
       }
@@ -222,7 +224,6 @@ export default function ProfilePage() {
     console.log("Bucket Name:", bucketName);
     console.log("Selected File:", selectedFile);
 
-
     try {
       const { error: uploadError } = await supabase.storage
         .from(bucketName)
@@ -279,7 +280,7 @@ export default function ProfilePage() {
     );
   };
   
-  if (authLoading || (!user && !isAuthenticated) || isLoadingProfile ) { // Adjusted condition
+  if (!isMounted || authLoading || (!user && !isAuthenticated) || isLoadingProfile ) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -287,7 +288,7 @@ export default function ProfilePage() {
       </div>
     );
   }
-   if (!user && isAuthenticated) { // Case where auth says true, but user object is null (should be rare)
+   if (!user && isAuthenticated) {
      return (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
             <ShieldAlert className="h-12 w-12 text-destructive" />
@@ -296,8 +297,8 @@ export default function ProfilePage() {
         </div>
      )
    }
-   if (!user) { // Fallback if user is still null after loading checks
-     router.push('/auth'); // Or show a message
+   if (!user) {
+     router.push('/auth');
      return <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <p className="mt-4">Redirection...</p></div>;
    }
 
@@ -328,7 +329,6 @@ export default function ProfilePage() {
             </Alert>
           )}
 
-          {/* Photo Section */}
           <section className="p-4 border rounded-md space-y-4 bg-card">
             <h3 className="text-lg font-semibold flex items-center gap-2"><Camera className="h-5 w-5 text-primary" />Photo de Profil</h3>
             <div className="flex flex-col items-center gap-4">
@@ -349,7 +349,6 @@ export default function ProfilePage() {
           
           <Separator />
 
-          {/* Personal & Address Information Form */}
           <form onSubmit={handleSubmit(onSubmitProfileForm)} className="space-y-6 p-4 border rounded-md bg-card">
             <h3 className="text-lg font-semibold flex items-center gap-2"><UserCircle2 className="h-5 w-5 text-primary" />Informations Personnelles et Adresse</h3>
             
@@ -414,7 +413,7 @@ export default function ProfilePage() {
               <Label htmlFor="currentEmail">E-mail actuel</Label>
               <Input id="currentEmail" type="email" value={currentEmail} onChange={(e) => setCurrentEmail(e.target.value)} required />
             </div>
-            <Button type="submit" disabled={isUpdatingEmail || user.email === currentEmail} className="bg-primary hover:bg-primary/90">
+            <Button type="submit" disabled={isUpdatingEmail || !user || user.email === currentEmail} className="bg-primary hover:bg-primary/90">
               {isUpdatingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               Mettre à jour l'e-mail
             </Button>
@@ -444,3 +443,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
