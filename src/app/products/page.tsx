@@ -30,7 +30,7 @@ export default function ProductsPage() {
     async function loadProducts() {
       setIsLoading(true);
       try {
-        const productsFromDb = await getProductsAction();
+        const productsFromDb = await getProductsAction({}); // Fetch all products
         setAllProducts(productsFromDb);
       } catch (error) {
         console.error("Failed to load products:", error);
@@ -63,8 +63,17 @@ export default function ProductsPage() {
     setSelectedStyles([]);
   }, []);
 
-  const filteredProducts = useMemo(() => {
-    return allProducts.filter(product => {
+  // Create a map for category sort order
+  const categorySortOrder = useMemo(() => {
+    const orderMap: Record<string, number> = {};
+    productCategories.forEach((category, index) => {
+      orderMap[category] = index;
+    });
+    return orderMap;
+  }, []);
+
+  const sortedAndFilteredProducts = useMemo(() => {
+    let productsToDisplay = allProducts.filter(product => {
       if (product.price < priceRange[0] || product.price > priceRange[1]) {
         return false;
       }
@@ -76,10 +85,23 @@ export default function ProductsPage() {
       }
       return true;
     });
-  }, [allProducts, priceRange, selectedCategories, selectedStyles]);
+
+    // Sort the filtered products
+    productsToDisplay.sort((a, b) => {
+      const orderA = categorySortOrder[a.category] ?? Infinity; // Fallback for categories not in defined order
+      const orderB = categorySortOrder[b.category] ?? Infinity;
+
+      if (orderA !== orderB) {
+        return orderA - orderB; // Sort by category order
+      }
+      return a.name.localeCompare(b.name); // Then by name alphabetically
+    });
+
+    return productsToDisplay;
+  }, [allProducts, priceRange, selectedCategories, selectedStyles, categorySortOrder]);
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20"> {/* Increased pt-8 to pt-20 */}
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-20">
       <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
         <aside className="w-full md:w-72 lg:w-80">
           <FilterSidebar
@@ -101,7 +123,7 @@ export default function ProductsPage() {
               Notre Collection
             </h2>
             <p className="mt-2 text-lg text-muted-foreground">
-              Parcourez nos articles sélectionnés avec soin. ({isLoading ? "Chargement..." : `${filteredProducts.length} produit${filteredProducts.length !== 1 ? 's' : ''} trouvé${filteredProducts.length !== 1 ? 's' : ''}`})
+              Parcourez nos articles sélectionnés avec soin. ({isLoading ? "Chargement..." : `${sortedAndFilteredProducts.length} produit${sortedAndFilteredProducts.length !== 1 ? 's' : ''} trouvé${sortedAndFilteredProducts.length !== 1 ? 's' : ''}`})
             </p>
           </div>
           
@@ -116,11 +138,11 @@ export default function ProductsPage() {
                 </div>
               ))}
             </div>
-          ) : filteredProducts.length === 0 ? (
+          ) : sortedAndFilteredProducts.length === 0 ? (
             <p className="col-span-full text-center text-muted-foreground py-10">Aucun produit ne correspond à vos critères.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredProducts.map(product => (
+              {sortedAndFilteredProducts.map(product => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
