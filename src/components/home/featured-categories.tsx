@@ -9,55 +9,76 @@ import {
   GalleryVerticalEnd, BookOpen, AppWindow, Layers
 } from 'lucide-react';
 
+// Define a mapping for category details including icons and thematic colors
 const categoryDetailsList = [
-  { name: 'Lits', icon: BedDouble, iconColorClass: 'text-green-500', bgColorClass: 'bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-800/50' },
-  { name: 'Chaises', icon: Armchair, iconColorClass: 'text-yellow-500', bgColorClass: 'bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:hover:bg-yellow-800/50' },
-  { name: 'Lampes', icon: Lamp, iconColorClass: 'text-red-500', bgColorClass: 'bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-800/50' },
-  { name: 'Canapés', icon: Sofa, iconColorClass: 'text-blue-500', bgColorClass: 'bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50' },
-  { name: 'Tables', icon: Table, iconColorClass: 'text-purple-500', bgColorClass: 'bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-800/50' },
-  { name: 'Armoires', icon: GalleryVerticalEnd, iconColorClass: 'text-indigo-500', bgColorClass: 'bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-800/50' },
-  { name: 'Étagères', icon: BookOpen, iconColorClass: 'text-pink-500', bgColorClass: 'bg-pink-50 hover:bg-pink-100 dark:bg-pink-900/30 dark:hover:bg-pink-800/50' },
-  { name: 'Décorations', icon: ShoppingBasket, iconColorClass: 'text-orange-500', bgColorClass: 'bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/30 dark:hover:bg-orange-800/50' },
-  { name: 'Mirroirs', icon: AppWindow, iconColorClass: 'text-teal-500', bgColorClass: 'bg-teal-50 hover:bg-teal-100 dark:bg-teal-900/30 dark:hover:bg-teal-800/50' },
-  { name: 'Tapis', icon: Layers, iconColorClass: 'text-cyan-500', bgColorClass: 'bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-900/30 dark:hover:bg-cyan-800/50' },
-  { name: 'default', icon: ShoppingBasket, iconColorClass: 'text-gray-500', bgColorClass: 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/30 dark:hover:bg-gray-600/50'}
+  { name: 'Lits', icon: BedDouble, themeColor: 'green' },
+  { name: 'Chaises', icon: Armchair, themeColor: 'yellow' },
+  { name: 'Lampes', icon: Lamp, themeColor: 'red' },
+  { name: 'Canapés', icon: Sofa, themeColor: 'blue' },
+  { name: 'Tables', icon: Table, themeColor: 'purple' },
+  { name: 'Armoires', icon: GalleryVerticalEnd, themeColor: 'indigo' },
+  { name: 'Étagères', icon: BookOpen, themeColor: 'pink' },
+  { name: 'Décorations', icon: ShoppingBasket, themeColor: 'orange' },
+  { name: 'Mirroirs', icon: AppWindow, themeColor: 'teal' },
+  { name: 'Tapis', icon: Layers, themeColor: 'cyan' },
 ];
 
+// Ensure all productCategories have a detail entry, falling back if necessary
+const defaultCategoryDetail = { icon: ShoppingBasket, themeColor: 'gray' };
+
 const categoriesToDisplay = productCategories.map(catName => {
-  const detail = categoryDetailsList.find(d => d.name === catName) || categoryDetailsList.find(d => d.name === 'default')!;
+  const detail = categoryDetailsList.find(d => d.name === catName) || defaultCategoryDetail;
   return {
     name: catName,
     icon: detail.icon,
     href: `/products?category=${encodeURIComponent(catName)}`,
-    iconColorClass: detail.iconColorClass,
-    bgColorClass: detail.bgColorClass
+    themeColor: detail.themeColor,
   };
 });
 
 export default function FeaturedCategories() {
   return (
-    <section className="py-6 md:py-8">
+    <section className="py-8 md:py-12">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-foreground">Explore Our Categories</h2>
-        <p className="text-center text-muted-foreground mb-6 md:mb-8 text-md sm:text-lg">
-          Find exactly what you need for your home.
-        </p>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-3 md:gap-4">
-          {categoriesToDisplay.map((category) => (
-            <Link href={category.href} key={category.name} legacyBehavior>
-              <a className={`block p-1 rounded-lg shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg ${category.bgColorClass}`}>
-                <Card className="h-full text-center border-0 shadow-none bg-transparent">
-                  <CardContent className="flex flex-col items-center justify-center p-3 md:p-4">
-                    <category.icon className={`h-8 w-8 sm:h-10 sm:w-10 mb-2 ${category.iconColorClass}`} strokeWidth={1.5} />
-                    <h3 className="text-xs sm:text-sm font-medium text-foreground text-center">{category.name}</h3>
-                  </CardContent>
-                </Card>
-              </a>
-            </Link>
-          ))}
+        <div className="text-center mb-10 md:mb-14">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-primary">
+            Explore Our Categories
+          </h2>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+            Discover a wide range of high-quality furniture and decor to bring your vision to life.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+          {categoriesToDisplay.map((category) => {
+            const iconColorClass = `text-${category.themeColor}-600 dark:text-${category.themeColor}-400`;
+            const iconBgClass = `bg-${category.themeColor}-100 dark:bg-${category.themeColor}-500/20`;
+            const hoverBorderClass = `hover:border-${category.themeColor}-500/50 dark:hover:border-${category.themeColor}-400/50`;
+            const hoverBgClass = `hover:bg-${category.themeColor}-500/5 dark:hover:bg-${category.themeColor}-400/5`;
+            const hoverTextColorClass = `group-hover:text-${category.themeColor}-700 dark:group-hover:text-${category.themeColor}-300`;
+
+            return (
+              <Link href={category.href} key={category.name} legacyBehavior>
+                <a className={`group block p-3 rounded-xl shadow-lg transition-all duration-300 ease-in-out 
+                             transform hover:-translate-y-1 hover:scale-[1.03] hover:shadow-2xl 
+                             bg-card border-2 border-border/20 
+                             ${hoverBorderClass} ${hoverBgClass}
+                           `}>
+                  <Card className="h-full text-center border-0 shadow-none bg-transparent">
+                    <CardContent className="flex flex-col items-center justify-center p-2">
+                      <div className={`p-3 rounded-full mb-3 ${iconBgClass} transition-colors duration-300`}>
+                        <category.icon className={`h-7 w-7 ${iconColorClass} transition-colors duration-300`} strokeWidth={1.5} />
+                      </div>
+                      <h3 className={`text-sm font-semibold text-center text-foreground transition-colors duration-300 ${hoverTextColorClass}`}>
+                        {category.name}
+                      </h3>
+                    </CardContent>
+                  </Card>
+                </a>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 }
-
