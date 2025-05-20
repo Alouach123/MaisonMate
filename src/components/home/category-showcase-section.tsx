@@ -1,4 +1,4 @@
-
+// src/components/home/category-showcase-section.tsx
 "use client";
 
 import type { Product } from '@/types';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import WaveBottomSeparator from '@/components/layout/wave-bottom-separator'; // Import the separator
 
 interface CategoryShowcaseSectionProps {
   title: string;
@@ -19,6 +20,7 @@ interface CategoryShowcaseSectionProps {
   productsToDisplay: Product[];
   reverseLayout?: boolean;
   imageAiHint?: string;
+  nextSectionBgColor?: string; // To fill the wave for the next section
 }
 
 export default function CategoryShowcaseSection({
@@ -30,16 +32,18 @@ export default function CategoryShowcaseSection({
   ctaText = "Explorer la collection",
   productsToDisplay,
   reverseLayout = false,
-  imageAiHint = "furniture category"
+  imageAiHint = "furniture category",
+  nextSectionBgColor,
 }: CategoryShowcaseSectionProps) {
   
-  if (productsToDisplay.length === 0) {
+  if (productsToDisplay.length === 0 && process.env.NODE_ENV === 'production') { // Hide if no products in prod
     return null;
   }
 
+  const showcaseOverlayColor = "rgba(0,0,0,0.6)"; // Define overlay color
+
   return (
     <section className="relative w-full min-h-screen overflow-hidden flex items-center justify-center">
-      {/* Background Image */}
       <Image
         src={backgroundImageUrl}
         alt={backgroundImageAlt}
@@ -50,21 +54,24 @@ export default function CategoryShowcaseSection({
         data-ai-hint={imageAiHint}
         priority 
       />
-      {/* Overlay for text contrast */}
       <div className="absolute inset-0 bg-black/60 z-10"></div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 py-12 md:py-16">
+      <div className={cn(
+        "relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 flex flex-col items-center justify-center text-center",
+        productsToDisplay.length > 0 ? "lg:text-left" : "" // Keep text centered if no products
+      )}>
         <div className={cn(
-          "flex flex-col items-center gap-8 lg:gap-12",
-          reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'
+          "flex flex-col w-full items-center gap-8 lg:gap-12",
+          productsToDisplay.length > 0 && (reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row')
         )}>
-          {/* Text Content */}
-          <div className="lg:w-1/2 text-center lg:text-left space-y-5">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+          <div className={cn(
+            "space-y-5",
+            productsToDisplay.length > 0 ? "lg:w-1/2" : "lg:w-3/4" // Take more width if no products
+          )}>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-md">
               {title}
             </h2>
-            <p className="text-lg text-neutral-200 leading-relaxed">
+            <p className="text-lg text-neutral-200 leading-relaxed drop-shadow-sm">
               {description}
             </p>
             <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground group text-base px-8 py-3 shadow-lg transform hover:scale-105 transition-transform duration-300">
@@ -75,18 +82,21 @@ export default function CategoryShowcaseSection({
             </Button>
           </div>
 
-          {/* Highlighted Products */}
-          <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 mt-8 lg:mt-0 w-full max-w-2xl">
-            {productsToDisplay.slice(0, 2).map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                className="bg-card/90 backdrop-blur-sm border border-card-foreground/20"
-              />
-            ))}
-          </div>
+          {productsToDisplay.length > 0 && (
+            <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 mt-8 lg:mt-0 w-full max-w-2xl">
+              {productsToDisplay.slice(0, 2).map(product => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  className="bg-card/90 backdrop-blur-sm border border-card-foreground/20"
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
+      {/* Add the wavy bottom separator. Its fill should be the color of *this* section's overlay. */}
+      <WaveBottomSeparator fillColor={showcaseOverlayColor} />
     </section>
   );
 }

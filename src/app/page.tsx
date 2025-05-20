@@ -1,4 +1,4 @@
-
+// src/app/page.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -73,7 +73,7 @@ export default function HomePage() {
 
   // Client-side effect for randomization to prevent hydration mismatch
   useEffect(() => {
-    if (allProducts.length > 0) {
+    if (allProducts.length > 0 && !isLoading) { // Ensure products are loaded and not still in initial loading state
       setDealsProducts(
         [...allProducts].sort(() => 0.5 - Math.random()).slice(0, DEALS_COUNT)
       );
@@ -81,14 +81,14 @@ export default function HomePage() {
         [...allProducts].sort(() => 0.5 - Math.random()).slice(DEALS_COUNT, DEALS_COUNT + MORE_TO_EXPLORE_COUNT)
       );
     }
-  }, [allProducts]); // Re-run when allProducts is populated
+  }, [allProducts, isLoading]); // Re-run when allProducts or isLoading changes
 
   const categoryShowcaseSections = CATEGORIES_TO_SHOWCASE.map((categoryConfig, index) => {
     const productsForShowcase = allProducts
       .filter(p => p.category === categoryConfig.name)
       .slice(0, PRODUCTS_PER_SHOWCASE);
 
-    if (isLoading && productsForShowcase.length === 0 && index < 3) { // Only show skeletons for initial showcases if loading
+    if (isLoading && index < 3) { // Only show skeletons for initial showcases if loading
       return (
         <div key={`showcase-skel-${categoryConfig.name}`} className="w-full min-h-screen flex items-center justify-center bg-muted">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
@@ -108,7 +108,15 @@ export default function HomePage() {
       );
     }
     
+    // Render showcase only if products for it are available or if still loading (to show skeleton)
     if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0) return null;
+
+
+    // Determine the background color for the separator of the *next* section.
+    // The last showcase section should transition to the main page background.
+    const isLastShowcase = index === CATEGORIES_TO_SHOWCASE.length - 1;
+    const nextSectionBgForSeparator = isLastShowcase ? 'hsl(var(--background))' : 'rgba(0,0,0,0.6)';
+
 
     return (
       <CategoryShowcaseSection
@@ -122,6 +130,7 @@ export default function HomePage() {
         ctaText={`Explorer nos ${categoryConfig.name.toLowerCase()}`}
         productsToDisplay={productsForShowcase}
         reverseLayout={index % 2 !== 0}
+        nextSectionBgColor={nextSectionBgForSeparator} // Pass this for the embedded separator
       />
     );
   }).filter(Boolean);
@@ -169,7 +178,7 @@ export default function HomePage() {
 
           <Separator />
           
-          {(isLoading && moreToExploreProducts.length === 0 && allProducts.length > 0) ? (
+          {(isLoading && moreToExploreProducts.length === 0 && allProducts.length > 0) ? ( 
              <div>
               <Skeleton className="h-8 w-1/3 mb-6" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -188,7 +197,8 @@ export default function HomePage() {
               </div>
           )}
 
-          {(isLoading || allProducts.length > 0) && (
+          {/* Render these sections regardless of product loading, unless they depend on product data */}
+          {(isLoading || allProducts.length > 0) && ( 
               <>
                 <ServiceHighlights />
                 <Separator />
