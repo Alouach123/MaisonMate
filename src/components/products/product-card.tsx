@@ -5,15 +5,17 @@ import Link from 'next/link';
 import type { Product } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Heart, Eye, Star, ShoppingCart } from 'lucide-react';
+import { Heart, Eye, Star } from 'lucide-react';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import AddToCartButton from './add-to-cart-button'; 
+import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
+  className?: string; // Added className prop
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, className }: ProductCardProps) {
   const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist();
   const wishlisted = isWishlisted(product.id);
 
@@ -37,11 +39,11 @@ export default function ProductCard({ product }: ProductCardProps) {
   const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
 
   return (
-    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full rounded-lg border border-border/60 group">
+    <Card className={cn("overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full rounded-lg border border-border/60 group", className)}>
       <CardHeader className="p-0 relative">
         <Link href={`/products/${product.id}`} aria-label={`View details for ${product.name}`} className="block aspect-[4/3] relative overflow-hidden">
           <Image
-            src={product.imageUrl}
+            src={product.imageUrl || 'https://placehold.co/600x400.png'}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
