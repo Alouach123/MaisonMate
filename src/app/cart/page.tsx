@@ -9,12 +9,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import Link from 'next/link';
 import { ShoppingCart, Trash2, CreditCard, ArrowRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation'; 
 
 export default function CartPage() {
   const { cartItems, clearCart, getSubtotal, getTotalItems } = useCart();
   const { isAuthenticated } = useAuth(); 
-  const router = useRouter(); // Initialize router
+  const router = useRouter(); 
   const subtotal = getSubtotal();
   const totalItems = getTotalItems();
 
@@ -25,28 +25,25 @@ export default function CartPage() {
         description: "Veuillez vous connecter ou vous inscrire pour continuer.",
         variant: "default",
         action: ( 
-          <Button onClick={() => router.push('/auth')} size="sm"> {/* Use router to navigate */}
+          <Button onClick={() => router.push('/auth')} size="sm"> 
             Se connecter / S'inscrire
           </Button>
         ),
       });
       return;
     }
-    // Placeholder for actual checkout logic
-    toast({
-      title: "Fonctionnalité en cours de développement",
-      description: "Le passage à la caisse n'est pas encore implémenté.",
-    });
+    // Navigate to the new checkout page
+    router.push('/checkout');
   };
 
   if (totalItems === 0) {
     return (
-      <div className="text-center py-20 max-w-md mx-auto pt-20"> {/* Increased pt-8 to pt-20 */}
+      <div className="text-center py-20 max-w-md mx-auto pt-20"> 
         <ShoppingCart className="mx-auto h-20 w-20 text-muted-foreground mb-6" />
         <h1 className="text-3xl font-bold text-foreground mb-3">Votre Panier est Vide</h1>
         <p className="text-muted-foreground mb-8">Il semble que vous n'ayez encore rien ajouté à votre panier.</p>
         <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-          <Link href="/products" className="flex items-center gap-2"> {/* Changed link to /products */}
+          <Link href="/products" className="flex items-center gap-2"> 
             <ArrowRight className="h-5 w-5 transform rotate-180" /> Continuer vos achats
           </Link>
         </Button>
@@ -55,7 +52,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 pt-20"> {/* Increased pt-8 to pt-20 */}
+    <div className="max-w-5xl mx-auto py-8 px-4 pt-20"> 
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
         {/* Cart Items Section */}
         <section className="w-full lg:w-2/3 space-y-6">
@@ -101,7 +98,7 @@ export default function CartPage() {
                 <CreditCard className="mr-2 h-5 w-5" /> Passer à la caisse
               </Button>
               <Button asChild variant="outline" className="w-full">
-                  <Link href="/products" className="flex items-center gap-2"> {/* Changed link to /products */}
+                  <Link href="/products" className="flex items-center gap-2"> 
                      <ArrowRight className="h-4 w-4 transform rotate-180" /> Continuer vos achats
                   </Link>
               </Button>

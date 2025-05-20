@@ -60,9 +60,9 @@ export default function ProfilePage() {
     profile,
     updateUserEmail, 
     updateUserPassword, 
-    updateUserNames, 
+    updateUserNames, // This updates user_metadata directly
     updateUserAvatar, 
-    updateUserProfile,
+    updateUserProfile, // This updates the 'profiles' table
     fetchUserProfile,
     isLoading: authLoading, 
     isLoadingProfile,
@@ -84,7 +84,7 @@ export default function ProfilePage() {
     }
   });
   
-  const [email, setEmail] = useState('');
+  const [currentEmail, setCurrentEmail] = useState(''); // Renamed from 'email' to avoid conflict with form's email
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>(initialPasswordValidation);
@@ -103,16 +103,16 @@ export default function ProfilePage() {
     if (!authLoading && !isAuthenticated) {
       router.push('/auth'); 
     }
-    if (user && !profile && !isLoadingProfile) { // Fetch profile if user exists but profile doesn't
+    if (user && !profile && !isLoadingProfile) { 
         fetchUserProfile();
     }
     if (user) {
-      setEmail(user.email || '');
+      setCurrentEmail(user.email || '');
     }
     if (profile) {
-      reset({ // Populate react-hook-form with profile data
-        first_name: profile.first_name || '',
-        last_name: profile.last_name || '',
+      reset({ 
+        first_name: profile.first_name || user?.user_metadata?.first_name || '',
+        last_name: profile.last_name || user?.user_metadata?.last_name || '',
         phone: profile.phone || '',
         address_line1: profile.address_line1 || '',
         address_line2: profile.address_line2 || '',
@@ -120,6 +120,11 @@ export default function ProfilePage() {
         postal_code: profile.postal_code || '',
         country: profile.country || '',
       });
+    } else if (user && !profile) { // Fallback to user_metadata if profile is null but user exists
+        reset({
+            first_name: user.user_metadata?.first_name || '',
+            last_name: user.user_metadata?.last_name || '',
+        });
     }
   }, [user, profile, authLoading, isAuthenticated, isLoadingProfile, router, reset, fetchUserProfile]);
 
@@ -132,25 +137,28 @@ export default function ProfilePage() {
 
   const onSubmitProfileForm = async (data: ProfileFormData) => {
     setFormError(null);
-    const { error } = await updateUserProfile(data); // This function is now from AuthContext
-    if (error) {
-      setFormError(error.message || "Erreur lors de la mise à jour du profil.");
+    const result = await updateUserProfile(data); 
+    if (result?.error) {
+      setFormError(result.error.message || "Erreur lors de la mise à jour du profil.");
     } else {
-      // Names in user_metadata are updated separately for navbar display consistency
-      // if they are part of the 'profiles' table and need to be synced
-      if (data.first_name !== undefined && data.last_name !== undefined && 
-          (data.first_name !== profile?.first_name || data.last_name !== profile?.last_name)) {
-        await updateUserNames({ firstName: data.first_name || '', lastName: data.last_name || '' });
+      // If names were part of the 'profiles' table and also exist in user_metadata,
+      // we should ensure user_metadata is also up-to-date for consistency (e.g., navbar display).
+      // The trigger `handle_user_meta_data_update` in Supabase should sync metadata changes TO profiles,
+      // but not necessarily FROM profiles TO metadata.
+      // So, if profile update is successful, and names changed, update metadata too.
+      if (user && (data.first_name !== user.user_metadata.first_name || data.last_name !== user.user_metadata.last_name)) {
+         await updateUserNames({ firstName: data.first_name || '', lastName: data.last_name || '' });
       }
+      toast({ title: "Profil mis à jour !", description: "Vos informations ont été sauvegardées." });
     }
   };
 
   const handleUpdateEmail = async (e: FormEvent) => {
     e.preventDefault();
-    if (!user || user.email === email) return;
+    if (!user || user.email === currentEmail) return;
     setFormError(null);
     setIsUpdatingEmail(true);
-    const { error } = await updateUserEmail(email);
+    const { error } = await updateUserEmail(currentEmail);
     if (error) {
       setFormError(error.message || "Erreur lors de la mise à jour de l'e-mail.");
     } else {
@@ -205,10 +213,15 @@ export default function ProfilePage() {
     }
     setIsUploadingPhoto(true);
     setFormError(null);
-
+    console.log("Attempting to upload photo...");
+    console.log("User ID:", user.id);
     const fileExt = selectedFile.name.split('.').pop();
     const filePath = `${user.id}/profile.${fileExt}`;
     const bucketName = 'avatars';
+    console.log("File Path:", filePath);
+    console.log("Bucket Name:", bucketName);
+    console.log("Selected File:", selectedFile);
+
 
     try {
       const { error: uploadError } = await supabase.storage
@@ -218,13 +231,19 @@ export default function ProfilePage() {
           upsert: true,
         });
 
-      if (uploadError) throw uploadError;
-
+      if (uploadError) {
+        console.error("Supabase storage upload error:", uploadError);
+        throw uploadError;
+      }
+      
       const { data: publicURLData } = supabase.storage
         .from(bucketName)
         .getPublicUrl(filePath);
         
-      if (!publicURLData?.publicUrl) throw new Error("Impossible d'obtenir l'URL publique de l'image.");
+      if (!publicURLData?.publicUrl) {
+        console.error("Failed to get public URL after upload.");
+        throw new Error("Impossible d'obtenir l'URL publique de l'image.");
+      }
       
       const { error: avatarUpdateError } = await updateUserAvatar(publicURLData.publicUrl);
       if (avatarUpdateError) throw avatarUpdateError;
@@ -232,11 +251,8 @@ export default function ProfilePage() {
       toast({ title: "Photo de profil mise à jour !" });
       setSelectedFile(null);
       setPreviewUrl(null);
-      // Optionally re-fetch profile if avatar_url is part of profile state from 'profiles' table
-      // await fetchUserProfile(); 
-      // The onAuthStateChange USER_UPDATED event should handle profile refresh.
-
     } catch (error: any) {
+      console.error("Full error in handlePhotoUpload:", error);
       setFormError(error.message || "Erreur lors du téléchargement de la photo.");
       toast({ variant: "destructive", title: "Erreur de téléchargement", description: error.message });
     } finally {
@@ -263,7 +279,7 @@ export default function ProfilePage() {
     );
   };
   
-  if (authLoading || !user || isLoadingProfile) {
+  if (authLoading || (!user && !isAuthenticated) || isLoadingProfile ) { // Adjusted condition
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -271,10 +287,24 @@ export default function ProfilePage() {
       </div>
     );
   }
+   if (!user && isAuthenticated) { // Case where auth says true, but user object is null (should be rare)
+     return (
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
+            <ShieldAlert className="h-12 w-12 text-destructive" />
+            <p className="mt-4 text-muted-foreground">Erreur: Incohérence de l'état d'authentification. Veuillez vous reconnecter.</p>
+            <Button onClick={() => router.push('/auth')} className="mt-4">Retour à l'authentification</Button>
+        </div>
+     )
+   }
+   if (!user) { // Fallback if user is still null after loading checks
+     router.push('/auth'); // Or show a message
+     return <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <p className="mt-4">Redirection...</p></div>;
+   }
+
 
   const currentAvatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
-  const avatarSeed = profile?.first_name || user.user_metadata?.first_name || profile?.last_name || user.user_metadata?.last_name || user.email?.split('@')[0] || 'User';
-  const avatarFallback = (
+  const avatarSeedValue = profile?.first_name || user.user_metadata?.first_name || profile?.last_name || user.user_metadata?.last_name || user.email?.split('@')[0] || 'User';
+  const avatarFallbackText = (
     (profile?.first_name?.[0] || user.user_metadata?.first_name?.[0] || '') + 
     (profile?.last_name?.[0] || user.user_metadata?.last_name?.[0] || '') ||
     user.email?.[0] || 'U'
@@ -293,7 +323,7 @@ export default function ProfilePage() {
           {formError && (
             <Alert variant="destructive" className="mb-6">
               <ShieldAlert className="h-4 w-4" />
-              <AlertTitle>Erreur de mise à jour</AlertTitle>
+              <AlertTitle>Erreur</AlertTitle>
               <AlertDescription>{formError}</AlertDescription>
             </Alert>
           )}
@@ -303,8 +333,8 @@ export default function ProfilePage() {
             <h3 className="text-lg font-semibold flex items-center gap-2"><Camera className="h-5 w-5 text-primary" />Photo de Profil</h3>
             <div className="flex flex-col items-center gap-4">
               <Avatar className="h-32 w-32 border-2 border-primary shadow-md">
-                <AvatarImage src={previewUrl || currentAvatarUrl || (avatarSeed ? `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(avatarSeed)}` : undefined)} alt="Photo de profil" />
-                <AvatarFallback className="text-4xl">{avatarFallback}</AvatarFallback>
+                <AvatarImage src={previewUrl || currentAvatarUrl || (avatarSeedValue ? `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(avatarSeedValue)}` : undefined)} alt="Photo de profil" />
+                <AvatarFallback className="text-4xl">{avatarFallbackText}</AvatarFallback>
               </Avatar>
               {previewUrl && <Image src={previewUrl} alt="Aperçu" width={100} height={100} className="rounded-md border object-cover" />}
               <Input id="photo" type="file" accept="image/*" onChange={handlePhotoSelect} className="max-w-xs text-sm file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
@@ -338,35 +368,35 @@ export default function ProfilePage() {
 
             <div>
               <Label htmlFor="phone"><Phone className="inline mr-1 h-4 w-4" />Téléphone</Label>
-              <Input id="phone" type="tel" {...register("phone")} className={errors.phone ? 'border-destructive' : ''} />
+              <Input id="phone" type="tel" {...register("phone")} className={errors.phone ? 'border-destructive' : ''} placeholder="Ex: +212 600000000"/>
               {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>}
             </div>
 
             <h4 className="text-md font-semibold pt-2 flex items-center gap-2"><Home className="h-5 w-5 text-muted-foreground" />Adresse de Livraison</h4>
             <div>
               <Label htmlFor="address_line1">Adresse (Ligne 1)</Label>
-              <Input id="address_line1" {...register("address_line1")} className={errors.address_line1 ? 'border-destructive' : ''} />
+              <Input id="address_line1" {...register("address_line1")} className={errors.address_line1 ? 'border-destructive' : ''} placeholder="Ex: 123 Rue Exemple"/>
               {errors.address_line1 && <p className="text-sm text-destructive mt-1">{errors.address_line1.message}</p>}
             </div>
             <div>
               <Label htmlFor="address_line2">Adresse (Ligne 2) (Optionnel)</Label>
-              <Input id="address_line2" {...register("address_line2")} />
+              <Input id="address_line2" {...register("address_line2")} placeholder="Ex: Appartement 4B"/>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="city"><Building className="inline mr-1 h-4 w-4" />Ville</Label>
-                <Input id="city" {...register("city")} className={errors.city ? 'border-destructive' : ''} />
+                <Input id="city" {...register("city")} className={errors.city ? 'border-destructive' : ''} placeholder="Ex: Casablanca"/>
                 {errors.city && <p className="text-sm text-destructive mt-1">{errors.city.message}</p>}
               </div>
               <div>
                 <Label htmlFor="postal_code"><MapPin className="inline mr-1 h-4 w-4" />Code Postal</Label>
-                <Input id="postal_code" {...register("postal_code")} className={errors.postal_code ? 'border-destructive' : ''} />
+                <Input id="postal_code" {...register("postal_code")} className={errors.postal_code ? 'border-destructive' : ''} placeholder="Ex: 20000"/>
                 {errors.postal_code && <p className="text-sm text-destructive mt-1">{errors.postal_code.message}</p>}
               </div>
             </div>
             <div>
               <Label htmlFor="country"><Globe2 className="inline mr-1 h-4 w-4" />Pays</Label>
-              <Input id="country" {...register("country")} className={errors.country ? 'border-destructive' : ''} />
+              <Input id="country" {...register("country")} className={errors.country ? 'border-destructive' : ''} placeholder="Ex: Maroc"/>
               {errors.country && <p className="text-sm text-destructive mt-1">{errors.country.message}</p>}
             </div>
             
@@ -381,10 +411,10 @@ export default function ProfilePage() {
           <form onSubmit={handleUpdateEmail} className="space-y-4 p-4 border rounded-md bg-card">
             <h3 className="text-lg font-semibold flex items-center gap-2"><Mail className="h-5 w-5 text-primary" />Adresse E-mail</h3>
             <div>
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Label htmlFor="currentEmail">E-mail actuel</Label>
+              <Input id="currentEmail" type="email" value={currentEmail} onChange={(e) => setCurrentEmail(e.target.value)} required />
             </div>
-            <Button type="submit" disabled={isUpdatingEmail || user.email === email} className="bg-primary hover:bg-primary/90">
+            <Button type="submit" disabled={isUpdatingEmail || user.email === currentEmail} className="bg-primary hover:bg-primary/90">
               {isUpdatingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               Mettre à jour l'e-mail
             </Button>

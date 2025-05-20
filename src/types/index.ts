@@ -115,7 +115,7 @@ export interface Profile {
 export const ProfileFormSchema = z.object({
   first_name: z.string().min(1, "Le prénom est requis.").optional().or(z.literal('')),
   last_name: z.string().min(1, "Le nom est requis.").optional().or(z.literal('')),
-  phone: z.string().optional().or(z.literal('')),
+  phone: z.string().optional().or(z.literal('')), // Consider more specific phone validation if needed
   address_line1: z.string().optional().or(z.literal('')),
   address_line2: z.string().optional().or(z.literal('')),
   city: z.string().optional().or(z.literal('')),
@@ -125,7 +125,7 @@ export const ProfileFormSchema = z.object({
 export type ProfileFormData = z.infer<typeof ProfileFormSchema>;
 
 
-// Type for Order (to be stored in MongoDB)
+// Type for Order (to be stored in MongoDB or passed to invoice)
 export interface OrderItem {
   productId: string;
   name: string;
@@ -135,35 +135,36 @@ export interface OrderItem {
 }
 
 export interface ShippingAddress {
-  line1: string;
-  line2?: string;
+  first_name?: string; // Added for personalization on invoice
+  last_name?: string;  // Added for personalization on invoice
+  phone: string;
+  address_line1: string;
+  address_line2?: string;
   city: string;
-  postalCode: string;
+  postal_code: string;
   country: string;
 }
 
 export interface Order {
-  _id?: ObjectId; // For MongoDB
-  id?: string; // For app use
-  userId: string; // Supabase user ID
-  userEmail: string;
-  items: OrderItem[];
+  // _id?: ObjectId; // Not storing in DB for this simulation
+  // id?: string; // Not storing in DB for this simulation
+  userEmail?: string; // User's email for the invoice
+  items: CartItem[]; // Re-using CartItem as it has all product details
   totalAmount: number;
   shippingAddress: ShippingAddress;
-  phone: string;
-  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   orderDate: Date;
-  updatedAt?: Date;
+  // status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled'; // Not relevant for COD invoice display
 }
 
 export const ShippingAddressSchema = z.object({
+  first_name: z.string().min(1, "Le prénom est requis."),
+  last_name: z.string().min(1, "Le nom est requis."),
+  phone: z.string().min(1, "Le numéro de téléphone est requis."),
   address_line1: z.string().min(1, "L'adresse (ligne 1) est requise."),
-  address_line2: z.string().optional(),
+  address_line2: z.string().optional().or(z.literal('')),
   city: z.string().min(1, "La ville est requise."),
   postal_code: z.string().min(1, "Le code postal est requis."),
   country: z.string().min(1, "Le pays est requis."),
-  phone: z.string().min(1, "Le numéro de téléphone est requis."),
 });
 
 export type ShippingFormData = z.infer<typeof ShippingAddressSchema>;
-
