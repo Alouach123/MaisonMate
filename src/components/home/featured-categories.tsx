@@ -45,30 +45,34 @@ export default function FeaturedCategories() {
             Explore Our Categories
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover a wide range of high-quality furniture and decor to bring your vision to life.
+            Find exactly what you need for your home.
           </p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
           {categoriesToDisplay.map((category) => {
+            // Base classes
             const iconColorClass = `text-${category.themeColor}-600 dark:text-${category.themeColor}-400`;
             const iconBgClass = `bg-${category.themeColor}-100 dark:bg-${category.themeColor}-500/20`;
-            const hoverBorderClass = `hover:border-${category.themeColor}-500/50 dark:hover:border-${category.themeColor}-400/50`;
-            const hoverBgClass = `hover:bg-${category.themeColor}-500/5 dark:hover:bg-${category.themeColor}-400/5`;
-            const hoverTextColorClass = `group-hover:text-${category.themeColor}-700 dark:group-hover:text-${category.themeColor}-300`;
+
+            // Hover classes for "LED light" effect
+            const cardHoverClasses = `hover:border-${category.themeColor}-500 hover:shadow-2xl hover:shadow-${category.themeColor}-500/40`;
+            const iconContainerHoverClasses = `group-hover:bg-${category.themeColor}-500 dark:group-hover:bg-${category.themeColor}-400`;
+            const iconHoverClasses = `group-hover:text-white dark:group-hover:text-${category.themeColor}-950`;
+            const textHoverClasses = `group-hover:text-${category.themeColor}-700 dark:group-hover:text-${category.themeColor}-300`;
 
             return (
               <Link href={category.href} key={category.name} legacyBehavior>
-                <a className={`group block p-3 rounded-xl shadow-lg transition-all duration-300 ease-in-out 
-                             transform hover:-translate-y-1 hover:scale-[1.03] hover:shadow-2xl 
-                             bg-card border-2 border-border/20 
-                             ${hoverBorderClass} ${hoverBgClass}
+                <a className={`group block p-0.5 rounded-xl shadow-lg transition-all duration-300 ease-in-out 
+                             transform hover:-translate-y-1 hover:scale-[1.03] 
+                             border border-transparent 
+                             ${cardHoverClasses}
                            `}>
-                  <Card className="h-full text-center border-0 shadow-none bg-transparent">
-                    <CardContent className="flex flex-col items-center justify-center p-2">
-                      <div className={`p-3 rounded-full mb-3 ${iconBgClass} transition-colors duration-300`}>
-                        <category.icon className={`h-7 w-7 ${iconColorClass} transition-colors duration-300`} strokeWidth={1.5} />
+                  <Card className="h-full text-center border-0 shadow-none bg-card rounded-[10px]"> {/* Slightly less rounded inner card */}
+                    <CardContent className="flex flex-col items-center justify-center p-3 md:p-4">
+                      <div className={`p-3 md:p-4 rounded-full mb-3 ${iconBgClass} ${iconContainerHoverClasses} transition-colors duration-300`}>
+                        <category.icon className={`h-7 w-7 md:h-8 md:w-8 ${iconColorClass} ${iconHoverClasses} transition-colors duration-300`} strokeWidth={1.5} />
                       </div>
-                      <h3 className={`text-sm font-semibold text-center text-foreground transition-colors duration-300 ${hoverTextColorClass}`}>
+                      <h3 className={`text-sm md:text-md font-semibold text-center text-foreground ${textHoverClasses} transition-colors duration-300`}>
                         {category.name}
                       </h3>
                     </CardContent>
