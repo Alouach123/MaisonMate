@@ -54,9 +54,6 @@ export default function HomePage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [dealsProducts, setDealsProducts] = useState<Product[]>([]);
-  const [moreToExploreProducts, setMoreToExploreProducts] = useState<Product[]>([]);
-
   useEffect(() => {
     async function loadProducts() {
       setIsLoading(true);
@@ -71,28 +68,14 @@ export default function HomePage() {
     }
     loadProducts();
   }, []);
-
-  useEffect(() => {
-    if (allProducts.length > 0 && !isLoading) {
-      const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
-      setDealsProducts(shuffled.slice(0, DEALS_COUNT));
-      // Ensure "More to Explore" doesn't overlap with "Deals" or "Best Sellers" if they are also random
-      const bestSellers = [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT);
-      const dealIds = new Set(dealsProducts.map(p => p.id));
-      const bestSellerIds = new Set(bestSellers.map(p => p.id));
-      
-      const remainingProducts = allProducts.filter(p => !dealIds.has(p.id) && !bestSellerIds.has(p.id));
-      setMoreToExploreProducts(remainingProducts.sort(() => 0.5 - Math.random()).slice(0, MORE_TO_EXPLORE_COUNT));
-    }
-  }, [allProducts, isLoading, dealsProducts]); // Added dealsProducts to dependency array for moreToExploreProducts
-
+  
   const categoryShowcaseSections = useMemo(() => 
     CATEGORIES_TO_SHOWCASE.map((categoryConfig, index) => {
       const productsForShowcase = allProducts
         .filter(p => p.category === categoryConfig.name)
         .slice(0, PRODUCTS_PER_SHOWCASE);
 
-      if (isLoading && index < 3) { // Show skeleton for first few showcases while loading
+      if (isLoading && index < 3) { 
         return (
           <div key={`showcase-skel-${categoryConfig.name}`} className="w-full min-h-screen flex items-center justify-center bg-muted">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
@@ -112,9 +95,7 @@ export default function HomePage() {
         );
       }
       
-      // Don't render showcase if no products and not loading (unless it's a dev environment for design)
       if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0 && process.env.NODE_ENV === 'production') return null;
-
 
       return (
         <CategoryShowcaseSection
@@ -133,10 +114,29 @@ export default function HomePage() {
     }).filter(Boolean), [allProducts, isLoading]
   );
 
-  const bestSellerProducts = useMemo(() => 
-    [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT),
-    [allProducts]
-  );
+  // Deterministic selection for best sellers
+  const bestSellerProducts = useMemo(() => {
+    if (isLoading || allProducts.length === 0) return [];
+    return [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT);
+  }, [allProducts, isLoading]);
+
+  // Deterministic selection for deals
+  const dealsProducts = useMemo(() => {
+    if (isLoading || allProducts.length === 0) return [];
+    // Example: Take the first few products as "deals"
+    // You could also sort by a specific "on_sale" flag or discount if your data model supports it.
+    return allProducts.slice(0, DEALS_COUNT); 
+  }, [allProducts, isLoading]);
+
+  // Deterministic selection for "More to Explore"
+  const moreToExploreProducts = useMemo(() => {
+    if (isLoading || allProducts.length === 0) return [];
+    // To avoid direct overlap with deals and best sellers, slice from a different part.
+    // This is a simple approach; a more sophisticated one might involve checking IDs.
+    let exploreSlice = allProducts.slice(DEALS_COUNT); // Start after deals
+    exploreSlice = exploreSlice.filter(p => !(bestSellerProducts.map(bs => bs.id).includes(p.id))); // Remove best sellers
+    return exploreSlice.slice(0, MORE_TO_EXPLORE_COUNT);
+  }, [allProducts, isLoading, bestSellerProducts, dealsProducts]); // Added dealsProducts
 
   return (
     <>
@@ -144,11 +144,12 @@ export default function HomePage() {
       
       {categoryShowcaseSections}
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 lg:pt-20"> {/* Adjusted padding */}
+      {/* Container for the rest of the content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 lg:pt-20"> 
         <div className="space-y-12 md:space-y-16 lg:space-y-20">
           <FeaturedCategories />
           
-          {(isLoading && dealsProducts.length === 0) ? (
+          {(isLoading && dealsProducts.length === 0 && allProducts.length === 0) ? (
             <div>
               <Skeleton className="h-8 w-1/3 mb-6" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
@@ -161,7 +162,7 @@ export default function HomePage() {
           
           <Separator />
 
-          {(isLoading && bestSellerProducts.length === 0) ? (
+          {(isLoading && bestSellerProducts.length === 0 && allProducts.length === 0) ? (
              <div>
               <Skeleton className="h-8 w-1/3 mb-6" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
@@ -174,7 +175,7 @@ export default function HomePage() {
 
           <Separator />
           
-          {(isLoading && moreToExploreProducts.length === 0 && allProducts.length > 0) ? ( 
+          {(isLoading && moreToExploreProducts.length === 0 && allProducts.length === 0) ? ( 
              <div>
               <Skeleton className="h-8 w-1/3 mb-6" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

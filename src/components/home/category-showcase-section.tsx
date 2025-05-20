@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import WaveBottomSeparator from '@/components/layout/wave-bottom-separator'; // Import the separator
 
 interface CategoryShowcaseSectionProps {
   title: string;
@@ -54,8 +53,8 @@ export default function CategoryShowcaseSection({
       <div className="absolute inset-0 bg-black/60 z-10"></div>
 
       <div className={cn(
-        "relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center min-h-screen py-20 md:py-24",
-        productsToDisplay.length > 0 ? "lg:text-left" : ""
+        "relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-screen py-24 md:py-32", 
+        productsToDisplay.length > 0 ? "lg:text-left" : "text-center"
       )}>
         <div className={cn(
           "flex flex-col w-full items-center gap-8 lg:gap-12",
@@ -63,7 +62,7 @@ export default function CategoryShowcaseSection({
         )}>
           <div className={cn(
             "space-y-5",
-            productsToDisplay.length > 0 ? "lg:w-1/2" : "lg:w-3/4"
+            productsToDisplay.length > 0 ? "lg:w-1/2" : "lg:w-3/4 text-center lg:text-left"
           )}>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-md">
               {title}
@@ -92,7 +91,6 @@ export default function CategoryShowcaseSection({
           )}
         </div>
       </div>
-      <WaveBottomSeparator fillColor="rgba(0,0,0,0.6)" /> {/* Adjust fillColor to match overlay */}
     </section>
   );
 }

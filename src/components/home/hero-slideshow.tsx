@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
-import WaveBottomSeparator from '@/components/layout/wave-bottom-separator'; // Import the separator
 
 const slidesData = [
   {
@@ -61,7 +60,7 @@ export default function HeroSlideshow() {
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
-          priority={index === currentIndex}
+          priority={index === 0} // Prioritize the first slide image for LCP
           className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}
           data-ai-hint={slide.aiHint}
           quality={85}
@@ -70,6 +69,7 @@ export default function HeroSlideshow() {
       
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent z-10"></div>
       
+      {/* Content container: centered on small screens, left-aligned on medium and up */}
       <div className="absolute inset-0 flex items-center justify-center md:justify-start text-center md:text-left z-20">
         <div className="max-w-lg md:max-w-xl space-y-6 container mx-auto px-6 sm:px-8 md:pl-12 lg:pl-16 xl:pl-24 pt-24 md:pt-32 lg:pt-40 pb-12 md:pb-16 lg:pb-20">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
@@ -113,7 +113,6 @@ export default function HeroSlideshow() {
           />
         ))}
       </div>
-      <WaveBottomSeparator fillColor="rgba(0,0,0,0.6)" /> {/* Adjust fillColor to match overlay */}
     </section>
   );
 }
