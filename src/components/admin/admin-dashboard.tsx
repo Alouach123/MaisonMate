@@ -2,15 +2,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import type { Product, ProductFormData } from '@/types';
+import type { Product, ProductFormData, AdminUserView } from '@/types';
 import ProductTable from './product-table';
+import UserTable from './user-table'; // New import
 import ProductForm from './product-form';
 import { Button } from '@/components/ui/button';
-import { getProductsAction, addProductAction, updateProductAction, deleteProductAction } from '@/app/admin/actions';
+import { getProductsAction, addProductAction, updateProductAction, deleteProductAction, getUsersAction } from '@/app/admin/actions';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, LogOut, PlusCircle, RefreshCw } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-
+import { Loader2, LogOut, PlusCircle, RefreshCw, Users, Package } from 'lucide-react';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -18,35 +20,54 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [users, setUsers] = useState<AdminUserView[]>([]); // State for users
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false); // Separate loading for users
+  const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
   
   const [showProductForm, setShowProductForm] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [activeTab, setActiveTab] = useState("products");
 
   const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
+    setIsLoadingProducts(true);
     try {
       const fetchedProducts = await getProductsAction();
       setProducts(fetchedProducts);
     } catch (error) {
       toast({ variant: "destructive", title: "Erreur", description: "Impossible de charger les produits." });
     } finally {
-      setIsLoading(false);
+      setIsLoadingProducts(false);
+    }
+  }, []);
+
+  const fetchUsers = useCallback(async () => {
+    setIsLoadingUsers(true);
+    try {
+      const fetchedUsers = await getUsersAction();
+      setUsers(fetchedUsers);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible de charger les utilisateurs." });
+    } finally {
+      setIsLoadingUsers(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    if (activeTab === "products") {
+      fetchProducts();
+    } else if (activeTab === "users") {
+      fetchUsers();
+    }
+  }, [activeTab, fetchProducts, fetchUsers]);
 
-  const handleEdit = (product: Product) => {
+  const handleEditProduct = (product: Product) => {
     setProductToEdit(product);
     setShowProductForm(true);
   };
 
-  const handleDelete = async (productId: string) => {
+  const handleDeleteProduct = async (productId: string) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.")) {
       return;
     }
@@ -55,7 +76,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       const result = await deleteProductAction(productId);
       if (result.success) {
         toast({ title: "Produit supprimé !", description: "Le produit a été retiré de la liste." });
-        fetchProducts(); // Refresh product list
+        fetchProducts(); 
       } else {
         toast({ variant: "destructive", title: "Erreur", description: result.error || "Impossible de supprimer le produit." });
       }
@@ -66,77 +87,106 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     }
   };
   
-  const handleOpenAddForm = () => {
+  const handleOpenAddProductForm = () => {
     setProductToEdit(null);
     setShowProductForm(true);
   };
 
-  const handleFormSubmit = async (data: ProductFormData) => {
-    setIsSubmitting(true);
+  const handleProductFormSubmit = async (data: ProductFormData) => {
+    setIsSubmittingProduct(true);
     let result;
-    if (productToEdit && productToEdit.id) { // Editing existing product
+    if (productToEdit && productToEdit.id) { 
       result = await updateProductAction({ ...data, id: productToEdit.id });
-    } else { // Adding new product
+    } else { 
       result = await addProductAction(data);
     }
-    setIsSubmitting(false);
+    setIsSubmittingProduct(false);
 
     if (result.success) {
       setShowProductForm(false);
       setProductToEdit(null);
-      fetchProducts(); // Refresh product list
+      fetchProducts(); 
     }
-    return result; // Return result for ProductForm to handle toast
+    return result; 
   };
 
-  const handleCancelForm = () => {
+  const handleCancelProductForm = () => {
     setShowProductForm(false);
     setProductToEdit(null);
   };
-
 
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-primary">Tableau de Bord Admin</h1>
-        <div className="flex gap-2">
-            <Button variant="outline" onClick={fetchProducts} disabled={isLoading}>
-                <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} /> Actualiser
-            </Button>
-            <Button onClick={onLogout} variant="outline">
-                <LogOut className="mr-2 h-4 w-4" /> Déconnexion
-            </Button>
-        </div>
-      </div>
-
-      <div className="mb-6 flex justify-end">
-        <Button onClick={handleOpenAddForm} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un produit
+        <Button onClick={onLogout} variant="outline">
+            <LogOut className="mr-2 h-4 w-4" /> Déconnexion
         </Button>
       </div>
 
-      {isLoading && !showProductForm ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
-      ) : (
-        <ProductTable products={products} onEdit={handleEdit} onDelete={handleDelete} isLoadingDelete={deletingProductId} />
-      )}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 md:w-1/2 lg:w-1/3 mb-6">
+          <TabsTrigger value="products" className="flex items-center gap-2">
+            <Package className="h-4 w-4" /> Gestion des Produits
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <Users className="h-4 w-4" /> Gestion des Utilisateurs
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="products">
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-2xl font-semibold">Produits</h2>
+            <div className="flex gap-2">
+                <Button variant="outline" onClick={fetchProducts} disabled={isLoadingProducts}>
+                    <RefreshCw className={`mr-2 h-4 w-4 ${isLoadingProducts ? 'animate-spin' : ''}`} /> Actualiser Produits
+                </Button>
+                <Button onClick={handleOpenAddProductForm} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un produit
+                </Button>
+            </div>
+          </div>
+          {isLoadingProducts && !showProductForm ? (
+             <div className="space-y-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
+             </div>
+          ) : (
+            <ProductTable products={products} onEdit={handleEditProduct} onDelete={handleDeleteProduct} isLoadingDelete={deletingProductId} />
+          )}
+        </TabsContent>
+
+        <TabsContent value="users">
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-2xl font-semibold">Utilisateurs Enregistrés</h2>
+            <Button variant="outline" onClick={fetchUsers} disabled={isLoadingUsers}>
+                <RefreshCw className={`mr-2 h-4 w-4 ${isLoadingUsers ? 'animate-spin' : ''}`} /> Actualiser Utilisateurs
+            </Button>
+          </div>
+          {isLoadingUsers ? (
+            <div className="space-y-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+            </div>
+          ) : (
+            <UserTable users={users} />
+          )}
+        </TabsContent>
+      </Tabs>
       
-      <Dialog open={showProductForm} onOpenChange={(open) => { if (!open) handleCancelForm(); else setShowProductForm(true);}}>
+      <Dialog open={showProductForm} onOpenChange={(open) => { if (!open) handleCancelProductForm(); else setShowProductForm(true);}}>
         <DialogContent className="max-w-3xl p-0">
-            {/* ProductForm is rendered inside DialogContent for modal behavior */}
-            {/* We pass a key to ProductForm to force re-mount and reset when productToEdit changes */}
             <ProductForm
                 key={productToEdit ? productToEdit.id : 'new'} 
                 productToEdit={productToEdit}
-                onFormSubmit={handleFormSubmit}
-                onCancel={handleCancelForm}
-                isLoading={isSubmitting}
+                onFormSubmit={handleProductFormSubmit}
+                onCancel={handleCancelProductForm}
+                isLoading={isSubmittingProduct}
             />
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }

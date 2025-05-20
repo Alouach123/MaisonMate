@@ -2,11 +2,16 @@
 'use server';
 
 import { connectToDatabase, toObjectId } from '@/lib/mongodb';
-import type { Product, ProductFormData, ProductDocument } from '@/types';
+import type { Product, ProductFormData, ProductDocument, AdminUserView } from '@/types';
 import { ProductSchema } from '@/types';
 import { ObjectId } from 'mongodb';
+import { createClient } from '@supabase/supabase-js';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
 
 export async function verifyPasswordAction(password: string): Promise<{ success: boolean }> {
   return { success: password === ADMIN_PASSWORD };
@@ -158,5 +163,43 @@ export async function deleteProductAction(productId: string): Promise<{ success:
   } catch (error) {
     console.error("Error deleting product:", error);
     return { success: false, error: "An error occurred while deleting the product." };
+  }
+}
+
+// New action to fetch users
+export async function getUsersAction(): Promise<AdminUserView[]> {
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    console.error("Supabase URL or Service Role Key is not configured.");
+    throw new Error("Supabase configuration missing for admin actions.");
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+
+  try {
+    const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers({
+      // You can add pagination options here if needed, e.g., page: 1, perPage: 50
+    });
+
+    if (error) {
+      console.error("Error fetching users from Supabase:", error.message);
+      throw error;
+    }
+
+    return users.map(user => ({
+      id: user.id,
+      email: user.email,
+      firstName: user.user_metadata?.first_name,
+      lastName: user.user_metadata?.last_name,
+      createdAt: user.created_at,
+      lastSignInAt: user.last_sign_in_at,
+    }));
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    return [];
   }
 }

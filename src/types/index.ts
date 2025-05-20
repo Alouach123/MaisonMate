@@ -39,7 +39,7 @@ export interface Product {
 }
 
 export interface WishlistItem extends Product {
-  addedAt: string; 
+  addedAt: string;
 }
 
 export interface CartItem extends Product {
@@ -83,4 +83,14 @@ export function fromProductDocument(doc: ProductDocument): Product {
     ...doc,
     id: doc._id.toString(), // Convert ObjectId to string
   };
+}
+
+// Type for displaying users in the admin panel
+export interface AdminUserView {
+  id: string;
+  email: string | undefined;
+  firstName: string | undefined;
+  lastName: string | undefined;
+  createdAt: string | undefined;
+  lastSignInAt: string | undefined;
 }
