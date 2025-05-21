@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client';
 import type { AuthChangeEvent, Session, User, SignUpWithPasswordCredentials, UpdateUserAttributes } from '@supabase/supabase-js';
 import { toast } from "@/hooks/use-toast";
 import type { Profile, ProfileFormData } from '@/types';
+import { useRouter } from 'next/navigation'; // Import useRouter if you need programmatic navigation
 
 interface ExtendedSignUpCredentials extends SignUpWithPasswordCredentials {
   options?: {
@@ -34,7 +35,7 @@ interface AuthContextType {
   signInUser: (credentials: Pick<SignUpWithPasswordCredentials, 'email' | 'password'>) => Promise<{ data: { user: User | null; session: Session | null; } | null, error: any | null }>;
   signOutUser: () => Promise<{ error: any | null }>;
   updateUserEmail: (newEmail: string) => Promise<{ data: { user: User | null } | null, error: any | null }>;
-  updateUserPassword: (newPassword: string) => Promise<{ data: { user: User | null } | null, error: any | null }>;
+  updateUserPassword: (currentPasswordMaybe: string, newPassword: string) => Promise<{ data: { user: User | null } | null, error: any | null }>;
   updateUserNames: (payload: UpdateUserNamesPayload) => Promise<{ data: { user: User | null } | null, error: any | null }>;
   updateUserAvatar: (avatarUrl: string) => Promise<{ data: { user: User | null }| null, error: any | null }>;
   fetchUserProfile: () => Promise<void>;
@@ -47,8 +48,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // True until initial session check is done
+  const [isLoading, setIsLoading] = useState(true); // Key state for Navbar button
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const router = useRouter();
 
   const fetchUserProfile = useCallback(async () => {
     const { data: { user: currentUserFromAuth } } = await supabase.auth.getUser();
@@ -66,8 +68,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('id', currentUserFromAuth.id)
         .single();
 
-      if (error && status !== 406) {
-        console.error("Error fetching profile in fetchUserProfile:", error);
+      if (error && status !== 406) { // 406 means no rows found, which is not an error here
+        console.error("Error fetching profile:", error);
         setProfile(null);
       } else if (data) {
         setProfile(data as Profile);
@@ -75,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setProfile(null);
       }
     } catch (error) {
-      console.error("Exception while fetching profile in fetchUserProfile:", error);
+      console.error("Exception while fetching profile:", error);
       setProfile(null);
     } finally {
       setIsLoadingProfile(false);
@@ -86,45 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let isMounted = true;
 
-    const initializeAuth = async () => {
-      try {
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (!isMounted) return;
-
-        if (sessionError) {
-          console.error("Error fetching initial Supabase session:", sessionError);
-          setUser(null);
-          setSession(null);
-          setProfile(null);
-        } else {
-          setSession(currentSession);
-          const userFromSession = currentSession?.user ?? null;
-          setUser(userFromSession);
-
-          if (userFromSession) {
-            // Fetch profile but don't let it block setIsLoading(false)
-            fetchUserProfile(); 
-          } else {
-            setProfile(null);
-          }
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error("Exception during initial Supabase session fetch:", error);
-          setUser(null);
-          setSession(null);
-          setProfile(null);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false); // CRITICAL: Ensure this is called to unblock UI
-        }
-      }
-    };
-
-    initializeAuth();
-
+    // Listener for auth state changes (login, logout, token refresh)
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, sessionState) => {
         if (!isMounted) return;
@@ -134,20 +98,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(currentUser);
 
         if (event === 'SIGNED_OUT') {
-            setProfile(null);
+          setProfile(null);
+          // Optionally redirect after sign out: router.push('/auth');
         } else if (currentUser && (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED')) {
-            await fetchUserProfile(); 
+          await fetchUserProfile(); 
         } else if (!currentUser) {
-            setProfile(null);
+          setProfile(null);
         }
       }
     );
+
+    // Initial session check
+    supabase.auth.getSession()
+      .then(({ data: { session: currentSession }, error: sessionError }) => {
+        if (!isMounted) return;
+        if (sessionError) {
+          console.error("Error fetching initial Supabase session:", sessionError);
+          setUser(null);
+          setSession(null);
+          setProfile(null);
+        } else {
+          setSession(currentSession);
+          const userFromSession = currentSession?.user ?? null;
+          setUser(userFromSession);
+          if (userFromSession) {
+            fetchUserProfile(); // Fetch profile, but don't let it block setIsLoading(false)
+          } else {
+            setProfile(null);
+          }
+        }
+      })
+      .catch((error) => {
+        if (isMounted) {
+          console.error("Exception during initial Supabase session fetch:", error);
+          setUser(null);
+          setSession(null);
+          setProfile(null);
+        }
+      })
+      .finally(() => {
+        // This is crucial: set loading to false after initial check is done
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
 
     return () => {
       isMounted = false;
       authListener?.subscription.unsubscribe();
     };
-  }, [fetchUserProfile]); // fetchUserProfile is stable due to useCallback([])
+  }, [fetchUserProfile]);
 
   const signUpUser = useCallback(async (credentials: ExtendedSignUpCredentials) => {
     const { data, error } = await supabase.auth.signUp(credentials);
@@ -155,9 +155,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Sign up error:", error.message);
       return { data: null, error };
     }
+    // Supabase now often returns user and session on successful signUp if email confirmation is off or auto-confirmed
     if (data.user) {
-      const { data: { user: refreshedUser } } = await supabase.auth.refreshSession();
-      if (refreshedUser) setUser(refreshedUser); 
+        // onAuthStateChange will handle user and session updates
+        // And trigger profile fetch if needed.
     }
     return { data, error: null };
   }, []);
@@ -169,17 +170,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast({ variant: "destructive", title: "Erreur de Connexion", description: error.message });
       return { data: null, error };
     }
+    // onAuthStateChange will handle setting user, session, and fetching profile
     toast({ title: "Connexion réussie !", description: "Bienvenue sur MaisonMate !" });
     return { data, error: null };
   }, []);
 
   const signOutUser = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
-    // Explicitly clear local state, onAuthStateChange will also fire
+    // Explicitly clear local state, onAuthStateChange will also fire to confirm
     setUser(null);
     setSession(null);
     setProfile(null);
-    setIsLoadingProfile(false); // Reset profile loading state as well
+    setIsLoadingProfile(false);
 
     if (error) {
       console.error("Sign out error:", error.message);
@@ -192,19 +194,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const updateUserEmail = useCallback(async (newEmail: string) => {
+    // Supabase typically requires email change confirmation
     const { data, error } = await supabase.auth.updateUser({ email: newEmail });
     if (error) {
       toast({ variant: "destructive", title: "Erreur de mise à jour", description: error.message });
       return { data: null, error };
     }
-    toast({ title: "Email mis à jour", description: "Veuillez vérifier votre nouvelle adresse e-mail pour confirmer le changement." });
+    toast({ title: "Demande de changement d'e-mail envoyée", description: "Veuillez vérifier votre nouvelle adresse e-mail pour confirmer." });
     return { data, error: null };
   }, []);
 
-  const updateUserPassword = useCallback(async (newPassword: string) => {
+  const updateUserPassword = useCallback(async (currentPasswordMaybe: string, newPassword: string) => {
+    // Note: Supabase doesn't require currentPassword for updateUser if session is valid.
+    // If you want to enforce it, you'd need a custom backend check.
     const { data, error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) {
-      toast({ variant: "destructive", title: "Erreur de mise à jour", description: error.message });
+      toast({ variant: "destructive", title: "Erreur de mise à jour du mot de passe", description: error.message });
       return { data: null, error };
     }
     toast({ title: "Mot de passe mis à jour", description: "Votre mot de passe a été modifié avec succès." });
@@ -223,7 +228,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast({ variant: "destructive", title: "Erreur de mise à jour des noms", description: error.message });
       return { data: null, error };
     }
-     if (data.user) {
+    // onAuthStateChange with USER_UPDATED should trigger profile refresh or local user state update
+    if (data.user) {
       setUser(prevUser => prevUser ? { ...prevUser, user_metadata: { ...prevUser.user_metadata, first_name: firstName, last_name: lastName } } : null);
     }
     return { data, error: null };
@@ -244,22 +250,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     return { data, error: null };
   }, []);
-
+  
   const updateUserProfile = useCallback(async (profileData: Partial<ProfileFormData>) => {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
         toast({ variant: "destructive", title: "Erreur", description: "Utilisateur non connecté." });
         return { data: null, error: { message: "User not authenticated" }};
       }
+      
       setIsLoadingProfile(true);
       const updatePayload: Partial<Profile> = {
-        ...profileData,
+        ...profileData, // address_line1, city, etc.
         updated_at: new Date().toISOString(),
+        // first_name and last_name will be updated via updateUserNames if changed
       };
+
+      // Ensure we don't try to update first_name/last_name directly in profiles table if they come from user_metadata
+      const { first_name: formFirstName, last_name: formLastName, ...addressFields } = profileData;
+      const profileUpdatePayload: Partial<Profile> = {
+          ...addressFields,
+          updated_at: new Date().toISOString(),
+      };
+
 
       const { data: updatedProfileData, error: profileUpdateError } = await supabase
         .from('profiles')
-        .update(updatePayload)
+        .update(profileUpdatePayload)
         .eq('id', currentUser.id)
         .select()
         .single();
@@ -275,14 +291,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setProfile(updatedProfileData as Profile);
       }
 
-      if (profileData.first_name !== undefined || profileData.last_name !== undefined) {
-         const nameUpdateResult = await updateUserNames({
-           firstName: profileData.first_name || profile?.first_name || currentUser.user_metadata.first_name || '',
-           lastName: profileData.last_name || profile?.last_name || currentUser.user_metadata.last_name || ''
+      // Update names in auth.users.user_metadata separately if they have changed
+      const currentMetaFirstName = profile?.first_name || currentUser.user_metadata?.first_name;
+      const currentMetaLastName = profile?.last_name || currentUser.user_metadata?.last_name;
+
+      if ((formFirstName !== undefined && formFirstName !== currentMetaFirstName) || 
+          (formLastName !== undefined && formLastName !== currentMetaLastName)) {
+         await updateUserNames({
+           firstName: formFirstName || currentMetaFirstName || '',
+           lastName: formLastName || currentMetaLastName || ''
          });
-         if (!nameUpdateResult.error) {
-           // Toast for successful name update is handled by updateUserNames, or profile update will show one
-         }
       }
       toast({ title: "Profil mis à jour !", description: "Vos informations de profil ont été sauvegardées." });
       setIsLoadingProfile(false);
@@ -314,3 +332,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     </AuthContext.Provider>
   );
 };
+
