@@ -13,11 +13,12 @@ import { Separator } from '@/components/ui/separator';
 import { Home, Phone, Building, MapPin, Globe2, UserCircle, AlertCircle, Loader2, ShoppingBag, CheckCircle, CreditCard } from 'lucide-react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ShippingFormData, Order, CartItem } from '@/types';
+import type { ShippingFormData, OrderForConfirmation, CartItem, ProfileFormData } from '@/types'; // Updated Order to OrderForConfirmation
 import { ShippingAddressSchema } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import Link from 'next/link';
+import { addOrderAction } from '@/app/actions/orderActions'; // Import the new action
 
 const ORDER_CONFIRMATION_SESSION_KEY = 'maisonmate-order-confirmation';
 
@@ -51,7 +52,7 @@ export default function CheckoutPage() {
       toast({ title: "Authentification requise", description: "Veuillez vous connecter pour passer à la caisse.", variant: "destructive" });
       router.push('/auth');
     }
-    if (user && !profile && isMounted) {
+    if (user && !profile && isMounted && !authLoading) { // Added !authLoading to ensure user state is stable
         fetchUserProfile();
     }
   }, [authLoading, user, router, profile, fetchUserProfile, isMounted]);
@@ -68,22 +69,22 @@ export default function CheckoutPage() {
         postal_code: profile.postal_code || '',
         country: profile.country || '',
       });
-    } else if (user && !profile && isMounted) {
+    } else if (user && !profile && isMounted) { // If profile is null but user exists
         reset({
             first_name: user.user_metadata?.first_name || '',
             last_name: user.user_metadata?.last_name || '',
-            phone: '',
+            phone: '', // Keep these empty if not in profile yet
             address_line1: '', address_line2: '', city: '', postal_code: '', country: '',
         });
     }
   }, [profile, user, reset, isMounted]);
 
-  const onSubmit: SubmitHandler<ShippingFormData> = (data) => {
+  const onSubmit: SubmitHandler<ShippingFormData> = async (data) => {
     setIsPlacingOrder(true);
     
-    const orderData: Order = {
-      userEmail: user?.email,
-      items: cartItems,
+    const orderPayload = {
+      currentUser: user, // Pass the Supabase user object
+      cartItems: cartItems,
       totalAmount: getSubtotal(),
       shippingAddress: {
         first_name: data.first_name,
@@ -95,15 +96,30 @@ export default function CheckoutPage() {
         postal_code: data.postal_code,
         country: data.country,
       },
-      orderDate: new Date(),
     };
 
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(ORDER_CONFIRMATION_SESSION_KEY, JSON.stringify(orderData));
+    const result = await addOrderAction(orderPayload);
+
+    if (result.success && result.orderId) {
+      const orderForConfirmation: OrderForConfirmation = { // Use OrderForConfirmation type
+        orderId: result.orderId,
+        userEmail: user?.email,
+        items: cartItems,
+        totalAmount: getSubtotal(),
+        shippingAddress: orderPayload.shippingAddress,
+        orderDate: new Date(), // orderDate is set on server, but we can use current for session
+      };
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(ORDER_CONFIRMATION_SESSION_KEY, JSON.stringify(orderForConfirmation));
+      }
+      
+      clearCart(); 
+      router.push('/order-confirmation');
+    } else {
+      toast({ variant: "destructive", title: "Erreur de commande", description: result.error || "Impossible de passer la commande." });
+      setIsPlacingOrder(false);
     }
-    
-    clearCart(); 
-    router.push('/order-confirmation');
   };
 
   if (!isMounted || authLoading || (!user && !authLoading)) {
@@ -140,7 +156,7 @@ export default function CheckoutPage() {
         <CardContent className="space-y-8">
           <section>
             <h3 className="text-lg font-semibold mb-3">Récapitulatif de votre commande</h3>
-            <div className="space-y-3 pr-2 border rounded-md p-3 bg-muted/30 overflow-y-auto"> {/* Removed max-h-60 */}
+            <div className="space-y-3 pr-2 border rounded-md p-3 bg-muted/30 overflow-y-auto">
               {cartItems.map(item => (
                 <div key={item.id} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-3">
@@ -229,5 +245,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-
-    

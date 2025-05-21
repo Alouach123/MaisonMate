@@ -126,18 +126,9 @@ export const ProfileFormSchema = z.object({
 export type ProfileFormData = z.infer<typeof ProfileFormSchema>;
 
 
-// Type for Order (to be stored in MongoDB or passed to invoice)
-export interface OrderItem {
-  productId: string;
-  name: string;
-  quantity: number;
-  price: number;
-  imageUrl?: string;
-}
-
 export interface ShippingAddress {
-  first_name?: string; // Added for personalization on invoice
-  last_name?: string;  // Added for personalization on invoice
+  first_name?: string;
+  last_name?: string;
   phone: string;
   address_line1: string;
   address_line2?: string;
@@ -146,15 +137,15 @@ export interface ShippingAddress {
   country: string;
 }
 
-export interface Order {
-  // _id?: ObjectId; // Not storing in DB for this simulation
-  // id?: string; // Not storing in DB for this simulation
-  userEmail?: string; // User's email for the invoice
-  items: CartItem[]; // Re-using CartItem as it has all product details
+// Type for Order data stored in `sessionStorage` for confirmation page
+export interface OrderForConfirmation {
+  userEmail?: string;
+  items: CartItem[];
   totalAmount: number;
   shippingAddress: ShippingAddress;
-  orderDate: Date;
-  // status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled'; // Not relevant for COD invoice display
+  orderDate: Date; // Keep as Date for sessionStorage, convert to string for DB if needed
+  // Potentially add orderId if generated before redirecting to confirmation
+  orderId?: string;
 }
 
 export const ShippingAddressSchema = z.object({
@@ -174,6 +165,7 @@ export type ShippingFormData = z.infer<typeof ShippingAddressSchema>;
 export interface AvisDocument {
   _id: ObjectId;
   productId: string;
+  productName?: string; // Added to store product name directly
   userId?: string; // Supabase user ID if logged in
   userName: string; // Name provided by the user
   rating: number; // 1-5
@@ -184,6 +176,7 @@ export interface AvisDocument {
 export interface Avis {
   id: string;
   productId: string;
+  productName?: string;
   userId?: string;
   userName: string;
   rating: number;
@@ -193,6 +186,7 @@ export interface Avis {
 
 export const AvisSchema = z.object({
   productId: z.string(),
+  productName: z.string().optional(), // Will be populated by the server action or calling form
   userId: z.string().optional(),
   userName: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }).max(50, { message: "Le nom ne doit pas dépasser 50 caractères." }),
   rating: z.coerce.number().min(1, { message: "La note doit être d'au moins 1." }).max(5, { message: "La note ne peut pas dépasser 5." }),
@@ -200,3 +194,36 @@ export const AvisSchema = z.object({
 });
 
 export type AvisFormData = z.infer<typeof AvisSchema>;
+
+
+// Order structure for MongoDB and Admin display
+export interface OrderItem {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+  imageUrl?: string;
+}
+
+export interface OrderDocument {
+  _id: ObjectId;
+  userId?: string; // Supabase user ID
+  userEmail?: string;
+  items: OrderItem[]; // Using simplified OrderItem
+  totalAmount: number;
+  shippingAddress: ShippingAddress;
+  orderDate: Date;
+  status: 'En attente' | 'En traitement' | 'Expédiée' | 'Livrée' | 'Annulée';
+  // Add any other fields like paymentId, trackingNumber, etc.
+}
+
+export interface OrderAppView {
+  id: string;
+  userId?: string;
+  userEmail?: string;
+  items: OrderItem[];
+  totalAmount: number;
+  shippingAddress: ShippingAddress;
+  orderDate: string; // ISO date string
+  status: 'En attente' | 'En traitement' | 'Expédiée' | 'Livrée' | 'Annulée';
+}

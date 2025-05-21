@@ -2,7 +2,7 @@
 'use server';
 
 import { connectToDatabase, toObjectId } from '@/lib/mongodb';
-import type { Product, ProductFormData, ProductDocument, AdminUserView } from '@/types';
+import type { Product, ProductFormData, ProductDocument, AdminUserView, Avis, AvisDocument, OrderAppView, OrderDocument } from '@/types';
 import { ProductSchema } from '@/types';
 import { ObjectId } from 'mongodb';
 import { createClient, type User } from '@supabase/supabase-js';
@@ -28,6 +28,30 @@ function serializeProduct(doc: ProductDocument | null): Product | null {
     updatedAt: updatedAt?.toISOString(),
   };
 }
+
+// Helper function to serialize a single avis document
+function serializeAvis(doc: AvisDocument | null): Avis | null {
+  if (!doc) return null;
+  const { _id, createdAt, ...rest } = doc;
+  return {
+    ...rest,
+    id: _id.toString(),
+    productName: doc.productName,
+    createdAt: createdAt.toISOString(),
+  };
+}
+
+// Helper function to serialize a single order document
+function serializeOrder(doc: OrderDocument | null): OrderAppView | null {
+  if (!doc) return null;
+  const { _id, orderDate, ...rest } = doc;
+  return {
+    ...rest,
+    id: _id.toString(),
+    orderDate: orderDate.toISOString(),
+  };
+}
+
 
 export async function getProductsAction(
   options: { 
@@ -114,7 +138,6 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
       updatedAt: now,
     };
     
-    // Ensure 'id' from form data is not part of the document to be inserted
     if ('id' in newProductData) delete (newProductData as any).id;
 
 
@@ -124,9 +147,8 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
         return { success: false, error: "Failed to insert product into database." };
     }
 
-    // Construct the Product object for return, ensuring dates are ISO strings
     const insertedProduct: Product = {
-      ...(validation.data), // Use validated data which is already plain
+      ...(validation.data), 
       id: result.insertedId.toString(),
       shortDescription: validation.data.shortDescription || undefined,
       imageUrl: validation.data.imageUrl || 'https://placehold.co/600x400.png',
@@ -158,7 +180,6 @@ export async function updateProductAction(data: ProductFormData): Promise<{ succ
     
     const productId = toObjectId(data.id);
     
-    // Exclude 'id' from validated data before setting in DB
     const { id: formId, ...updateDataFromForm } = validation.data;
 
     const productToUpdate = {
@@ -215,7 +236,6 @@ export async function getUsersAction(): Promise<AdminUserView[]> {
     console.error("Placeholder SUPABASE_SERVICE_ROLE_KEY detected. Please update .env.local with your actual key.");
     throw new Error("Supabase Service Role Key is not configured correctly (using placeholder).");
   }
-
 
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
@@ -279,4 +299,30 @@ export async function deleteUserAction(userId: string): Promise<{ success: boole
   }
 }
 
+// Action to fetch all avis for admin panel
+export async function getAllAvisAction(): Promise<Avis[]> {
+  try {
+    const db = await connectToDatabase();
+    const avisCollection = db.collection<AvisDocument>('avis');
     
+    const avisDocs = await avisCollection.find({}).sort({ createdAt: -1 }).toArray();
+    return avisDocs.map(doc => serializeAvis(doc)).filter(a => a !== null) as Avis[];
+  } catch (error) {
+    console.error("Failed to fetch all avis:", error);
+    return [];
+  }
+}
+
+// Action to fetch all orders for admin panel
+export async function getAllOrdersAction(): Promise<OrderAppView[]> {
+  try {
+    const db = await connectToDatabase();
+    const ordersCollection = db.collection<OrderDocument>('orders');
+    
+    const orderDocs = await ordersCollection.find({}).sort({ orderDate: -1 }).toArray();
+    return orderDocs.map(doc => serializeOrder(doc)).filter(o => o !== null) as OrderAppView[];
+  } catch (error) {
+    console.error("Failed to fetch all orders:", error);
+    return [];
+  }
+}

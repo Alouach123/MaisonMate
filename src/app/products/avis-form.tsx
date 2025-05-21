@@ -1,28 +1,28 @@
 
 "use client";
 
-import { useState, useEffect, type FormEvent } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Loader2, MessageSquare, Star as StarIcon, User as UserIcon } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth-context';
+import { useState, useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AvisSchema, type AvisFormData } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, MessageSquare, Star, User as UserIcon } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth-context';
 import StarRatingInput from '../ui/star-rating-input';
 import { addAvisAction } from '@/app/actions/avisActions';
 
-interface ReviewFormProps {
+interface AvisFormProps {
   productId: string;
-  productName: string; 
-  onReviewSubmitted: () => void; 
+  productName: string; // Add productName prop
+  onAvisSubmitted?: () => void; 
 }
 
-export default function StyleSuggestions({ productId, productName, onReviewSubmitted }: ReviewFormProps) {
+export default function AvisForm({ productId, productName, onAvisSubmitted }: AvisFormProps) {
   const { user, isAuthenticated } = useAuth();
   const [currentRating, setCurrentRating] = useState(0);
 
@@ -39,6 +39,7 @@ export default function StyleSuggestions({ productId, productName, onReviewSubmi
   });
 
   useEffect(() => {
+    // Update default values if props change, e.g., navigating between product pages
     setValue('productId', productId);
     setValue('productName', productName);
     if (isAuthenticated && user) {
@@ -63,13 +64,13 @@ export default function StyleSuggestions({ productId, productName, onReviewSubmi
       return;
     }
     
-    // Ensure productName is included
+    // Ensure productName is included in the data sent to the action
     const dataToSubmit = { ...data, productName };
     const result = await addAvisAction(dataToSubmit);
 
     if (result.success) {
       toast({ title: "Avis soumis !", description: "Merci pour votre retour." });
-      reset({
+      reset({ 
         productId: productId,
         productName: productName,
         userName: isAuthenticated && user ? ( (user.user_metadata?.first_name && user.user_metadata?.last_name)
@@ -80,8 +81,8 @@ export default function StyleSuggestions({ productId, productName, onReviewSubmi
         userId: isAuthenticated && user ? user.id : undefined,
       });
       setCurrentRating(0);
-      if (onReviewSubmitted) {
-        onReviewSubmitted();
+      if (onAvisSubmitted) {
+        onAvisSubmitted(); 
       }
     } else {
       toast({ variant: "destructive", title: "Erreur", description: result.error || "Impossible de soumettre l'avis." });
@@ -93,37 +94,35 @@ export default function StyleSuggestions({ productId, productName, onReviewSubmi
       <CardHeader>
         <CardTitle className="text-xl font-semibold flex items-center gap-2">
           <MessageSquare className="h-5 w-5 text-primary" />
-          Votre avis sur "{productName}"
+          Laissez votre avis sur "{productName}"
         </CardTitle>
-        <CardDescription>
-          Partagez votre expérience avec ce produit.
-        </CardDescription>
+        <CardDescription>Partagez votre expérience avec ce produit.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(processSubmit)} className="space-y-4">
           <div>
-            <Label htmlFor="reviewUserNameStyle" className="flex items-center gap-1.5"><UserIcon size={16} />Nom</Label>
+            <Label htmlFor="userName" className="flex items-center gap-1.5"><UserIcon size={16} />Nom</Label>
             <Input
-              id="reviewUserNameStyle" // Unique ID for this form instance
+              id="userName"
               {...register("userName")}
               placeholder="Votre nom ou pseudo"
               className={errors.userName ? 'border-destructive' : ''}
-              disabled={isAuthenticated && !!user?.user_metadata?.first_name}
+              disabled={isAuthenticated && !!user?.user_metadata?.first_name} 
             />
             {errors.userName && <p className="text-sm text-destructive mt-1">{errors.userName.message}</p>}
           </div>
 
           <div>
-            <Label className="flex items-center gap-1.5 mb-1"><StarIcon size={16} />Votre note</Label>
+            <Label className="flex items-center gap-1.5 mb-1"><Star size={16} />Votre note</Label>
             <StarRatingInput rating={currentRating} setRating={setCurrentRating} />
             {errors.rating && <p className="text-sm text-destructive mt-1">{errors.rating.message}</p>}
-            <input type="hidden" {...register("rating")} />
+             <input type="hidden" {...register("rating")} />
           </div>
 
           <div>
-            <Label htmlFor="reviewCommentStyle">Votre commentaire</Label>
+            <Label htmlFor="comment">Votre commentaire</Label>
             <Textarea
-              id="reviewCommentStyle" // Unique ID for this form instance
+              id="comment"
               {...register("comment")}
               placeholder="Écrivez votre commentaire ici..."
               className={errors.comment ? 'border-destructive' : ''}
