@@ -26,7 +26,7 @@ export default function PartnerLogos() {
                 alt={`${partner.name} logo`}
                 width={150}
                 height={60}
-                className="object-contain"
+                className="object-cover" // Changed from object-contain to object-cover
                 data-ai-hint={partner.dataAiHint}
               />
             </div>
