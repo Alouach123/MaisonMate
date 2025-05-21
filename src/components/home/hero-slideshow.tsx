@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
-const slidesData = [
+const initialSlidesData = [
   {
     imageSrc: "https://i.pinimg.com/736x/31/de/35/31de35d6177adac97be1df59b93e2f01.jpg",
     imageAlt: "Comfortable sectional sofa with a lit candle on a round coffee table",
@@ -54,7 +54,28 @@ const slidesData = [
     ctaText: "Discover Dining",
     ctaLink: "/products?category=Tables",
   },
+  {
+    imageSrc: "https://images.unsplash.com/photo-1540574163024-588460b0b5d5?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageAlt: "Minimalist style living room with concrete floor and white fabric sofa",
+    aiHint: "minimalist living room",
+    headline: "Simplicity Meets Elegance.",
+    subheadline: "Explore our minimalist collection for a serene and stylish home.",
+    ctaText: "Shop Minimalist",
+    ctaLink: "/products?style=Minimaliste",
+  },
+  {
+    imageSrc: "https://images.unsplash.com/photo-1503602642458-232111445657?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageAlt: "A room with a couch and a table with modern decor",
+    aiHint: "modern decor",
+    headline: "Modern Designs, Timeless Appeal.",
+    subheadline: "Infuse your home with contemporary pieces that stand the test of time.",
+    ctaText: "Explore Modern",
+    ctaLink: "/products?style=Moderne",
+  },
 ];
+
+// Remove the first three slides
+const slidesData = initialSlidesData.slice(3);
 
 
 export default function HeroSlideshow() {
@@ -77,6 +98,14 @@ export default function HeroSlideshow() {
     return () => clearTimeout(timer); 
   }, [currentIndex, goToNext]);
 
+  if (!slidesData || slidesData.length === 0) {
+    return (
+      <section className="relative w-full min-h-screen overflow-hidden bg-muted flex items-center justify-center">
+        <p className="text-foreground">No slides available.</p>
+      </section>
+    );
+  }
+
   const currentSlide = slidesData[currentIndex];
 
   return (
@@ -87,7 +116,7 @@ export default function HeroSlideshow() {
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
-          priority={index === 0} 
+          priority={index === currentIndex} // Prioritize loading the current slide's image
           className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}
           data-ai-hint={slide.aiHint}
           quality={85}
