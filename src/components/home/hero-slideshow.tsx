@@ -1,4 +1,3 @@
-
 // src/components/home/hero-slideshow.tsx
 "use client";
 
@@ -27,6 +26,15 @@ const slidesData = [
     ctaText: "Discover Dining",
     ctaLink: "/products?category=Tables",
   },
+  {
+    imageSrc: "https://images.unsplash.com/photo-1615875605825-5eb9bb5d52ac?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // Corresponds to U39FPHKfDu0
+    imageAlt: "Modern living room with a couch and a coffee table",
+    aiHint: "living room furniture",
+    headline: "Design Your Living Space.",
+    subheadline: "Explore our versatile collection of sofas and tables to create the perfect living area.",
+    ctaText: "Shop Living Room",
+    ctaLink: "/products?category=Canapés",
+  },
 ];
 
 
@@ -46,7 +54,7 @@ export default function HeroSlideshow() {
   };
   
   useEffect(() => {
-    if (slidesData.length <= 1) return; // Don't auto-play if only one or no slides
+    if (slidesData.length <= 1) return; 
     const timer = setTimeout(goToNext, 7000); 
     return () => clearTimeout(timer); 
   }, [currentIndex, goToNext]);
@@ -65,11 +73,11 @@ export default function HeroSlideshow() {
     <section className="relative w-full min-h-screen overflow-hidden">
       {slidesData.map((slide, index) => (
         <Image
-          key={slide.imageSrc + index} // Unique key for each image
+          key={slide.imageSrc + index} 
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
-          priority={index === currentIndex} 
+          priority={index === 0} // Prioritize the first image, or current one if logic allows
           className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}
           data-ai-hint={slide.aiHint}
           quality={85}
@@ -128,4 +136,3 @@ export default function HeroSlideshow() {
     </section>
   );
 }
-
