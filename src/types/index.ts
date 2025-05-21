@@ -7,12 +7,12 @@ export interface ProductDocument {
   _id: ObjectId;
   name: string;
   description: string;
-  shortDescription?: string; // Made shortDescription optional as it's being added
+  shortDescription?: string;
   price: number;
   imageUrl: string;
   category: string;
   style?: string;
-  rating?: number;
+  rating?: number; // This might become an average rating calculated from 'avis'
   stock?: number;
   colors?: string[];
   materials?: string[];
@@ -26,7 +26,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  shortDescription?: string; // Made shortDescription optional
+  shortDescription?: string;
   price: number;
   imageUrl: string;
   category: string;
@@ -36,8 +36,8 @@ export interface Product {
   colors?: string[];
   materials?: string[];
   dimensions?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string; // Changed to string for serialization
+  updatedAt?: string; // Changed to string for serialization
 }
 
 export interface WishlistItem extends Product {
@@ -63,7 +63,7 @@ export const ProductSchema = z.object({
   price: z.coerce.number().positive({ message: "Le prix doit être un nombre positif." }),
   imageUrl: z.string().url({ message: "L'URL de l'image doit être valide." }).default('https://placehold.co/600x400.png'),
   category: z.string().min(1, { message: "La catégorie est requise." }),
-  style: z.string().optional(),
+  style: z.string().optional().nullable(),
   rating: z.coerce.number().min(0).max(5).optional().nullable(),
   stock: z.coerce.number().int().min(0).optional().nullable(),
   colors: z.preprocess(
@@ -74,7 +74,7 @@ export const ProductSchema = z.object({
     (val) => (typeof val === 'string' && val.trim() !== '' ? val.split(',').map(s => s.trim()).filter(Boolean) : (Array.isArray(val) ? val : [])),
     z.array(z.string()).optional()
   ),
-  dimensions: z.string().optional(),
+  dimensions: z.string().optional().nullable(),
 });
 
 export type ProductFormData = z.infer<typeof ProductSchema>;
@@ -84,6 +84,8 @@ export function fromProductDocument(doc: ProductDocument): Product {
     ...doc,
     id: doc._id.toString(),
     shortDescription: doc.shortDescription,
+    createdAt: doc.createdAt?.toISOString(),
+    updatedAt: doc.updatedAt?.toISOString(),
   };
 }
 
@@ -96,7 +98,6 @@ export interface AdminUserView {
   lastSignInAt: string | undefined;
 }
 
-// Profile type to match the 'profiles' table in Supabase
 export interface Profile {
   id: string; // Corresponds to auth.users.id
   updated_at?: string;
@@ -168,3 +169,34 @@ export const ShippingAddressSchema = z.object({
 });
 
 export type ShippingFormData = z.infer<typeof ShippingAddressSchema>;
+
+// Avis (Comments/Ratings)
+export interface AvisDocument {
+  _id: ObjectId;
+  productId: string;
+  userId?: string; // Supabase user ID if logged in
+  userName: string; // Name provided by the user
+  rating: number; // 1-5
+  comment: string;
+  createdAt: Date;
+}
+
+export interface Avis {
+  id: string;
+  productId: string;
+  userId?: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string; // ISO date string
+}
+
+export const AvisSchema = z.object({
+  productId: z.string(),
+  userId: z.string().optional(),
+  userName: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }).max(50, { message: "Le nom ne doit pas dépasser 50 caractères." }),
+  rating: z.coerce.number().min(1, { message: "La note doit être d'au moins 1." }).max(5, { message: "La note ne peut pas dépasser 5." }),
+  comment: z.string().min(5, { message: "Le commentaire doit contenir au moins 5 caractères." }).max(500, { message: "Le commentaire ne doit pas dépasser 500 caractères." }),
+});
+
+export type AvisFormData = z.infer<typeof AvisSchema>;
