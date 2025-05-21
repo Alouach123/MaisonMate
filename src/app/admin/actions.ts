@@ -17,17 +17,46 @@ export async function verifyPasswordAction(password: string): Promise<{ success:
   return { success: password === ADMIN_PASSWORD };
 }
 
-export async function getProductsAction(filters: { category?: string } = {}): Promise<Product[]> {
+export async function getProductsAction(
+  options: { 
+    filters?: { category?: string; style?: string; rating_gte?: number; ids?: string[] }; 
+    sortBy?: 'rating' | 'createdAt' | 'price_asc' | 'price_desc';
+    limit?: number;
+  } = {}
+): Promise<Product[]> {
   try {
     const db = await connectToDatabase();
     const productsCollection = db.collection<ProductDocument>('products');
     
     const query: any = {};
-    if (filters.category) {
-      query.category = filters.category;
+    if (options.filters?.category) {
+      query.category = options.filters.category;
+    }
+    if (options.filters?.style) {
+      query.style = options.filters.style;
+    }
+    if (options.filters?.rating_gte !== undefined) {
+      query.rating = { $gte: options.filters.rating_gte };
+    }
+    if (options.filters?.ids && options.filters.ids.length > 0) {
+      query._id = { $in: options.filters.ids.map(id => toObjectId(id)) };
     }
 
-    const productDocs = await productsCollection.find(query).sort({ createdAt: -1 }).toArray();
+    let sortCriteria: any = { createdAt: -1 };
+    if (options.sortBy === 'rating') {
+      sortCriteria = { rating: -1, createdAt: -1 };
+    } else if (options.sortBy === 'price_asc') {
+      sortCriteria = { price: 1, createdAt: -1 };
+    } else if (options.sortBy === 'price_desc') {
+      sortCriteria = { price: -1, createdAt: -1 };
+    }
+    
+    let cursor = productsCollection.find(query).sort(sortCriteria);
+    if (options.limit) {
+      cursor = cursor.limit(options.limit);
+    }
+
+    const productDocs = await cursor.toArray();
     return productDocs.map(doc => ({
       ...doc,
       id: doc._id.toString(),
@@ -171,9 +200,14 @@ export async function deleteProductAction(productId: string): Promise<{ success:
 
 export async function getUsersAction(): Promise<AdminUserView[]> {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    console.error("Supabase URL or Service Role Key is not configured.");
+    console.error("Supabase URL or Service Role Key is not configured for getUsersAction.");
     throw new Error("Supabase configuration missing for admin actions.");
   }
+   if (supabaseServiceRoleKey === "your_actual_service_role_key_pasted_here") {
+    console.error("Placeholder SUPABASE_SERVICE_ROLE_KEY detected. Please update .env.local with your actual key.");
+    throw new Error("Supabase Service Role Key is not configured correctly (using placeholder).");
+  }
+
 
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
@@ -209,6 +243,9 @@ export async function getUsersAction(): Promise<AdminUserView[]> {
 export async function deleteUserAction(userId: string): Promise<{ success: boolean; error?: string }> {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
     return { success: false, error: "Supabase URL or Service Role Key is not configured for admin actions." };
+  }
+   if (supabaseServiceRoleKey === "your_actual_service_role_key_pasted_here") {
+    return { success: false, error: "Supabase Service Role Key is not configured correctly (using placeholder). Cannot delete user." };
   }
   if (!userId) {
     return { success: false, error: "User ID is required." };
