@@ -27,7 +27,7 @@ const slidesData = [
     ctaLink: "/products?category=Tables",
   },
   {
-    imageSrc: "https://images.unsplash.com/photo-1615875605825-5eb9bb5d52ac?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // Corresponds to U39FPHKfDu0
+    imageSrc: "https://images.unsplash.com/photo-1615875605825-5eb9bb5d52ac?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     imageAlt: "Modern living room with a couch and a coffee table",
     aiHint: "living room furniture",
     headline: "Design Your Living Space.",
@@ -77,7 +77,7 @@ export default function HeroSlideshow() {
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
-          priority={index === 0} // Prioritize the first image, or current one if logic allows
+          priority={index === currentIndex} 
           className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}
           data-ai-hint={slide.aiHint}
           quality={85}
@@ -87,7 +87,7 @@ export default function HeroSlideshow() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent z-10"></div>
       
       <div className="absolute inset-0 flex items-center justify-start text-left z-20">
-            <div className="max-w-lg md:max-w-xl space-y-6 container mx-auto px-6 sm:px-8 md:pl-12 lg:pl-16 xl:pl-24 pt-24 md:pt-32 lg:pt-40 pb-12 md:pb-16 lg:pb-20">
+            <div className="max-w-lg md:max-w-xl space-y-6 container px-6 sm:px-8 md:pl-12 lg:pl-16 xl:pl-24 pt-24 md:pt-32 lg:pt-40 pb-12 md:pb-16 lg:pb-20">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
                 {currentSlide.headline}
               </h1>
@@ -137,4 +137,3 @@ export default function HeroSlideshow() {
     </section>
   );
 }
-
