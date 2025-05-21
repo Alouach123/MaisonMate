@@ -24,6 +24,8 @@ export default function AvisList({ productId, refreshKey }: AvisListProps) {
     const fetchAvis = async () => {
       setIsLoading(true);
       setError(null);
+      setAvisList([]); // Explicitly clear the list before fetching
+
       try {
         const fetchedAvis = await getAvisForProductAction(productId);
         setAvisList(fetchedAvis);
@@ -35,7 +37,14 @@ export default function AvisList({ productId, refreshKey }: AvisListProps) {
       }
     };
 
-    fetchAvis();
+    if (productId) { // Only fetch if productId is valid
+      fetchAvis();
+    } else {
+      // If no productId, clear the list and stop loading
+      setAvisList([]);
+      setIsLoading(false);
+      setError("Product ID is missing for fetching reviews.");
+    }
   }, [productId, refreshKey]); // Re-fetch if productId or refreshKey changes
 
   if (isLoading) {
