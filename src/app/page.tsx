@@ -2,7 +2,7 @@
 // src/app/page.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react'; // Added useCallback
 import type { Product } from '@/types';
 import { getProductsAction } from '@/app/admin/actions';
 
@@ -17,6 +17,7 @@ import TodaysDeals from '@/components/home/todays-deals';
 import BestSellerProducts from '@/components/home/best-seller-products';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import ProductQuickViewModal from '@/components/products/product-quick-view-modal'; // Import the modal
 
 const CATEGORIES_TO_SHOWCASE = [
   { 
@@ -52,7 +53,12 @@ const DEALS_COUNT = 4;
 export default function HomePage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
   const [dealsProducts, setDealsProducts] = useState<Product[]>([]);
+  
+  // State for Quick View Modal
+  const [selectedProductForQuickView, setSelectedProductForQuickView] = useState<Product | null>(null);
+  const [isQuickViewModalOpen, setIsQuickViewModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadProducts() {
@@ -71,7 +77,6 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && allProducts.length > 0) {
-      // Client-side randomization for deals
       const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
       setDealsProducts(shuffled.slice(0, DEALS_COUNT));
     }
@@ -103,9 +108,7 @@ export default function HomePage() {
         );
       }
       
-      // Only render showcase if products for it are loaded or if still loading placeholders
       if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0 && process.env.NODE_ENV === 'production') return null;
-
 
       return (
         <CategoryShowcaseSection
@@ -119,6 +122,7 @@ export default function HomePage() {
           ctaText={`Explorer nos ${categoryConfig.name.toLowerCase()}`}
           productsToDisplay={productsForShowcase}
           reverseLayout={index % 2 !== 0}
+          onQuickViewProduct={handleOpenQuickView} // Pass handler
         />
       );
     }).filter(Boolean), [allProducts, isLoading]
@@ -129,6 +133,16 @@ export default function HomePage() {
     return [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT);
   }, [allProducts, isLoading]);
 
+  // Quick View Modal Handlers
+  const handleOpenQuickView = useCallback((product: Product) => {
+    setSelectedProductForQuickView(product);
+    setIsQuickViewModalOpen(true);
+  }, []);
+
+  const handleCloseQuickView = useCallback(() => {
+    setIsQuickViewModalOpen(false);
+    setSelectedProductForQuickView(null);
+  }, []);
 
   return (
     <>
@@ -136,7 +150,6 @@ export default function HomePage() {
       
       {categoryShowcaseSections}
       
-      {/* Content that should remain within the standard container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-28 lg:pt-32"> 
         <div className="space-y-12 md:space-y-16 lg:space-y-20">
           <FeaturedCategories />
@@ -149,7 +162,7 @@ export default function HomePage() {
               </div>
             </div>
           ) : dealsProducts.length > 0 && (
-            <TodaysDeals products={dealsProducts} />
+            <TodaysDeals products={dealsProducts} onQuickViewProduct={handleOpenQuickView} /> // Pass handler
           )}
           
           <Separator />
@@ -162,7 +175,12 @@ export default function HomePage() {
               </div>
             </div>
           ) : bestSellerProducts.length > 0 && (
-            <BestSellerProducts products={bestSellerProducts} title="Nos Meilleures Ventes" itemsToShow={BEST_SELLERS_COUNT} />
+            <BestSellerProducts 
+              products={bestSellerProducts} 
+              title="Nos Meilleures Ventes" 
+              itemsToShow={BEST_SELLERS_COUNT} 
+              onQuickViewProduct={handleOpenQuickView} // Pass handler
+            />
           )}
           
           {!isLoading && allProducts.length === 0 && (
@@ -176,26 +194,23 @@ export default function HomePage() {
           {(isLoading || allProducts.length > 0) && ( 
               <>
                 <ServiceHighlights />
-                {/* Testimonials is now outside this container */}
               </>
           )}
         </div>
       </div>
 
-      {/* Testimonials section - now outside the main container to allow full-width scroll area */}
       {(isLoading || allProducts.length > 0) && (
         <>
-          <div className="w-full my-12 md:my-16 lg:my-20"> {/* Full width separator */}
+          <div className="w-full my-12 md:my-16 lg:my-20">
             <Separator />
           </div>
           <Testimonials />
-          <div className="w-full my-12 md:my-16 lg:my-20"> {/* Full width separator */}
+          <div className="w-full my-12 md:my-16 lg:my-20">
             <Separator />
           </div>
         </>
       )}
       
-      {/* These sections will also be inside the container for consistency if Testimonials is full-width */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-12 md:space-y-16 lg:space-y-20">
             {(isLoading || allProducts.length > 0) && ( 
@@ -207,6 +222,12 @@ export default function HomePage() {
             )}
           </div>
       </div>
+
+      <ProductQuickViewModal 
+        product={selectedProductForQuickView} 
+        isOpen={isQuickViewModalOpen} 
+        onClose={handleCloseQuickView} 
+      />
     </>
   );
 }

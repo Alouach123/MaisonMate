@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { Product } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Heart, Eye, Star, Zap } from 'lucide-react'; // Added Zap for deal icon
+import { Heart, Eye, Star, Zap } from 'lucide-react';
 import { useWishlist } from '@/hooks/use-wishlist-context';
 import AddToCartButton from './add-to-cart-button'; 
 import { cn } from '@/lib/utils';
@@ -14,10 +14,11 @@ interface ProductCardProps {
   product: Product;
   className?: string; 
   style?: React.CSSProperties;
-  isDeal?: boolean; // New prop for deal styling
+  isDeal?: boolean;
+  onQuickViewClick?: (product: Product) => void; // New prop
 }
 
-export default function ProductCard({ product, className, style, isDeal = false }: ProductCardProps) {
+export default function ProductCard({ product, className, style, isDeal = false, onQuickViewClick }: ProductCardProps) {
   const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist();
   const wishlisted = isWishlisted(product.id);
 
@@ -27,6 +28,13 @@ export default function ProductCard({ product, className, style, isDeal = false 
       removeFromWishlist(product.id);
     } else {
       addToWishlist(product);
+    }
+  };
+
+  const handleEyeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onQuickViewClick) {
+      onQuickViewClick(product);
     }
   };
 
@@ -78,7 +86,7 @@ export default function ProductCard({ product, className, style, isDeal = false 
       </CardHeader>
       <CardContent className="p-3 sm:p-4 flex-grow">
         <Link href={`/products/${product.id}`}>
-            <CardTitle className="text-sm sm:text-base font-semibold hover:text-primary transition-colors truncate leading-tight" title={product.name}>
+            <CardTitle className="text-base font-semibold hover:text-primary transition-colors truncate leading-tight" title={product.name}>
             {product.name}
             </CardTitle>
         </Link>
@@ -96,7 +104,7 @@ export default function ProductCard({ product, className, style, isDeal = false 
           </div>
         )}
       </CardContent>
-      <CardFooter className="p-3 sm:p-4 flex flex-col items-start gap-2 border-t pt-3 sm:pt-4">
+      <CardFooter className="p-4 pt-3 flex flex-col items-start gap-2 border-t">
         <p className={cn(
             "text-lg sm:text-xl font-bold",
             isDeal ? "text-destructive" : "text-primary"
@@ -111,10 +119,8 @@ export default function ProductCard({ product, className, style, isDeal = false 
              className="flex-grow h-9" 
              showText={true} 
            />
-           <Button asChild variant="outline" size="icon" className="h-9 w-9">
-            <Link href={`/products/${product.id}`} aria-label="Voir le produit">
+           <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleEyeClick} aria-label="Aperçu rapide du produit">
               <Eye className="h-4 w-4" />
-            </Link>
           </Button>
         </div>
       </CardFooter>

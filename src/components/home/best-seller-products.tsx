@@ -13,7 +13,8 @@ interface BestSellerProductsProps {
   itemsToShow?: number;
   showViewAllButton?: boolean;
   viewAllLink?: string;
-  gridCols?: string; // e.g., "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+  gridCols?: string;
+  onQuickViewProduct?: (product: Product) => void; // New prop
 }
 
 export default function BestSellerProducts({ 
@@ -22,7 +23,8 @@ export default function BestSellerProducts({
   itemsToShow = 4, 
   showViewAllButton = true,
   viewAllLink = "/products",
-  gridCols = "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
+  gridCols = "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+  onQuickViewProduct, // Destructure new prop
 }: BestSellerProductsProps) {
 
   const productsToDisplay = products.slice(0, itemsToShow);
@@ -46,7 +48,11 @@ export default function BestSellerProducts({
       </div>
       <div className={`grid grid-cols-1 ${gridCols} gap-4 md:gap-6`}>
         {productsToDisplay.map(product => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard 
+            key={product.id} 
+            product={product} 
+            onQuickViewClick={onQuickViewProduct} // Pass handler
+          />
         ))}
       </div>
     </section>

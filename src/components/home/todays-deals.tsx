@@ -9,9 +9,10 @@ import { ArrowRight, Tag } from 'lucide-react';
 
 interface TodaysDealsProps {
   products: Product[];
+  onQuickViewProduct?: (product: Product) => void; // New prop
 }
 
-export default function TodaysDeals({ products }: TodaysDealsProps) {
+export default function TodaysDeals({ products, onQuickViewProduct }: TodaysDealsProps) {
   if (!products || products.length === 0) {
     return null; 
   }
@@ -25,7 +26,7 @@ export default function TodaysDeals({ products }: TodaysDealsProps) {
             Offres du Jour
           </h2>
           <Button asChild variant="outline" className="group text-sm border-amber-600/50 text-amber-700 hover:bg-amber-500 hover:text-white dark:text-amber-400 dark:border-amber-400/50 dark:hover:bg-amber-500 dark:hover:text-black">
-            <Link href="/products?sort=deals"> {/* Assuming a future filter/sort for deals */}
+            <Link href="/products?sort=deals"> 
               Voir toutes les offres
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
@@ -33,7 +34,12 @@ export default function TodaysDeals({ products }: TodaysDealsProps) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {products.map(product => (
-            <ProductCard key={product.id} product={product} isDeal={true} />
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              isDeal={true} 
+              onQuickViewClick={onQuickViewProduct} // Pass handler
+            />
           ))}
         </div>
       </div>

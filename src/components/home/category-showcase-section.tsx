@@ -20,6 +20,7 @@ interface CategoryShowcaseSectionProps {
   productsToDisplay: Product[];
   reverseLayout?: boolean;
   imageAiHint?: string;
+  onQuickViewProduct?: (product: Product) => void; // New prop
 }
 
 export default function CategoryShowcaseSection({
@@ -32,6 +33,7 @@ export default function CategoryShowcaseSection({
   productsToDisplay,
   reverseLayout = false,
   imageAiHint = "furniture category",
+  onQuickViewProduct, // Destructure new prop
 }: CategoryShowcaseSectionProps) {
   
   if (productsToDisplay.length === 0 && process.env.NODE_ENV === 'production') {
@@ -85,6 +87,7 @@ export default function CategoryShowcaseSection({
                   key={product.id} 
                   product={product} 
                   className="bg-card/90 backdrop-blur-sm border border-card-foreground/20"
+                  onQuickViewClick={onQuickViewProduct} // Pass handler
                 />
               ))}
             </div>
