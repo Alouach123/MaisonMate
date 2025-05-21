@@ -28,17 +28,17 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   isAuthenticated: boolean;
-  isLoading: boolean; // Main auth loading (session check)
-  isLoadingProfile: boolean; // Specific profile loading
-  signUpUser: (credentials: ExtendedSignUpCredentials) => Promise<{ data: any, error: any | null }>;
-  signInUser: (credentials: Pick<SignUpWithPasswordCredentials, 'email' | 'password'>) => Promise<{ error: any | null }>;
+  isLoading: boolean; 
+  isLoadingProfile: boolean; 
+  signUpUser: (credentials: ExtendedSignUpCredentials) => Promise<{ data: { user: User | null; session: Session | null; } | null, error: any | null }>;
+  signInUser: (credentials: Pick<SignUpWithPasswordCredentials, 'email' | 'password'>) => Promise<{ data: { user: User | null; session: Session | null; } | null, error: any | null }>;
   signOutUser: () => Promise<{ error: any | null }>;
-  updateUserEmail: (newEmail: string) => Promise<{ error: any | null }>;
-  updateUserPassword: (newPassword: string) => Promise<{ error: any | null }>;
-  updateUserNames: (payload: UpdateUserNamesPayload) => Promise<{ error: any | null }>;
-  updateUserAvatar: (avatarUrl: string) => Promise<{ error: any | null }>;
+  updateUserEmail: (newEmail: string) => Promise<{ data: { user: User | null } | null, error: any | null }>;
+  updateUserPassword: (newPassword: string) => Promise<{ data: { user: User | null } | null, error: any | null }>;
+  updateUserNames: (payload: UpdateUserNamesPayload) => Promise<{ data: { user: User | null } | null, error: any | null }>;
+  updateUserAvatar: (avatarUrl: string) => Promise<{ data: { user: User | null }| null, error: any | null }>;
   fetchUserProfile: () => Promise<void>;
-  updateUserProfile: (profileData: Partial<ProfileFormData>) => Promise<{ error: any | null }>;
+  updateUserProfile: (profileData: Partial<ProfileFormData>) => Promise<{ data: Profile | null, error: any | null }>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [isLoading, setIsLoading] = useState(true); //isLoading reflects initial auth check
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false); // Start false, true only during fetch
+  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
   const fetchUserProfile = useCallback(async () => {
     const { data: { user: currentUserFromAuth } } = await supabase.auth.getUser();
@@ -80,77 +80,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoadingProfile(false);
     }
-  }, []); // Empty dependency array, function reference is stable
+  }, []);
+
 
   useEffect(() => {
-    let isMountedEffect = true;
+    let isMounted = true;
 
-    const getInitialAuthData = async () => {
-      let sessionUser: User | null = null;
-      try {
-        // Fetch initial session
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (!isMountedEffect) return;
+    supabase.auth.getSession().then(async ({ data: { session: currentSession }, error: sessionError }) => {
+      if (!isMounted) return;
 
-        if (sessionError) {
-          console.error("Error fetching initial Supabase session:", sessionError);
+      if (sessionError) {
+        console.error("Error fetching initial Supabase session:", sessionError);
+      } else {
+        setSession(currentSession);
+        const currentUser = currentSession?.user ?? null;
+        setUser(currentUser);
+        if (currentUser) {
+          await fetchUserProfile(); 
         } else {
-          setSession(currentSession);
-          sessionUser = currentSession?.user ?? null;
-          setUser(sessionUser);
-        }
-        
-        // Fetch profile if user exists, but don't let it block setIsLoading(false)
-        if (sessionUser) {
-            await fetchUserProfile();
-        } else {
-            setProfile(null);
-            // No profile to load, so profile loading is effectively "done"
-            setIsLoadingProfile(false); 
-        }
-
-      } catch (error) {
-        if (isMountedEffect) {
-          console.error("Exception during initial auth data fetch:", error);
-        }
-      } finally {
-        // This is critical: ensure isLoading is set to false after initial setup attempts.
-        if (isMountedEffect) {
-          setIsLoading(false);
+          setProfile(null);
         }
       }
-    };
-
-    getInitialAuthData();
+      setIsLoading(false); // Set loading to false after initial session check completes
+    }).catch(error => {
+        if (isMounted) {
+            console.error("Exception during initial Supabase session fetch promise:", error);
+            setIsLoading(false); 
+        }
+    });
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, sessionState: Session | null) => {
-        if (!isMountedEffect) return;
+      async (event, sessionState) => {
+        if (!isMounted) return;
 
         setSession(sessionState);
         const currentUser = sessionState?.user ?? null;
         setUser(currentUser);
-        
-        // Do NOT set setIsLoading(false) here as it's for initial load only.
 
         if (currentUser) {
-          if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
-             await fetchUserProfile();
+          if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+            await fetchUserProfile();
           }
-          // For INITIAL_SESSION, profile is already fetched by getInitialAuthData
-        } else { // SIGNED_OUT or no user
+        } else { 
           setProfile(null);
-          setIsLoadingProfile(false);
+          setIsLoadingProfile(false); 
         }
       }
     );
 
     return () => {
-      isMountedEffect = false;
+      isMounted = false;
       authListener?.subscription.unsubscribe();
     };
-  }, [fetchUserProfile]); // fetchUserProfile is stable due to its own useCallback with empty deps
+  }, [fetchUserProfile]); 
 
   const signUpUser = useCallback(async (credentials: ExtendedSignUpCredentials) => {
     const { data, error } = await supabase.auth.signUp(credentials);
@@ -158,26 +140,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Sign up error:", error.message);
       return { data: null, error };
     }
-    // Supabase handles user creation and `onAuthStateChange` will update context.
-    // The trigger on auth.users should create a profile row.
     return { data, error: null };
   }, []);
 
   const signInUser = useCallback(async (credentials: Pick<SignUpWithPasswordCredentials, 'email' | 'password'>) => {
-    const { error } = await supabase.auth.signInWithPassword(credentials); // Removed data variable as it's not used
+    const { data, error } = await supabase.auth.signInWithPassword(credentials);
     if (error) {
       console.error("Sign in error:", error.message);
-      return { error };
+      toast({ variant: "destructive", title: "Erreur de Connexion", description: error.message });
+      return { data: null, error };
     }
-    // `onAuthStateChange` will handle setting user and session, and fetching profile.
     toast({ title: "Connexion réussie !", description: "Bienvenue sur MaisonMate !" });
-    return { error: null };
+    return { data, error: null };
   }, []);
 
   const signOutUser = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
-    // Explicitly clear local state for immediate UI update,
-    // `onAuthStateChange` will also fire with SIGNED_OUT.
     setUser(null);
     setSession(null);
     setProfile(null);
@@ -194,25 +172,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const updateUserEmail = useCallback(async (newEmail: string) => {
-    const { error } = await supabase.auth.updateUser({ email: newEmail }); // Removed data variable
+    const { data, error } = await supabase.auth.updateUser({ email: newEmail });
     if (error) {
       toast({ variant: "destructive", title: "Erreur de mise à jour", description: error.message });
-      return { error };
+      return { data: null, error };
     }
-    // `onAuthStateChange` with 'USER_UPDATED' event should trigger profile refresh if needed.
-    // Supabase will handle sending confirmation emails.
     toast({ title: "Email mis à jour", description: "Veuillez vérifier votre nouvelle adresse e-mail pour confirmer le changement." });
-    return { error: null };
+    return { data, error: null };
   }, []);
 
   const updateUserPassword = useCallback(async (newPassword: string) => {
-    const { error } = await supabase.auth.updateUser({ password: newPassword }); // Removed data variable
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) {
       toast({ variant: "destructive", title: "Erreur de mise à jour", description: error.message });
-      return { error };
+      return { data: null, error };
     }
     toast({ title: "Mot de passe mis à jour", description: "Votre mot de passe a été modifié avec succès." });
-    return { error: null };
+    return { data, error: null };
   }, []);
 
   const updateUserNames = useCallback(async ({ firstName, lastName }: UpdateUserNamesPayload) => {
@@ -222,36 +198,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         last_name: lastName,
       }
     };
-    const { error } = await supabase.auth.updateUser(attributes); // Removed data variable
+    const { data, error } = await supabase.auth.updateUser(attributes);
     if (error) {
       toast({ variant: "destructive", title: "Erreur de mise à jour des noms", description: error.message });
-      return { error };
+      return { data: null, error };
     }
-    // `onAuthStateChange` with 'USER_UPDATED' will trigger profile re-fetch.
-    // The trigger on auth.users should also update the profiles table.
-    return { error: null };
+    return { data, error: null };
   }, []);
 
   const updateUserAvatar = useCallback(async (avatarUrl: string) => {
-    const { error } = await supabase.auth.updateUser({ // Removed data variable
+    const { data, error } = await supabase.auth.updateUser({
       data: {
         avatar_url: avatarUrl,
       },
     });
     if (error) {
       toast({ variant: "destructive", title: "Erreur de mise à jour de l'avatar", description: error.message });
-      return { error };
+      return { data: null, error };
     }
-    // `onAuthStateChange` with 'USER_UPDATED' will trigger profile re-fetch.
-    // The trigger on auth.users should also update the profiles table.
-    return { error: null };
+    return { data, error: null };
   }, []);
 
   const updateUserProfile = useCallback(async (profileData: Partial<ProfileFormData>) => {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
         toast({ variant: "destructive", title: "Erreur", description: "Utilisateur non connecté." });
-        return { error: { message: "User not authenticated" }};
+        return { data: null, error: { message: "User not authenticated" }};
       }
       setIsLoadingProfile(true);
       const updatePayload: Partial<Profile> = {
@@ -259,7 +231,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         updated_at: new Date().toISOString(),
       };
 
-      // Update the profiles table
       const { data: updatedProfileData, error: profileUpdateError } = await supabase
         .from('profiles')
         .update(updatePayload)
@@ -271,15 +242,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error("Error updating profile in DB:", profileUpdateError);
         toast({ variant: "destructive", title: "Erreur de profil", description: `Impossible de mettre à jour le profil: ${profileUpdateError.message}` });
         setIsLoadingProfile(false);
-        return { error: profileUpdateError };
+        return { data: null, error: profileUpdateError };
       }
       
       if (updatedProfileData) {
         setProfile(updatedProfileData as Profile);
       }
 
-      // If names were part of profileData, update user_metadata as well
-      // This ensures consistency and triggers on_auth_user_meta_data_updated if names changed
       if (profileData.first_name !== undefined || profileData.last_name !== undefined) {
          const nameUpdateResult = await updateUserNames({
            firstName: profileData.first_name || profile?.first_name || currentUser.user_metadata.first_name || '',
@@ -287,18 +256,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
          });
          if (!nameUpdateResult.error) {
            toast({ title: "Profil mis à jour !", description: "Vos informations de profil ont été sauvegardées." });
-         } else {
-            // Name update in metadata failed, but profile table might be updated.
-            // Toast for profile table update already shown if successful.
          }
       } else {
          toast({ title: "Profil mis à jour !", description: "Vos informations de profil ont été sauvegardées." });
       }
       setIsLoadingProfile(false);
-      return { error: null };
+      return { data: updatedProfileData as Profile, error: null };
   }, [profile, updateUserNames]);
 
-  const isAuthenticated = !!user;
+
+  const isAuthenticated = !!user && !!session;
 
   return (
     <AuthContext.Provider value={{
