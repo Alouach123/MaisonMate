@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 
-const partners = [
+const partnersFullList = [
   { name: "IKEA", logoUrl: "https://www.ikea.com/global/assets/logos/brand/ikea.svg", dataAiHint: "company logo" },
   { name: "Roche Bobois", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
   { name: "Kartell", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
@@ -14,6 +14,8 @@ const partners = [
   { name: "Emploi.ma", logoUrl: "https://www.emploi.ma/sites/default/files/styles/medium/public/logo/photo-2022-08-03-09-29-46.jpg?itok=1C9yTP4w", dataAiHint: "company logo" },
 ];
 
+const partnersToDisplay = partnersFullList.slice(0, 4); // Display only the first 4 partners
+
 export default function PartnerLogos() {
   return (
     <section className="py-8 md:py-12 bg-muted/30 rounded-lg">
@@ -22,16 +24,19 @@ export default function PartnerLogos() {
           Nos Marques Partenaires
         </h2>
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-          {partners.map((partner) => (
+          {partnersToDisplay.map((partner) => (
             <div key={partner.name} className="grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100">
-              <Image
-                src={partner.logoUrl}
-                alt={`${partner.name} logo`}
-                width={150}
-                height={60}
-                className="object-cover" 
-                data-ai-hint={partner.dataAiHint}
-              />
+              {/* The div containing the Image can also have fixed dimensions if needed for layout, but the Image component itself will enforce its own aspect ratio or object-fit behavior based on props */}
+              <div style={{ width: '150px', height: '60px' }} className="relative"> {/* Added a wrapper div to strictly enforce container size if necessary, though next/image with width/height should suffice */}
+                <Image
+                  src={partner.logoUrl}
+                  alt={`${partner.name} logo`}
+                  width={150} // Fixed width for the image rendering
+                  height={60} // Fixed height for the image rendering
+                  className="object-cover" // This ensures the image covers the 150x60 area, cropping if necessary
+                  data-ai-hint={partner.dataAiHint}
+                />
+              </div>
             </div>
           ))}
         </div>
