@@ -15,7 +15,7 @@ interface ProductCardProps {
   className?: string; 
   style?: React.CSSProperties;
   isDeal?: boolean;
-  onQuickViewClick?: (product: Product) => void; // New prop
+  onQuickViewClick?: (product: Product) => void;
 }
 
 export default function ProductCard({ product, className, style, isDeal = false, onQuickViewClick }: ProductCardProps) {
@@ -95,7 +95,7 @@ export default function ProductCard({ product, className, style, isDeal = false,
             {product.shortDescription}
           </CardDescription>
         )}
-        {product.rating && (
+        {product.rating !== undefined && product.rating !== null && product.rating > 0 && (
           <div className="flex items-center mt-2">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating!) ? 'fill-accent text-accent' : 'text-muted-foreground/40'}`} />

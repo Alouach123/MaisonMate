@@ -32,11 +32,9 @@ export default function ProductQuickViewModal({ product, isOpen, onClose }: Prod
   const uniqueHintKeywords = [...new Set(hintKeywords)];
   const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
 
-  // Helper function to determine if a color is "light" for text contrast
   const isColorLight = (colorString: string): boolean => {
-    if (!colorString) return true; // Default to dark text for unknown/undefined colors
-    // Basic check for named colors that are typically light
-    const lightNamedColors = ['white', 'yellow', 'beige', 'ivory', 'cream', 'lightgray', 'lightgrey', 'silver'];
+    if (!colorString) return true;
+    const lightNamedColors = ['white', 'yellow', 'beige', 'ivory', 'cream', 'lightgray', 'lightgrey', 'silver', 'blanc', 'jaune', 'crème'];
     if (lightNamedColors.some(lightColor => colorString.toLowerCase().includes(lightColor))) {
       return true;
     }
@@ -46,26 +44,20 @@ export default function ProductQuickViewModal({ product, isOpen, onClose }: Prod
         const r = parseInt(hex.substring(0, 2), 16);
         const g = parseInt(hex.substring(2, 4), 16);
         const b = parseInt(hex.substring(4, 6), 16);
-        // Simple luminance approximation
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
-        return luminance > 186; // Threshold for light colors (0-255 range)
+        return luminance > 186; 
       } catch (e) {
-        return true; // Default to dark text if hex parsing fails
+        return true; 
       }
     }
-    // For non-hex, non-listed named colors, it's harder to tell, default to dark text
     return true; 
   };
-
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="sm:max-w-3xl p-0 max-h-[90vh] flex flex-col">
-        {/* Removed DialogHeader to give more space to content if needed, title is inside scroll area */}
-        
         <ScrollArea className="flex-grow">
           <div className="grid md:grid-cols-2 gap-6 p-6 items-start">
-            {/* Image Section */}
             <div className="md:sticky md:top-6">
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden border shadow-md">
                 <Image
@@ -80,17 +72,16 @@ export default function ProductQuickViewModal({ product, isOpen, onClose }: Prod
               </div>
             </div>
 
-            {/* Details Section */}
             <div className="space-y-4">
               {product.category && <Badge variant="outline" className="text-sm mb-1">{product.category}</Badge>}
               <DialogTitle className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">{product.name}</DialogTitle>
               
-              {product.rating && (
+              {product.rating !== undefined && product.rating !== null && product.rating > 0 && (
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className={`h-5 w-5 ${i < Math.floor(product.rating!) ? 'fill-accent text-accent' : 'text-muted-foreground/30'}`} />
                   ))}
-                  <span className="ml-2 text-sm text-muted-foreground">({product.rating.toFixed(1)} rating)</span>
+                  <span className="ml-2 text-sm text-muted-foreground">({product.rating.toFixed(1)} de moyenne)</span>
                 </div>
               )}
 
@@ -112,20 +103,20 @@ export default function ProductQuickViewModal({ product, isOpen, onClose }: Prod
                   </div>
                 )}
                 {product.colors && product.colors.length > 0 && (
-                  <div className="flex items-start gap-2 text-sm"> {/* Changed to items-start for alignment */}
-                    <Palette className="h-4 w-4 text-muted-foreground mt-0.5" /> {/* Added mt-0.5 for alignment */}
+                   <div className="flex items-start gap-2 text-sm">
+                    <Palette className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <span className="font-medium shrink-0">Couleurs:</span>
-                    <span className="flex flex-wrap gap-1.5"> {/* Changed gap to 1.5 for better spacing */}
+                    <span className="flex flex-wrap gap-1.5">
                         {product.colors.map(color => (
                           <Badge 
                             key={color} 
                             variant="outline" 
                             style={{
                               backgroundColor: color, 
-                              color: isColorLight(color) ? '#000' : '#fff', // Text contrast
-                              borderColor: isColorLight(color) ? 'hsl(var(--border))' : color // Border for light colors
+                              color: isColorLight(color) ? '#000' : '#fff',
+                              borderColor: isColorLight(color) ? 'hsl(var(--border))' : color
                             }}
-                            className="px-2 py-0.5 text-xs" // Ensure consistent padding and text size
+                            className="px-2 py-0.5 text-xs"
                           >
                             {color}
                           </Badge>
@@ -149,7 +140,7 @@ export default function ProductQuickViewModal({ product, isOpen, onClose }: Prod
                 )}
                 {product.stock !== undefined && product.stock !== null && (
                    <div className="flex items-center gap-2 text-sm">
-                    <ShoppingBag className="h-4 w-4 text-muted-foreground" /> {/* Changed icon to ShoppingBag */}
+                    <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">Stock:</span>
                     <span className={product.stock > 0 ? 'text-green-600' : 'text-red-600'}>
                         {product.stock > 0 ? `${product.stock} disponible(s)` : 'En rupture de stock'}
@@ -175,4 +166,3 @@ export default function ProductQuickViewModal({ product, isOpen, onClose }: Prod
     </Dialog>
   );
 }
-
