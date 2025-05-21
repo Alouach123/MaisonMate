@@ -17,6 +17,18 @@ export async function verifyPasswordAction(password: string): Promise<{ success:
   return { success: password === ADMIN_PASSWORD };
 }
 
+// Helper function to serialize a single product document
+function serializeProduct(doc: ProductDocument | null): Product | null {
+  if (!doc) return null;
+  const { _id, createdAt, updatedAt, ...rest } = doc;
+  return {
+    ...rest,
+    id: _id.toString(),
+    createdAt: createdAt?.toISOString(),
+    updatedAt: updatedAt?.toISOString(),
+  };
+}
+
 export async function getProductsAction(
   options: { 
     filters?: { category?: string; style?: string; rating_gte?: number; ids?: string[] }; 
@@ -57,11 +69,7 @@ export async function getProductsAction(
     }
 
     const productDocs = await cursor.toArray();
-    return productDocs.map(doc => ({
-      ...doc,
-      id: doc._id.toString(),
-      shortDescription: doc.shortDescription, 
-    }));
+    return productDocs.map(doc => serializeProduct(doc)).filter(p => p !== null) as Product[];
   } catch (error) {
     console.error("Failed to fetch products:", error);
     return [];
@@ -77,14 +85,7 @@ export async function getProductByIdAction(productId: string): Promise<Product |
     const db = await connectToDatabase();
     const productsCollection = db.collection<ProductDocument>('products');
     const productDoc = await productsCollection.findOne({ _id: toObjectId(productId) });
-    if (!productDoc) {
-      return null;
-    }
-    return {
-      ...productDoc,
-      id: productDoc._id.toString(),
-      shortDescription: productDoc.shortDescription, 
-    };
+    return serializeProduct(productDoc);
   } catch (error) {
     console.error("Failed to fetch product by ID:", error);
     return null;
@@ -102,16 +103,18 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
     const db = await connectToDatabase();
     const productsCollection = db.collection<Omit<ProductDocument, '_id'>>('products');
     
+    const now = new Date();
     const newProductData: Omit<ProductDocument, '_id'> = {
       ...validation.data,
       shortDescription: validation.data.shortDescription || undefined,
       imageUrl: validation.data.imageUrl || 'https://placehold.co/600x400.png',
       colors: validation.data.colors ?? [],
       materials: validation.data.materials ?? [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     };
     
+    // Ensure 'id' from form data is not part of the document to be inserted
     if ('id' in newProductData) delete (newProductData as any).id;
 
 
@@ -121,9 +124,16 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
         return { success: false, error: "Failed to insert product into database." };
     }
 
+    // Construct the Product object for return, ensuring dates are ISO strings
     const insertedProduct: Product = {
-      ...(newProductData as Omit<ProductDocument, '_id' | 'createdAt' | 'updatedAt'> & { createdAt: Date, updatedAt: Date }),
+      ...(validation.data), // Use validated data which is already plain
       id: result.insertedId.toString(),
+      shortDescription: validation.data.shortDescription || undefined,
+      imageUrl: validation.data.imageUrl || 'https://placehold.co/600x400.png',
+      colors: validation.data.colors ?? [],
+      materials: validation.data.materials ?? [],
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
     };
     
     return { success: true, product: insertedProduct };
@@ -148,13 +158,15 @@ export async function updateProductAction(data: ProductFormData): Promise<{ succ
     
     const productId = toObjectId(data.id);
     
-    const { id: formId, ...updateData } = validation.data;
+    // Exclude 'id' from validated data before setting in DB
+    const { id: formId, ...updateDataFromForm } = validation.data;
+
     const productToUpdate = {
-      ...updateData,
-      shortDescription: updateData.shortDescription || undefined,
-      imageUrl: updateData.imageUrl || 'https://placehold.co/600x400.png',
-      colors: updateData.colors ?? [],
-      materials: updateData.materials ?? [],
+      ...updateDataFromForm,
+      shortDescription: updateDataFromForm.shortDescription || undefined,
+      imageUrl: updateDataFromForm.imageUrl || 'https://placehold.co/600x400.png',
+      colors: updateDataFromForm.colors ?? [],
+      materials: updateDataFromForm.materials ?? [],
       updatedAt: new Date(),
     };
 
@@ -168,11 +180,7 @@ export async function updateProductAction(data: ProductFormData): Promise<{ succ
     }
     
     const updatedDoc = await productsCollection.findOne({ _id: productId });
-    if (!updatedDoc) {
-         return { success: false, error: "Failed to retrieve updated product." };
-    }
-
-    return { success: true, product: { ...updatedDoc, id: updatedDoc._id.toString(), shortDescription: updatedDoc.shortDescription } };
+    return { success: true, product: serializeProduct(updatedDoc) };
   } catch (error) {
     console.error("Error updating product:", error);
     return { success: false, error: "An error occurred while updating the product." };
@@ -270,3 +278,5 @@ export async function deleteUserAction(userId: string): Promise<{ success: boole
     return { success: false, error: error.message || "An unexpected error occurred while deleting the user." };
   }
 }
+
+    
