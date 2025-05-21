@@ -150,3 +150,26 @@ html {
     scrollbar-width: none;  /* Firefox */
   }
 }
+
+/* Testimonial scroll animation */
+@layer utilities {
+  @keyframes scroll-testimonials {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      /* Scroll by the width of the first half of the duplicated items */
+      /* If you have N unique items, and you duplicated them, the scroll is N * (card_width + margin_between_cards) */
+      /* For 5 unique items, this is translateX(-50%) of the total width of the 10 items. */
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-scroll-testimonials {
+    animation: scroll-testimonials 60s linear infinite; /* Adjust 60s for desired speed */
+  }
+
+  .pause-animation:hover {
+    animation-play-state: paused;
+  }
+}
