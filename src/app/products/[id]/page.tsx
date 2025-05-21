@@ -1,9 +1,9 @@
 
-"use client"; // Make this a client component to manage refresh state
+"use client"; 
 
 import Image from 'next/image';
-import { notFound } from 'next/navigation'; // Still can be used if initial fetch fails severely
-import StyleSuggestions from '@/components/products/style-suggestions';
+import { notFound } from 'next/navigation'; 
+import StyleSuggestions from '@/components/products/style-suggestions'; // This is now a review form
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Palette, Package, Ruler, ShoppingBag } from 'lucide-react';
@@ -24,7 +24,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [avisRefreshKey, setAvisRefreshKey] = useState(0); // Key to trigger AvisList refresh
+  const [avisRefreshKey, setAvisRefreshKey] = useState(0); 
 
   const fetchProduct = useCallback(async () => {
     setIsLoading(true);
@@ -32,8 +32,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     try {
       const fetchedProduct = await getProductByIdAction(params.id);
       if (!fetchedProduct) {
-        // This will be caught by the error boundary or notFound() if used in a server component context.
-        // For client component, we set an error state.
         setError("Produit non trouvé.");
         setProduct(null);
       } else {
@@ -53,7 +51,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   }, [fetchProduct]);
 
   const handleAvisSubmitted = () => {
-    setAvisRefreshKey(prevKey => prevKey + 1); // Increment key to re-trigger AvisList fetch
+    setAvisRefreshKey(prevKey => prevKey + 1); 
   };
 
   if (isLoading) {
@@ -74,10 +72,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   }
 
   if (error) {
-    // If we want to use Next.js's notFound mechanism from a client component,
-    // it's usually handled by throwing an error that an error boundary can catch
-    // or by redirecting. For simplicity, displaying an error message here.
-    // For a hard 404, direct use of notFound() in a Server Component wrapper would be typical.
     return (
         <div className="text-center py-20 max-w-md mx-auto pt-20">
             <h1 className="text-2xl font-bold text-destructive mb-4">{error}</h1>
@@ -87,10 +81,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   }
   
   if (!product) {
-    // This case should ideally be handled by the error state if product fetch fails.
-    // Or, if you want a specific "not found" UI different from a general error:
-    notFound(); // This will trigger the nearest not-found.js or default Next.js 404 page
-    return null; // Keep TypeScript happy
+    notFound(); 
+    return null; 
   }
 
   const hintKeywords: string[] = [];
@@ -103,24 +95,40 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const uniqueHintKeywords = [...new Set(hintKeywords)];
   const aiHint = uniqueHintKeywords.slice(0, 2).join(' ') || 'item';
 
-  // Helper function to determine if a color is "light" for text contrast
   const isColorLight = (colorString: string): boolean => {
     if (!colorString) return true;
-    const lightNamedColors = ['white', 'yellow', 'beige', 'ivory', 'cream', 'lightgray', 'lightgrey', 'silver', 'blanc', 'jaune', 'crème'];
+    const lightNamedColors = ['white', 'yellow', 'beige', 'ivory', 'cream', 'lightgray', 'lightgrey', 'silver', 'blanc', 'jaune', 'crème', 'transparent'];
     if (lightNamedColors.some(lightColor => colorString.toLowerCase().includes(lightColor))) {
       return true;
     }
     if (colorString.startsWith('#')) {
       try {
         const hex = colorString.replace('#', '');
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-        const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
-        return luminance > 186; 
+        if (hex.length === 3) { // Handle short hex
+          const r = parseInt(hex.substring(0, 1) + hex.substring(0, 1), 16);
+          const g = parseInt(hex.substring(1, 2) + hex.substring(1, 2), 16);
+          const b = parseInt(hex.substring(2, 3) + hex.substring(2, 3), 16);
+          const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+          return luminance > 186;
+        }
+        if (hex.length === 6) {
+          const r = parseInt(hex.substring(0, 2), 16);
+          const g = parseInt(hex.substring(2, 4), 16);
+          const b = parseInt(hex.substring(4, 6), 16);
+          const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+          return luminance > 186; 
+        }
       } catch (e) {
         return true; 
       }
+    }
+    // For rgb, rgba, hsl, hsla - it's complex to parse reliably here, default to true
+    if (colorString.startsWith('rgb') || colorString.startsWith('hsl')) {
+        // A simple heuristic: if it contains "light" or a high lightness value in hsl
+        if (colorString.toLowerCase().includes('light') || (colorString.includes('hsl') && parseInt(colorString.split(',')[2]?.replace('%','').trim() || '0') > 70)) {
+            return true;
+        }
+        return false; // Assume dark for complex colors not easily parsed as light
     }
     return true; 
   };
@@ -152,7 +160,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 </div>
                 <AddToWishlistButton product={product} />
               </div>
-              {product.rating && ( // This will be an average rating, perhaps calculated elsewhere or fetched
+              {product.rating && product.rating > 0 && (
                 <div className="flex items-center mt-2">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className={`h-5 w-5 ${i < Math.floor(product.rating!) ? 'fill-accent text-accent' : 'text-muted-foreground/30'}`} />
@@ -226,13 +234,22 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </CardFooter>
           </Card>
           
-          <StyleSuggestions productDescription={product.description} productName={product.name} />
+          {/* The StyleSuggestions component is now repurposed as another review form */}
+          <StyleSuggestions 
+            productId={product.id} 
+            productName={product.name} 
+            onReviewSubmitted={handleAvisSubmitted} 
+          />
         </div>
       </div>
       <div className="mt-12">
         <AvisList productId={product.id} refreshKey={avisRefreshKey} />
+        {/* The AvisForm below is the original review form. 
+            You might want to remove this one if StyleSuggestions is now the primary review form,
+            or keep both if desired. For now, I'll keep it. */}
         <AvisForm productId={product.id} onAvisSubmitted={handleAvisSubmitted} />
       </div>
     </div>
   );
 }
+
