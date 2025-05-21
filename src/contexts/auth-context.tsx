@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
@@ -50,6 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true); // For profile data fetching
 
   const fetchUserProfile = useCallback(async () => {
+    // Ensure we get the most current user from auth state before fetching profile
     const { data: { user: currentUserFromAuth } } = await supabase.auth.getUser();
 
     if (!currentUserFromAuth) {
@@ -65,13 +67,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('id', currentUserFromAuth.id)
         .single();
 
-      if (error && status !== 406) {
+      if (error && status !== 406) { // 406 means no rows found, which is not necessarily an error
         console.error("Error fetching profile in fetchUserProfile:", error);
         setProfile(null);
       } else if (data) {
         setProfile(data as Profile);
       } else {
-        setProfile(null);
+        setProfile(null); // No profile data found
       }
     } catch (error) {
       console.error("Exception while fetching profile in fetchUserProfile:", error);
@@ -79,36 +81,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoadingProfile(false);
     }
-  }, []);
+  }, []); // Empty dependency array makes this function stable
 
   useEffect(() => {
     let isMountedEffect = true;
-    setIsLoading(true); // Set main loading true at the start of the effect
 
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      if (!isMountedEffect) return;
+    const getInitialAuthData = async () => {
+      let sessionUser: User | null = null;
+      try {
+        // Step 1: Get session and user
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (!isMountedEffect) return;
 
-      setSession(currentSession);
-      const sessionUser = currentSession?.user ?? null;
-      setUser(sessionUser);
-
-      if (sessionUser) {
-        // Asynchronously fetch profile, don't let main isLoading wait for this
-        fetchUserProfile();
-      } else {
-        setProfile(null);
-        setIsLoadingProfile(false); // No user, so profile is not loading
+        if (sessionError) {
+          console.error("Error fetching initial Supabase session:", sessionError);
+          setSession(null);
+          setUser(null);
+        } else {
+          setSession(currentSession);
+          sessionUser = currentSession?.user ?? null;
+          setUser(sessionUser);
+        }
+      } catch (error) {
+        if (!isMountedEffect) return;
+        console.error("Exception during initial session fetch:", error);
+        setSession(null);
+        setUser(null);
+      } finally {
+        // Step 2: Set main loading to false AFTER session check attempt
+        if (isMountedEffect) {
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false); // Crucially, set main isLoading to false after session is processed
-    }).catch(error => {
-      if (!isMountedEffect) return;
-      console.error("Error fetching initial Supabase session:", error);
-      setSession(null);
-      setUser(null);
-      setProfile(null);
-      setIsLoadingProfile(false);
-      setIsLoading(false); // Also ensure isLoading is false on error
-    });
+
+      // Step 3: If user exists, then fetch profile (manages its own isLoadingProfile)
+      if (sessionUser && isMountedEffect) {
+        try {
+          await fetchUserProfile();
+        } catch (profileError) {
+            if (isMountedEffect) {
+                 console.error("Error during initial profile fetch (triggered by session):", profileError);
+                 // Profile fetching has its own loading and error handling, no need to block main isLoading
+            }
+        }
+      } else if (!sessionUser && isMountedEffect) {
+        // If no user, ensure profile state is also cleared and profile loading is false.
+        setProfile(null);
+        setIsLoadingProfile(false);
+      }
+    };
+
+    getInitialAuthData();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, sessionState: Session | null) => {
@@ -117,9 +141,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(sessionState);
         const currentUser = sessionState?.user ?? null;
         setUser(currentUser);
+        
+        // Ensure isLoading is false if it was somehow still true from initial load
+        // This helps if onAuthStateChange fires before getInitialAuthData fully completes its finally block
+        // though with the new structure of getInitialAuthData, this should be less of an issue.
+        if (isLoading) setIsLoading(false);
+
 
         if (currentUser) {
-          // Fetch profile on these events to keep it fresh
           if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
              await fetchUserProfile();
           }
@@ -134,8 +163,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isMountedEffect = false;
       authListener?.subscription.unsubscribe();
     };
-  }, [fetchUserProfile]); // fetchUserProfile is stable due to its own useCallback with empty deps
-
+  }, [fetchUserProfile, isLoading]); // Added isLoading to deps of main useEffect to potentially help if onAuthStateChange fires quickly
 
   const signUpUser = useCallback(async (credentials: ExtendedSignUpCredentials) => {
     const { data, error } = await supabase.auth.signUp(credentials);
@@ -143,8 +171,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Sign up error:", error.message);
       return { data: null, error };
     }
-    // Supabase trigger handle_new_user should create a profile row.
-    // onAuthStateChange will then call fetchUserProfile if SIGNED_IN event fires.
+    // Supabase trigger handle_new_user should create a profile row if SIGNED_IN event includes a new user.
+    // onAuthStateChange for 'SIGNED_IN' will call fetchUserProfile.
     return { data, error: null };
   }, []);
 
@@ -157,6 +185,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data.user) {
       toast({ title: "Connexion réussie !", description: "Bienvenue sur MaisonMate !" });
     }
+    // onAuthStateChange for 'SIGNED_IN' will call fetchUserProfile.
     return { error: null };
   }, []);
 
@@ -166,6 +195,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Sign out error:", error.message);
       return { error };
     }
+    // onAuthStateChange for 'SIGNED_OUT' will clear user and profile.
     toast({ title: "Déconnexion réussie.", description: "À bientôt !" });
     return { error: null };
   }, []);
@@ -176,6 +206,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast({ variant: "destructive", title: "Erreur de mise à jour", description: error.message });
       return { error };
     }
+    // onAuthStateChange for 'USER_UPDATED' should trigger profile refresh.
     toast({ title: "Email mis à jour", description: "Veuillez vérifier votre nouvelle adresse e-mail pour confirmer le changement." });
     return { error: null };
   }, []);
@@ -202,7 +233,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast({ variant: "destructive", title: "Erreur de mise à jour", description: error.message });
       return { error };
     }
-    // setUser(data.user); // No need to directly set user here, onAuthStateChange for USER_UPDATED will handle it
+    // onAuthStateChange for 'USER_UPDATED' will trigger profile refresh.
+    // Supabase trigger 'on_auth_user_meta_data_updated' should also update the profiles table.
     return { error: null };
   }, []);
 
@@ -216,7 +248,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast({ variant: "destructive", title: "Erreur de mise à jour de l'avatar", description: error.message });
       return { error };
     }
-    // setUser(data.user); // No need to directly set user here, onAuthStateChange for USER_UPDATED will handle it
+    // onAuthStateChange for 'USER_UPDATED' will trigger profile refresh.
+    // Supabase trigger 'on_auth_user_meta_data_updated' should also update the profiles table.
     return { error: null };
   }, []);
 
@@ -228,7 +261,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       setIsLoadingProfile(true);
       const updatePayload: Partial<Profile> = {
-        ...profileData,
+        ...profileData, // This includes first_name, last_name, phone, address fields
         updated_at: new Date().toISOString(),
       };
 
@@ -248,24 +281,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data) {
         setProfile(data as Profile);
         // If names were updated in profileData, also trigger Supabase Auth user_metadata update
-        // This ensures user_metadata in Supabase Auth is also updated, which then triggers onAuthStateChange
-        // which in turn calls fetchUserProfile, keeping everything in sync.
-        if (profileData.first_name || profileData.last_name) {
+        // This ensures user_metadata in Supabase Auth is also updated.
+        // The onAuthStateChange for USER_UPDATED (or the Supabase trigger on auth.users)
+        // should ensure profile state and user_metadata are consistent.
+        if (profileData.first_name !== undefined || profileData.last_name !== undefined) {
            const nameUpdateResult = await updateUserNames({
              firstName: profileData.first_name || profile?.first_name || currentUser.user_metadata.first_name || '',
              lastName: profileData.last_name || profile?.last_name || currentUser.user_metadata.last_name || ''
            });
+           // updateUserNames shows its own toast.
            if (!nameUpdateResult.error) {
              toast({ title: "Profil mis à jour !", description: "Vos informations de profil ont été sauvegardées." });
            }
-           // If updateUserNames has an error, it will show its own toast.
         } else {
            toast({ title: "Profil mis à jour !", description: "Vos informations de profil ont été sauvegardées." });
         }
       }
       setIsLoadingProfile(false);
       return { error: null };
-  }, [profile, updateUserNames]); // Added profile and updateUserNames to dependencies
+  }, [profile, updateUserNames]);
 
   const isAuthenticated = !!user;
 
