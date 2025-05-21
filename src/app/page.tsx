@@ -1,8 +1,7 @@
-
 // src/app/page.tsx
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react'; // Added useCallback
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Product } from '@/types';
 import { getProductsAction } from '@/app/admin/actions';
 
@@ -17,7 +16,7 @@ import TodaysDeals from '@/components/home/todays-deals';
 import BestSellerProducts from '@/components/home/best-seller-products';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import ProductQuickViewModal from '@/components/products/product-quick-view-modal'; // Import the modal
+import ProductQuickViewModal from '@/components/products/product-quick-view-modal';
 
 const CATEGORIES_TO_SHOWCASE = [
   { 
@@ -55,6 +54,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   
   const [dealsProducts, setDealsProducts] = useState<Product[]>([]);
+  const [moreToExploreProducts, setMoreToExploreProducts] = useState<Product[]>([]);
   
   // State for Quick View Modal
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState<Product | null>(null);
@@ -77,37 +77,60 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && allProducts.length > 0) {
-      const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
-      setDealsProducts(shuffled.slice(0, DEALS_COUNT));
+      // For Today's Deals
+      const shuffledDeals = [...allProducts].sort(() => 0.5 - Math.random());
+      setDealsProducts(shuffledDeals.slice(0, DEALS_COUNT));
+
+      // For More to Explore, try to get different products
+      const remainingProducts = allProducts.filter(p => !dealsProducts.find(dp => dp.id === p.id));
+      const shuffledExplore = [...remainingProducts].sort(() => 0.5 - Math.random());
+      setMoreToExploreProducts(shuffledExplore.slice(0, BEST_SELLERS_COUNT * 2)); // Show more items for exploration
     }
-  }, [allProducts, isLoading]);
+  }, [allProducts, isLoading]); // Removed dealsProducts from dependency array to avoid re-shuffling when dealsProducts changes
+
+  // Quick View Modal Handlers - DEFINED BEFORE USAGE IN useMemo
+  const handleOpenQuickView = useCallback((product: Product) => {
+    setSelectedProductForQuickView(product);
+    setIsQuickViewModalOpen(true);
+  }, []);
+
+  const handleCloseQuickView = useCallback(() => {
+    setIsQuickViewModalOpen(false);
+    setSelectedProductForQuickView(null);
+  }, []);
   
   const categoryShowcaseSections = useMemo(() => 
     CATEGORIES_TO_SHOWCASE.map((categoryConfig, index) => {
-      const productsForShowcase = allProducts
-        .filter(p => p.category === categoryConfig.name)
-        .slice(0, PRODUCTS_PER_SHOWCASE);
-
       if (isLoading && index < 3) { 
         return (
-          <div key={`showcase-skel-${categoryConfig.name}`} className="w-full min-h-screen flex items-center justify-center bg-muted">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
-              <Skeleton className="h-12 w-1/2 mb-4 mx-auto" />
-              <Skeleton className="h-8 w-3/4 mb-6 mx-auto" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                {[...Array(PRODUCTS_PER_SHOWCASE)].map((_, i) => (
-                  <div key={i} className="space-y-3 p-4 border rounded-lg bg-background/50">
-                    <Skeleton className="h-[150px] w-full rounded-lg" />
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-5 w-1/2" />
-                  </div>
-                ))}
+          <div key={`showcase-skel-${categoryConfig.name}`} className="relative w-full min-h-screen overflow-hidden flex items-center justify-center bg-muted">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center lg:text-left">
+              <div className="flex flex-col w-full items-center gap-8 lg:gap-12 lg:flex-row">
+                <div className="space-y-5 lg:w-1/2">
+                  <Skeleton className="h-12 w-3/4 mb-4 mx-auto lg:mx-0" />
+                  <Skeleton className="h-8 w-full mb-6 mx-auto lg:mx-0" />
+                  <Skeleton className="h-10 w-1/3 mx-auto lg:mx-0" />
+                </div>
+                <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 mt-8 lg:mt-0 w-full max-w-2xl">
+                  {[...Array(PRODUCTS_PER_SHOWCASE)].map((_, i) => (
+                    <div key={i} className="space-y-3 p-4 border rounded-lg bg-background/50">
+                      <Skeleton className="h-[150px] w-full rounded-lg" />
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-5 w-1/2" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         );
       }
       
+      const productsForShowcase = allProducts
+        .filter(p => p.category === categoryConfig.name)
+        .slice(0, PRODUCTS_PER_SHOWCASE);
+
+      // Only render showcase if products are loaded or if it's in dev mode to see placeholders
       if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0 && process.env.NODE_ENV === 'production') return null;
 
       return (
@@ -122,10 +145,10 @@ export default function HomePage() {
           ctaText={`Explorer nos ${categoryConfig.name.toLowerCase()}`}
           productsToDisplay={productsForShowcase}
           reverseLayout={index % 2 !== 0}
-          onQuickViewProduct={handleOpenQuickView} // Pass handler
+          onQuickViewProduct={handleOpenQuickView}
         />
       );
-    }).filter(Boolean), [allProducts, isLoading]
+    }).filter(Boolean), [allProducts, isLoading, handleOpenQuickView]
   );
 
   const bestSellerProducts = useMemo(() => {
@@ -133,16 +156,6 @@ export default function HomePage() {
     return [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT);
   }, [allProducts, isLoading]);
 
-  // Quick View Modal Handlers
-  const handleOpenQuickView = useCallback((product: Product) => {
-    setSelectedProductForQuickView(product);
-    setIsQuickViewModalOpen(true);
-  }, []);
-
-  const handleCloseQuickView = useCallback(() => {
-    setIsQuickViewModalOpen(false);
-    setSelectedProductForQuickView(null);
-  }, []);
 
   return (
     <>
@@ -162,7 +175,7 @@ export default function HomePage() {
               </div>
             </div>
           ) : dealsProducts.length > 0 && (
-            <TodaysDeals products={dealsProducts} onQuickViewProduct={handleOpenQuickView} /> // Pass handler
+            <TodaysDeals products={dealsProducts} onQuickViewProduct={handleOpenQuickView} />
           )}
           
           <Separator />
@@ -179,7 +192,7 @@ export default function HomePage() {
               products={bestSellerProducts} 
               title="Nos Meilleures Ventes" 
               itemsToShow={BEST_SELLERS_COUNT} 
-              onQuickViewProduct={handleOpenQuickView} // Pass handler
+              onQuickViewProduct={handleOpenQuickView}
             />
           )}
           
@@ -231,3 +244,4 @@ export default function HomePage() {
     </>
   );
 }
+
