@@ -3,6 +3,8 @@
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import type { Product } from '@/types';
+import fs from 'fs';
+import path from 'path';
 
 // Load environment variables from .env.local
 dotenv.config({ path: '.env.local' });
@@ -1140,6 +1142,41 @@ const productsToSeed: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[] = [
   },
 ];
 
+function generateCSV(products: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[]): string {
+  const header = [
+    'productId', // Using 'productId' for Neo4j, will map to a generated ID for MongoDB _id
+    'name',
+    'shortDescription',
+    'description',
+    'price',
+    'imageUrl',
+    'category',
+    'style',
+    'rating',
+    'stock',
+    'colors', // Will be pipe-separated
+    'materials', // Will be pipe-separated
+    'dimensions'
+  ];
+  const rows = products.map((p, index) => [
+    `prod_${index + 1}`, // Generating a simple productId for Neo4j
+    `"${p.name.replace(/"/g, '""')}"`,
+    `"${(p.shortDescription || '').replace(/"/g, '""')}"`,
+    `"${p.description.replace(/"/g, '""')}"`,
+    p.price,
+    p.imageUrl,
+    p.category,
+    p.style || '',
+    p.rating || '',
+    p.stock || '',
+    (p.colors || []).join('|'),
+    (p.materials || []).join('|'),
+    p.dimensions || ''
+  ]);
+  return [header.join(','), ...rows.map(row => row.join(','))].join('\n');
+}
+
+
 async function seedDB() {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
@@ -1157,9 +1194,10 @@ async function seedDB() {
     const database = client.db("maisonmate"); 
     const productsCollection = database.collection("products");
 
-    console.log("Deleting existing products from the collection...");
+    // MongoDB Seeding
+    console.log("Deleting existing products from the MongoDB collection...");
     const deleteResult = await productsCollection.deleteMany({});
-    console.log(`Deleted ${deleteResult.deletedCount} products.`);
+    console.log(`Deleted ${deleteResult.deletedCount} products from MongoDB.`);
 
     const productsForDB = productsToSeed.map(p => {
       // Omit 'id' as MongoDB will generate '_id'
@@ -1171,22 +1209,30 @@ async function seedDB() {
         stock: dbProduct.stock ? Number(dbProduct.stock) : null,
         colors: dbProduct.colors || [],
         materials: dbProduct.materials || [],
-        shortDescription: dbProduct.shortDescription || '', // Ensure shortDescription is handled
+        shortDescription: dbProduct.shortDescription || '',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
     });
 
     if (productsForDB.length > 0) {
-      console.log(`Attempting to insert ${productsForDB.length} products...`);
+      console.log(`Attempting to insert ${productsForDB.length} products into MongoDB...`);
       const insertResult = await productsCollection.insertMany(productsForDB);
-      console.log(`${insertResult.insertedCount} products were successfully inserted.`);
+      console.log(`${insertResult.insertedCount} products were successfully inserted into MongoDB.`);
     } else {
-      console.log("No products to seed.");
+      console.log("No products to seed into MongoDB.");
     }
 
+    // CSV Generation for Neo4j
+    console.log("\nGenerating CSV file for Neo4j import...");
+    const csvData = generateCSV(productsToSeed);
+    const csvFilePath = path.join(__dirname, 'products_for_neo4j.csv'); // Save in scripts folder
+    fs.writeFileSync(csvFilePath, csvData);
+    console.log(`Successfully generated products_for_neo4j.csv at ${csvFilePath}`);
+    console.log("You can now use this CSV file to import data into Neo4j AuraDB.");
+
   } catch (e) {
-    console.error("An error occurred during the database seeding process:");
+    console.error("An error occurred during the database seeding/CSV generation process:");
     console.error(e);
   } finally {
     await client.close();

@@ -7,7 +7,7 @@ export interface ProductDocument {
   _id: ObjectId;
   name: string;
   description: string;
-  shortDescription?: string;
+  shortDescription?: string; // Made shortDescription optional as it's being added
   price: number;
   imageUrl: string;
   category: string;
@@ -26,7 +26,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  shortDescription?: string;
+  shortDescription?: string; // Made shortDescription optional
   price: number;
   imageUrl: string;
   category: string;
