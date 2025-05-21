@@ -1,6 +1,6 @@
 
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Added useState, useEffect
 import Link from 'next/link';
 import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, Armchair, Globe, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export default function Navbar() {
   const { wishlist } = useWishlist();
   const { user, isAuthenticated, signOutUser, isLoading: isAuthLoading } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const mainNavItems = [
     { href: '/products', label: 'Produits', icon: LayoutGrid },
@@ -94,53 +99,61 @@ export default function Navbar() {
           
           <div className="h-6 border-l border-border/70 mx-1 md:mx-2"></div>
           
-          {isAuthLoading ? (
+          {mounted ? ( // Only render auth UI once mounted
+            isAuthLoading ? (
+              <Button variant="ghost" size="sm" className="text-sm font-medium text-foreground/70 px-2 md:px-3" disabled>
+                <LogIn className="h-4 w-4 md:mr-1.5 animate-pulse" />
+                <span className="hidden sm:inline">Chargement...</span>
+              </Button>
+            ) : isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full md:h-10 md:w-auto md:px-3 md:py-2">
+                     <Avatar className="h-7 w-7 md:mr-2">
+                        <AvatarImage src={user.user_metadata?.avatar_url || (avatarSeed ? `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(avatarSeed)}` : undefined)} alt={getUserDisplayName()} />
+                        <AvatarFallback>{getAvatarFallback()}</AvatarFallback>
+                     </Avatar>
+                    <span className="hidden md:inline text-sm font-medium text-foreground/90">
+                      {getUserDisplayName()}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link href="/profile">
+                          <UserCircle className="mr-2 h-4 w-4" />
+                          <span>Mon Profil</span>
+                      </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOutUser} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Se déconnecter</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" size="sm" asChild className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors px-2 md:px-3">
+                <Link href="/auth" className="flex items-center gap-1 md:gap-1.5">
+                  <LogIn className="h-4 w-4" /> 
+                  <span className="hidden sm:inline">Authentification</span>
+                </Link>
+              </Button>
+            )
+          ) : (
+            // Render a consistent placeholder before mount to match server/initial client render for loading state
             <Button variant="ghost" size="sm" className="text-sm font-medium text-foreground/70 px-2 md:px-3" disabled>
               <LogIn className="h-4 w-4 md:mr-1.5 animate-pulse" />
               <span className="hidden sm:inline">Chargement...</span>
-            </Button>
-          ) : isAuthenticated && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full md:h-10 md:w-auto md:px-3 md:py-2">
-                   <Avatar className="h-7 w-7 md:mr-2">
-                      <AvatarImage src={user.user_metadata?.avatar_url || (avatarSeed ? `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(avatarSeed)}` : undefined)} alt={getUserDisplayName()} />
-                      <AvatarFallback>{getAvatarFallback()}</AvatarFallback>
-                   </Avatar>
-                  <span className="hidden md:inline text-sm font-medium text-foreground/90">
-                    {getUserDisplayName()}
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link href="/profile">
-                        <UserCircle className="mr-2 h-4 w-4" />
-                        <span>Mon Profil</span>
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOutUser} className="cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Se déconnecter</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button variant="ghost" size="sm" asChild className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors px-2 md:px-3">
-              <Link href="/auth" className="flex items-center gap-1 md:gap-1.5">
-                <LogIn className="h-4 w-4" /> 
-                <span className="hidden sm:inline">Authentification</span>
-              </Link>
             </Button>
           )}
 
