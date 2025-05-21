@@ -40,6 +40,12 @@ const nextConfig: NextConfig = {
         hostname: 'fuefhogrzjkhzuqzdrtx.supabase.co',
         port: '',
         pathname: '/storage/v1/object/public/**',
+      },
+      { // Added for IKEA SVG logo
+        protocol: 'https',
+        hostname: 'www.ikea.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

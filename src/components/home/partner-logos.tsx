@@ -4,7 +4,7 @@
 import Image from 'next/image';
 
 const partners = [
-  { name: "IKEA", logoUrl: "https://i.pinimg.com/474x/c5/bc/69/c5bc69493ea1d0edf7deda56ebc16f13.jpg", dataAiHint: "company logo" },
+  { name: "IKEA", logoUrl: "https://www.ikea.com/global/assets/logos/brand/ikea.svg", dataAiHint: "company logo" },
   { name: "Roche Bobois", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
   { name: "Kartell", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
   { name: "Vitra", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
@@ -26,7 +26,7 @@ export default function PartnerLogos() {
                 alt={`${partner.name} logo`}
                 width={150}
                 height={60}
-                className="object-cover" // This makes the image cover the 150x60 area, cropping if necessary
+                className="object-cover" 
                 data-ai-hint={partner.dataAiHint}
               />
             </div>
