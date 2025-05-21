@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 const slidesData = [
   {
-    imageSrc: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageSrc: "https://i.pinimg.com/736x/31/de/35/31de35d6177adac97be1df59b93e2f01.jpg",
     imageAlt: "Comfortable sectional sofa with a lit candle on a round coffee table",
     aiHint: "cozy sofa",
     headline: "Cozy Corners, Lasting Comfort.",
@@ -19,13 +19,40 @@ const slidesData = [
     ctaLink: "/products?category=Canapés",
   },
   {
-    imageSrc: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageSrc: "https://i.pinimg.com/736x/67/42/c9/6742c98b351f71342b092fc79fc41c9b.jpg",
     imageAlt: "Stylishly arranged room featuring a comfortable couch and accent table",
     aiHint: "living room",
     headline: "Curated Living Spaces.",
     subheadline: "Discover furniture collections that bring harmony and style to every room.",
     ctaText: "Inspire Your Home",
     ctaLink: "/products",
+  },
+  {
+    imageSrc: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageAlt: "Modern living room with a stylish blue sofa",
+    aiHint: "modern sofa",
+    headline: "Elevate Your Living Space.",
+    subheadline: "Discover sophisticated designs that blend comfort and elegance seamlessly.",
+    ctaText: "Explore Furniture",
+    ctaLink: "/products?category=Canapés",
+  },
+  {
+    imageSrc: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageAlt: "Cozy bedroom with a well-made bed and warm lighting",
+    aiHint: "cozy bedroom",
+    headline: "Dream in Style.",
+    subheadline: "Create your perfect sanctuary with our collection of luxurious beds and bedroom essentials.",
+    ctaText: "Shop Bedroom",
+    ctaLink: "/products?category=Lits",
+  },
+  {
+    imageSrc: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageAlt: "Bright dining area with a wooden table and modern chairs",
+    aiHint: "dining room",
+    headline: "Gather Around Beauty.",
+    subheadline: "From intimate dinners to grand feasts, find the perfect dining set for every occasion.",
+    ctaText: "Discover Dining",
+    ctaLink: "/products?category=Tables",
   },
 ];
 
@@ -60,7 +87,7 @@ export default function HeroSlideshow() {
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
-          priority={index === 0} // Prioritize the first slide image for LCP
+          priority={index === 0} 
           className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}
           data-ai-hint={slide.aiHint}
           quality={85}
@@ -69,8 +96,7 @@ export default function HeroSlideshow() {
       
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent z-10"></div>
       
-      {/* Content container: centered on small screens, left-aligned on medium and up */}
-      <div className="absolute inset-0 flex items-center justify-center md:justify-start text-center md:text-left z-20">
+      <div className="absolute inset-0 flex items-center justify-start text-left z-20">
         <div className="max-w-lg md:max-w-xl space-y-6 container mx-auto px-6 sm:px-8 md:pl-12 lg:pl-16 xl:pl-24 pt-24 md:pt-32 lg:pt-40 pb-12 md:pb-16 lg:pb-20">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
             {currentSlide.headline}
