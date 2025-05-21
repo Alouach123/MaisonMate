@@ -10,13 +10,13 @@ import { useState, useEffect, useCallback } from 'react';
 
 const initialSlidesData = [
   {
-    imageSrc: "https://i.pinimg.com/736x/31/de/35/31de35d6177adac97be1df59b93e2f01.jpg",
-    imageAlt: "Comfortable sectional sofa with a lit candle on a round coffee table",
-    aiHint: "cozy sofa",
+    imageSrc: "https://images.unsplash.com/photo-1543198138-191155abd382?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageAlt: "Elegant table lamp casting a warm glow in a cozy room setting",
+    aiHint: "elegant lamp",
     headline: "Cozy Corners, Lasting Comfort.",
-    subheadline: "Find the perfect sectional sofa to create inviting spaces for relaxation and gatherings.",
-    ctaText: "View Sectionals",
-    ctaLink: "/products?category=Canapés",
+    subheadline: "Illuminate your spaces with our stylish lamps, creating inviting warmth and ambiance.",
+    ctaText: "View Lamps",
+    ctaLink: "/products?category=Lampes",
   },
   {
     imageSrc: "https://i.pinimg.com/736x/67/42/c9/6742c98b351f71342b092fc79fc41c9b.jpg",
@@ -54,28 +54,26 @@ const initialSlidesData = [
     ctaText: "Discover Dining",
     ctaLink: "/products?category=Tables",
   },
-  {
-    imageSrc: "https://images.unsplash.com/photo-1540574163024-588460b0b5d5?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    imageAlt: "Minimalist style living room with concrete floor and white fabric sofa",
-    aiHint: "minimalist living room",
-    headline: "Simplicity Meets Elegance.",
-    subheadline: "Explore our minimalist collection for a serene and stylish home.",
-    ctaText: "Shop Minimalist",
-    ctaLink: "/products?style=Minimaliste",
-  },
-  {
-    imageSrc: "https://images.unsplash.com/photo-1503602642458-232111445657?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    imageAlt: "A room with a couch and a table with modern decor",
-    aiHint: "modern decor",
-    headline: "Modern Designs, Timeless Appeal.",
-    subheadline: "Infuse your home with contemporary pieces that stand the test of time.",
-    ctaText: "Explore Modern",
-    ctaLink: "/products?style=Moderne",
-  },
 ];
 
-// Remove the first three slides
-const slidesData = initialSlidesData.slice(3);
+// Filter out the slides to be removed and update the first slide
+const slidesData = initialSlidesData.filter(slide => 
+  slide.headline !== "Modern Designs, Timeless Appeal." &&
+  slide.headline !== "Simplicity Meets Elegance."
+).map(slide => {
+  if (slide.headline === "Cozy Corners, Lasting Comfort.") {
+    return {
+      ...slide,
+      imageSrc: "https://images.unsplash.com/photo-1543198138-191155abd382?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      imageAlt: "Elegant table lamp casting a warm glow in a cozy room setting",
+      aiHint: "elegant lamp",
+      subheadline: "Illuminate your spaces with our stylish lamps, creating inviting warmth and ambiance.",
+      ctaText: "View Lamps",
+      ctaLink: "/products?category=Lampes",
+    };
+  }
+  return slide;
+});
 
 
 export default function HeroSlideshow() {
@@ -116,7 +114,7 @@ export default function HeroSlideshow() {
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
-          priority={index === currentIndex} // Prioritize loading the current slide's image
+          priority={index === currentIndex} 
           className={`object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}
           data-ai-hint={slide.aiHint}
           quality={85}
