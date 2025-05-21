@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useEffect } from 'react'; // Added useState, useEffect
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { LayoutGrid, Heart, LifeBuoy, LogIn, LogOut, Armchair, Globe, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -99,7 +99,7 @@ export default function Navbar() {
           
           <div className="h-6 border-l border-border/70 mx-1 md:mx-2"></div>
           
-          {mounted ? ( // Only render auth UI once mounted
+          {mounted ? ( 
             isAuthLoading ? (
               <Button variant="ghost" size="sm" className="text-sm font-medium text-foreground/70 px-2 md:px-3" disabled>
                 <LogIn className="h-4 w-4 md:mr-1.5 animate-pulse" />
@@ -150,7 +150,6 @@ export default function Navbar() {
               </Button>
             )
           ) : (
-            // Render a consistent placeholder before mount to match server/initial client render for loading state
             <Button variant="ghost" size="sm" className="text-sm font-medium text-foreground/70 px-2 md:px-3" disabled>
               <LogIn className="h-4 w-4 md:mr-1.5 animate-pulse" />
               <span className="hidden sm:inline">Chargement...</span>
@@ -161,9 +160,10 @@ export default function Navbar() {
             <Globe className="h-[1.2rem] w-[1.2rem]" />
             <span className="sr-only">Changer de langue</span>
           </Button>
-          <ThemeToggleButton />
+          {mounted && <ThemeToggleButton />} 
         </nav>
       </div>
     </header>
   );
 }
+
