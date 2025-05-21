@@ -4,17 +4,15 @@
 import Image from 'next/image';
 
 const partnersFullList = [
-  { name: "IKEA", logoUrl: "https://www.ikea.com/global/assets/logos/brand/ikea.svg", dataAiHint: "company logo" },
-  { name: "Roche Bobois", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
-  { name: "Kartell", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
-  { name: "Vitra", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
-  { name: "Herman Miller", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
-  { name: "Marjane", logoUrl: "https://talent-marjane.com/cvpmini-be/api/annonce-img/296", dataAiHint: "company logo" },
-  { name: "App Store Partner", logoUrl: "https://play-lh.googleusercontent.com/tz1ySx3X4GXk-erElWv-lEeRBmPa68BwEFlffRNhWjPceC2TrfGXAoIHIsLpM_qZDO0", dataAiHint: "company logo" },
-  { name: "Emploi.ma", logoUrl: "https://www.emploi.ma/sites/default/files/styles/medium/public/logo/photo-2022-08-03-09-29-46.jpg?itok=1C9yTP4w", dataAiHint: "company logo" },
+  { name: "IKEA", logoUrl: "https://static.dezeen.com/uploads/2019/04/ikea-logo-new-hero-1.jpg", dataAiHint: "company logo" },
+  { name: "Herman Miller", logoUrl: "https://imjustcreative.com/wp-content/uploads/2019/06/Herman-MIller-Logo-Design.jpg", dataAiHint: "company logo" },
+  { name: "JYSK", logoUrl: "https://jyskblueline.com/sites/default/files/inline-files/logo-JYSK-jpg.jpg", dataAiHint: "company logo" },
+  { name: "Kinnarps", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Kinnarps_logo.svg/2560px-Kinnarps_logo.svg.png", dataAiHint: "company logo" },
+  { name: "Höffner", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/H%C3%B6ffner.svg/2560px-H%C3%B6ffner.svg.png", dataAiHint: "company logo" },
 ];
 
-const partnersToDisplay = partnersFullList.slice(0, 4); // Display only the first 4 partners
+// Displaying all 5 provided partners
+const partnersToDisplay = partnersFullList.slice(0, 5); 
 
 export default function PartnerLogos() {
   return (
@@ -26,14 +24,13 @@ export default function PartnerLogos() {
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
           {partnersToDisplay.map((partner) => (
             <div key={partner.name} className="grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100">
-              {/* The div containing the Image can also have fixed dimensions if needed for layout, but the Image component itself will enforce its own aspect ratio or object-fit behavior based on props */}
-              <div style={{ width: '150px', height: '60px' }} className="relative"> {/* Added a wrapper div to strictly enforce container size if necessary, though next/image with width/height should suffice */}
+              <div style={{ width: '150px', height: '60px' }} className="relative"> 
                 <Image
                   src={partner.logoUrl}
                   alt={`${partner.name} logo`}
-                  width={150} // Fixed width for the image rendering
-                  height={60} // Fixed height for the image rendering
-                  className="object-cover" // This ensures the image covers the 150x60 area, cropping if necessary
+                  width={150} 
+                  height={60} 
+                  className="object-cover" 
                   data-ai-hint={partner.dataAiHint}
                 />
               </div>

@@ -64,6 +64,30 @@ const nextConfig: NextConfig = {
         hostname: 'www.emploi.ma',
         port: '',
         pathname: '/**',
+      },
+      { // For new IKEA logo
+        protocol: 'https',
+        hostname: 'static.dezeen.com',
+        port: '',
+        pathname: '/**',
+      },
+      { // For Herman Miller logo
+        protocol: 'https',
+        hostname: 'imjustcreative.com',
+        port: '',
+        pathname: '/**',
+      },
+      { // For JYSK logo
+        protocol: 'https',
+        hostname: 'jyskblueline.com',
+        port: '',
+        pathname: '/**',
+      },
+      { // For Kinnarps and Höffner logos
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
