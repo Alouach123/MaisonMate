@@ -51,9 +51,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true); // For profile data fetching
 
   const fetchUserProfile = useCallback(async () => {
-    const currentUser = (await supabase.auth.getUser()).data.user; // Get fresh user
-    if (!currentUser) {
-      setProfile(null);
+    const { data: { user: currentUserFromAuth } } = await supabase.auth.getUser();
+
+    if (!currentUserFromAuth) {
+      setProfile(null); 
       setIsLoadingProfile(false);
       return;
     }
@@ -62,50 +63,60 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data, error, status } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', currentUser.id)
+        .eq('id', currentUserFromAuth.id)
         .single();
 
       if (error && status !== 406) {
-        console.error("Error fetching profile:", error);
-        // Do not throw, just set profile to null and log
-        setProfile(null);
+        console.error("Error fetching profile in fetchUserProfile:", error);
+        setProfile(null); 
       } else if (data) {
         setProfile(data as Profile);
       } else {
         setProfile(null);
       }
     } catch (error) {
-      console.error("Exception while fetching profile:", error);
-      toast({ variant: "destructive", title: "Erreur de profil", description: "Impossible de charger les informations du profil." });
-      setProfile(null);
+      console.error("Exception while fetching profile in fetchUserProfile:", error);
+      setProfile(null); 
     } finally {
       setIsLoadingProfile(false);
     }
-  }, []);
+  }, []); // Empty dependency array makes this function stable
 
   useEffect(() => {
+    let isMountedEffect = true;
+    setIsLoading(true); 
+
     const getInitialAuthData = async () => {
-      let sessionUser: User | null = null;
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!isMountedEffect) return;
+
         setSession(currentSession);
-        sessionUser = currentSession?.user ?? null;
+        const sessionUser = currentSession?.user ?? null;
         setUser(sessionUser);
+
+        if (sessionUser) {
+          try {
+            await fetchUserProfile(); 
+          } catch (profileError) {
+            console.error("Error during initial profile fetch (within getInitialAuthData):", profileError);
+          }
+        } else {
+          setProfile(null);
+          setIsLoadingProfile(false); 
+        }
       } catch (error) {
         console.error("Error fetching initial Supabase session:", error);
-        setSession(null);
-        setUser(null);
+        if (isMountedEffect) {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+          setIsLoadingProfile(false);
+        }
       } finally {
-        setIsLoading(false); // Crucial: Set main loading to false after session check
-      }
-
-      // Now, if there's a user, fetch their profile. This won't block `isLoading`.
-      if (sessionUser) {
-        await fetchUserProfile();
-      } else {
-        // No user, so no profile to fetch, and profile loading is done.
-        setProfile(null);
-        setIsLoadingProfile(false);
+        if (isMountedEffect) {
+          setIsLoading(false); 
+        }
       }
     };
 
@@ -113,25 +124,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, sessionState: Session | null) => {
+        if (!isMountedEffect) return;
+
         setSession(sessionState);
         const currentUser = sessionState?.user ?? null;
         setUser(currentUser);
 
         if (currentUser) {
-          if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
-            await fetchUserProfile(); // Re-fetch profile on these events
+          if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+            await fetchUserProfile();
           }
         } else {
           setProfile(null);
-          setIsLoadingProfile(false); // Ensure profile loading is false if no user
-        }
-        if (event === 'SIGNED_OUT') {
-            setProfile(null); // Also clear profile on explicit sign out
+          setIsLoadingProfile(false); 
         }
       }
     );
 
     return () => {
+      isMountedEffect = false;
       authListener?.subscription.unsubscribe();
     };
   }, [fetchUserProfile]);
@@ -156,7 +167,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     if (data.user) {
       toast({ title: "Connexion réussie !", description: "Bienvenue sur MaisonMate !" });
-      // onAuthStateChange will trigger profile fetch
     }
     return { error: null };
   }, []);
@@ -167,7 +177,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Sign out error:", error.message);
       return { error };
     }
-    // onAuthStateChange clears user and profile
     toast({ title: "Déconnexion réussie.", description: "À bientôt !" });
     return { error: null };
   }, []);
@@ -205,8 +214,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { error };
     }
     if (data.user) {
-        setUser(data.user); 
-        toast({ title: "Profil mis à jour", description: "Vos nom et prénom ont été modifiés." });
+        setUser(prevUser => data.user); // More robust way to update user
         // onAuthStateChange with USER_UPDATED should re-fetch profile
     }
     return { error: null };
@@ -223,57 +231,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { error };
     }
     if (data.user) {
-      setUser(data.user); 
-      toast({ title: "Avatar mis à jour !", description: "Votre photo de profil a été modifiée." });
+      setUser(prevUser => data.user); 
        // onAuthStateChange with USER_UPDATED should re-fetch profile
     }
     return { error: null };
   }, []);
 
   const updateUserProfile = useCallback(async (profileData: Partial<ProfileFormData>) => {
-      if (!user) {
+      const { data: { user: currentUser } } = await supabase.auth.getUser(); // Get fresh user
+      if (!currentUser) {
         toast({ variant: "destructive", title: "Erreur", description: "Utilisateur non connecté." });
         return { error: { message: "User not authenticated" }};
       }
-      setIsLoadingProfile(true); // Indicate profile is being updated
+      setIsLoadingProfile(true); 
       const updatePayload: Partial<Profile> = {
         ...profileData,
         updated_at: new Date().toISOString(),
       };
 
-      Object.keys(updatePayload).forEach(key => {
-        const K = key as keyof typeof updatePayload;
-        if (updatePayload[K] === '') {
-          // updatePayload[K] = null; // Set to null if DB expects null for empty optional fields
-        }
-      });
-
       const { data, error } = await supabase
         .from('profiles')
         .update(updatePayload)
-        .eq('id', user.id)
+        .eq('id', currentUser.id)
         .select() 
         .single(); 
 
-      setIsLoadingProfile(false);
       if (error) {
         console.error("Error updating profile in DB:", error);
         toast({ variant: "destructive", title: "Erreur de profil", description: `Impossible de mettre à jour le profil: ${error.message}` });
+        setIsLoadingProfile(false);
         return { error };
       }
       if (data) {
         setProfile(data as Profile);
-        toast({ title: "Profil mis à jour !", description: "Vos informations de profil ont été sauvegardées." });
-        // If names were updated, also trigger user metadata update for immediate navbar reflection
+        // If names were updated in profileData, also trigger Supabase Auth user_metadata update
         if (profileData.first_name || profileData.last_name) {
            await updateUserNames({ 
-             firstName: profileData.first_name || profile?.first_name || user.user_metadata.first_name || '', 
-             lastName: profileData.last_name || profile?.last_name || user.user_metadata.last_name || ''
+             firstName: profileData.first_name || profile?.first_name || currentUser.user_metadata.first_name || '', 
+             lastName: profileData.last_name || profile?.last_name || currentUser.user_metadata.last_name || ''
            });
+        } else {
+           toast({ title: "Profil mis à jour !", description: "Vos informations de profil ont été sauvegardées." });
         }
       }
+      setIsLoadingProfile(false);
       return { error: null };
-  }, [user, profile, updateUserNames]); // Added profile and updateUserNames to dependencies
+  }, [profile, updateUserNames]); 
   
   const isAuthenticated = !!user;
 
