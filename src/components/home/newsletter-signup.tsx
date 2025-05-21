@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Mail, Send, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('');
@@ -25,39 +26,50 @@ export default function NewsletterSignup() {
   };
 
   return (
-    <section className="py-8 md:py-12 bg-primary/10 rounded-lg">
+    <section className="py-12 md:py-16 bg-primary/5 dark:bg-primary/10">
       <div className="container mx-auto px-4">
-        <div className="max-w-xl mx-auto text-center">
-          <Mail className="mx-auto h-12 w-12 text-primary mb-4" />
-          <h2 className="text-3xl font-bold mb-2 text-foreground">Restez Informé</h2>
-          <p className="text-muted-foreground mb-6 md:mb-8 text-lg">
-            Inscrivez-vous à notre newsletter pour recevoir nos offres exclusives, nouveautés et conseils déco.
-          </p>
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <Input
-              type="email"
-              placeholder="Votre adresse e-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="flex-grow h-12 text-base bg-card"
-              aria-label="Adresse e-mail pour la newsletter"
-            />
-            <Button type="submit" size="lg" disabled={isLoading} className="h-12 bg-accent hover:bg-accent/90 text-accent-foreground">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Envoi...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-5 w-5" />
-                  S'inscrire
-                </>
-              )}
-            </Button>
-          </form>
-        </div>
+        <Card className="max-w-xl mx-auto shadow-xl rounded-xl overflow-hidden bg-card border border-border/30">
+          <CardHeader className="text-center p-6 md:p-8">
+            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-accent/10 mb-6 shadow-md">
+                <Mail className="h-10 w-10 text-accent" />
+            </div>
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-primary mb-2">Restez Informé</CardTitle>
+            <CardDescription className="text-muted-foreground text-md sm:text-lg leading-relaxed">
+              Inscrivez-vous à notre newsletter pour recevoir nos offres exclusives, nouveautés et conseils déco.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 md:p-8 pt-0 sm:pt-2">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                type="email"
+                placeholder="Votre adresse e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-12 text-base ring-1 ring-border focus:ring-2 focus:ring-primary transition-all duration-300 shadow-sm hover:shadow-md py-3"
+                aria-label="Adresse e-mail pour la newsletter"
+              />
+              <Button 
+                type="submit" 
+                size="lg" 
+                disabled={isLoading} 
+                className="w-full h-12 text-base bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-transform duration-300 py-3"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Envoi...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-5 w-5" />
+                    S'inscrire
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </section>
   );
