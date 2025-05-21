@@ -47,12 +47,14 @@ const CATEGORIES_TO_SHOWCASE = [
 const PRODUCTS_PER_SHOWCASE = 2;
 const BEST_SELLERS_COUNT = 4; 
 const DEALS_COUNT = 4; 
-const MORE_TO_EXPLORE_COUNT = 8; 
+// const MORE_TO_EXPLORE_COUNT = 8; // No longer needed
 
 
 export default function HomePage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dealsProducts, setDealsProducts] = useState<Product[]>([]);
+  // const [moreToExploreProducts, setMoreToExploreProducts] = useState<Product[]>([]); // No longer needed
 
   useEffect(() => {
     async function loadProducts() {
@@ -68,6 +70,20 @@ export default function HomePage() {
     }
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    if (allProducts.length > 0) {
+      // Deterministic selection for deals for now
+      setDealsProducts(allProducts.slice(0, DEALS_COUNT));
+      
+      // More to Explore logic removed
+      // let exploreSlice = allProducts.slice(DEALS_COUNT);
+      // if (bestSellerProducts.length > 0) { // Ensure bestSellerProducts is defined
+      //   exploreSlice = exploreSlice.filter(p => !(bestSellerProducts.map(bs => bs.id).includes(p.id)));
+      // }
+      // setMoreToExploreProducts(exploreSlice.slice(0, MORE_TO_EXPLORE_COUNT));
+    }
+  }, [allProducts]); // Removed bestSellerProducts from dependency array as it's not used for this effect anymore
   
   const categoryShowcaseSections = useMemo(() => 
     CATEGORIES_TO_SHOWCASE.map((categoryConfig, index) => {
@@ -120,23 +136,6 @@ export default function HomePage() {
     return [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT);
   }, [allProducts, isLoading]);
 
-  // Deterministic selection for deals
-  const dealsProducts = useMemo(() => {
-    if (isLoading || allProducts.length === 0) return [];
-    // Example: Take the first few products as "deals"
-    // You could also sort by a specific "on_sale" flag or discount if your data model supports it.
-    return allProducts.slice(0, DEALS_COUNT); 
-  }, [allProducts, isLoading]);
-
-  // Deterministic selection for "More to Explore"
-  const moreToExploreProducts = useMemo(() => {
-    if (isLoading || allProducts.length === 0) return [];
-    // To avoid direct overlap with deals and best sellers, slice from a different part.
-    // This is a simple approach; a more sophisticated one might involve checking IDs.
-    let exploreSlice = allProducts.slice(DEALS_COUNT); // Start after deals
-    exploreSlice = exploreSlice.filter(p => !(bestSellerProducts.map(bs => bs.id).includes(p.id))); // Remove best sellers
-    return exploreSlice.slice(0, MORE_TO_EXPLORE_COUNT);
-  }, [allProducts, isLoading, bestSellerProducts, dealsProducts]); // Added dealsProducts
 
   return (
     <>
@@ -144,8 +143,7 @@ export default function HomePage() {
       
       {categoryShowcaseSections}
       
-      {/* Container for the rest of the content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 lg:pt-20"> 
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-28 lg:pt-32"> 
         <div className="space-y-12 md:space-y-16 lg:space-y-20">
           <FeaturedCategories />
           
@@ -173,18 +171,7 @@ export default function HomePage() {
             <BestSellerProducts products={bestSellerProducts} title="Nos Meilleures Ventes" itemsToShow={BEST_SELLERS_COUNT} />
           )}
 
-          <Separator />
-          
-          {(isLoading && moreToExploreProducts.length === 0 && allProducts.length === 0) ? ( 
-             <div>
-              <Skeleton className="h-8 w-1/3 mb-6" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                 {[...Array(MORE_TO_EXPLORE_COUNT)].map((_, i) => <Skeleton key={`mte-skel-${i}`} className="h-64 w-full rounded-lg" />)}
-              </div>
-            </div>
-          ) : moreToExploreProducts.length > 0 && (
-            <BestSellerProducts products={moreToExploreProducts} title="Plus d'Articles à Explorer" itemsToShow={MORE_TO_EXPLORE_COUNT} gridCols="sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" />
-          )}
+          {/* Section "Plus d'Articles à Explorer" removed */}
           
           {!isLoading && allProducts.length === 0 && (
               <div className="py-10 text-center">

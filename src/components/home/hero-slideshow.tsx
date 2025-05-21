@@ -87,21 +87,22 @@ export default function HeroSlideshow() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent z-10"></div>
       
       <div className="absolute inset-0 flex items-center justify-start text-left z-20">
-        <div className="max-w-lg md:max-w-xl space-y-6 container mx-auto px-6 sm:px-8 md:pl-12 lg:pl-16 xl:pl-24 pt-24 md:pt-32 lg:pt-40 pb-12 md:pb-16 lg:pb-20">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
-            {currentSlide.headline}
-          </h1>
-          <p className="text-lg sm:text-xl text-neutral-200 leading-relaxed drop-shadow-sm">
-            {currentSlide.subheadline}
-          </p>
-          <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground group text-base px-8 py-6 shadow-lg transform hover:scale-105 transition-transform duration-300">
-            <Link href={currentSlide.ctaLink}>
-              {currentSlide.ctaText}
-              <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </div>
-      </div>
+            <div className="max-w-lg md:max-w-xl space-y-6 container mx-auto px-6 sm:px-8 md:pl-12 lg:pl-16 xl:pl-24 pt-24 md:pt-32 lg:pt-40 pb-12 md:pb-16 lg:pb-20">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
+                {currentSlide.headline}
+              </h1>
+              <p className="text-lg sm:text-xl text-neutral-200 leading-relaxed drop-shadow-sm">
+                {currentSlide.subheadline}
+              </p>
+              <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground group text-base px-8 py-6 shadow-lg transform hover:scale-105 transition-transform duration-300">
+                <Link href={currentSlide.ctaLink}>
+                  {currentSlide.ctaText}
+                  <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+
 
       {slidesData.length > 1 && (
         <>
@@ -136,3 +137,4 @@ export default function HeroSlideshow() {
     </section>
   );
 }
+
