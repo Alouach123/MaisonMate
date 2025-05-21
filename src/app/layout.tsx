@@ -6,7 +6,8 @@ import MainLayout from '@/components/layout/main-layout';
 import { WishlistProvider } from '@/contexts/wishlist-context';
 import { CartProvider } from '@/contexts/cart-context';
 import { AuthProvider } from '@/contexts/auth-context';
-import { ThemeProvider } from "@/components/theme-provider"; // New import
+import { ThemeProvider } from "@/components/theme-provider";
+import MountedClientContent from '@/components/layout/mounted-client-content'; // New import
 
 const geistSans = Geist({ 
   variable: '--font-geist-sans',
@@ -40,20 +41,22 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning> {/* suppressHydrationWarning is important */}
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AuthProvider> 
-            <WishlistProvider>
-              <CartProvider>
-                <MainLayout>{children}</MainLayout>
-              </CartProvider>
-            </WishlistProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <MountedClientContent>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthProvider> 
+              <WishlistProvider>
+                <CartProvider>
+                  <MainLayout>{children}</MainLayout>
+                </CartProvider>
+              </WishlistProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </MountedClientContent>
       </body>
     </html>
   );
