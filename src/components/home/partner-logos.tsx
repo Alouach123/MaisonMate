@@ -3,9 +3,8 @@
 
 import Image from 'next/image';
 
-// Representing real partner brands using placehold.co with generic "Logo" text
 const partners = [
-  { name: "IKEA", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
+  { name: "IKEA", logoUrl: "https://i.pinimg.com/474x/c5/bc/69/c5bc69493ea1d0edf7deda56ebc16f13.jpg", dataAiHint: "company logo" },
   { name: "Roche Bobois", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
   { name: "Kartell", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
   { name: "Vitra", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
