@@ -9,6 +9,9 @@ const partners = [
   { name: "Kartell", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
   { name: "Vitra", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
   { name: "Herman Miller", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
+  { name: "Marjane", logoUrl: "https://talent-marjane.com/cvpmini-be/api/annonce-img/296", dataAiHint: "company logo" },
+  { name: "App Store Partner", logoUrl: "https://play-lh.googleusercontent.com/tz1ySx3X4GXk-erElWv-lEeRBmPa68BwEFlffRNhWjPceC2TrfGXAoIHIsLpM_qZDO0", dataAiHint: "company logo" },
+  { name: "Emploi.ma", logoUrl: "https://www.emploi.ma/sites/default/files/styles/medium/public/logo/photo-2022-08-03-09-29-46.jpg?itok=1C9yTP4w", dataAiHint: "company logo" },
 ];
 
 export default function PartnerLogos() {

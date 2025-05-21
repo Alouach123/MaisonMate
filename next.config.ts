@@ -46,6 +46,24 @@ const nextConfig: NextConfig = {
         hostname: 'www.ikea.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'talent-marjane.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'play-lh.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.emploi.ma',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
