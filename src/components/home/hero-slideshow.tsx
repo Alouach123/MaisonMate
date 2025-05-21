@@ -8,34 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 
-const initialSlidesData = [
-  {
-    imageSrc: "https://images.unsplash.com/photo-1543198138-191155abd382?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    imageAlt: "Elegant table lamp casting a warm glow in a cozy room setting",
-    aiHint: "elegant lamp",
-    headline: "Cozy Corners, Lasting Comfort.",
-    subheadline: "Illuminate your spaces with our stylish lamps, creating inviting warmth and ambiance.",
-    ctaText: "View Lamps",
-    ctaLink: "/products?category=Lampes",
-  },
-  {
-    imageSrc: "https://i.pinimg.com/736x/67/42/c9/6742c98b351f71342b092fc79fc41c9b.jpg",
-    imageAlt: "Stylishly arranged room featuring a comfortable couch and accent table",
-    aiHint: "living room",
-    headline: "Curated Living Spaces.",
-    subheadline: "Discover furniture collections that bring harmony and style to every room.",
-    ctaText: "Inspire Your Home",
-    ctaLink: "/products",
-  },
-  {
-    imageSrc: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    imageAlt: "Modern living room with a stylish blue sofa",
-    aiHint: "modern sofa",
-    headline: "Elevate Your Living Space.",
-    subheadline: "Discover sophisticated designs that blend comfort and elegance seamlessly.",
-    ctaText: "Explore Furniture",
-    ctaLink: "/products?category=Canapés",
-  },
+const slidesData = [
   {
     imageSrc: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     imageAlt: "Cozy bedroom with a well-made bed and warm lighting",
@@ -56,25 +29,6 @@ const initialSlidesData = [
   },
 ];
 
-// Filter out the slides to be removed and update the first slide
-const slidesData = initialSlidesData.filter(slide => 
-  slide.headline !== "Modern Designs, Timeless Appeal." &&
-  slide.headline !== "Simplicity Meets Elegance."
-).map(slide => {
-  if (slide.headline === "Cozy Corners, Lasting Comfort.") {
-    return {
-      ...slide,
-      imageSrc: "https://images.unsplash.com/photo-1543198138-191155abd382?q=85&w=1920&h=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      imageAlt: "Elegant table lamp casting a warm glow in a cozy room setting",
-      aiHint: "elegant lamp",
-      subheadline: "Illuminate your spaces with our stylish lamps, creating inviting warmth and ambiance.",
-      ctaText: "View Lamps",
-      ctaLink: "/products?category=Lampes",
-    };
-  }
-  return slide;
-});
-
 
 export default function HeroSlideshow() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -92,6 +46,7 @@ export default function HeroSlideshow() {
   };
   
   useEffect(() => {
+    if (slidesData.length <= 1) return; // Don't auto-play if only one or no slides
     const timer = setTimeout(goToNext, 7000); 
     return () => clearTimeout(timer); 
   }, [currentIndex, goToNext]);
@@ -110,7 +65,7 @@ export default function HeroSlideshow() {
     <section className="relative w-full min-h-screen overflow-hidden">
       {slidesData.map((slide, index) => (
         <Image
-          key={slide.imageSrc + index}
+          key={slide.imageSrc + index} // Unique key for each image
           src={slide.imageSrc}
           alt={slide.imageAlt}
           fill
@@ -140,32 +95,37 @@ export default function HeroSlideshow() {
         </div>
       </div>
 
-      <button
-        onClick={goToPrevious}
-        className="absolute top-1/2 left-4 md:left-8 transform -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
-        aria-label="Previous slide"
-      >
-        <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
-      </button>
-      <button
-        onClick={goToNext}
-        className="absolute top-1/2 right-4 md:right-8 transform -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
-        aria-label="Next slide"
-      >
-        <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
-      </button>
-
-      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2">
-        {slidesData.map((_, slideIndex) => (
+      {slidesData.length > 1 && (
+        <>
           <button
-            key={slideIndex}
-            onClick={() => goToSlide(slideIndex)}
-            className={`h-3 w-3 md:h-3.5 md:w-3.5 rounded-full transition-all duration-300 ease-in-out
-                        ${currentIndex === slideIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/75'}`}
-            aria-label={`Go to slide ${slideIndex + 1}`}
-          />
-        ))}
-      </div>
+            onClick={goToPrevious}
+            className="absolute top-1/2 left-4 md:left-8 transform -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
+          </button>
+          <button
+            onClick={goToNext}
+            className="absolute top-1/2 right-4 md:right-8 transform -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
+          </button>
+
+          <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2">
+            {slidesData.map((_, slideIndex) => (
+              <button
+                key={slideIndex}
+                onClick={() => goToSlide(slideIndex)}
+                className={`h-3 w-3 md:h-3.5 md:w-3.5 rounded-full transition-all duration-300 ease-in-out
+                            ${currentIndex === slideIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/75'}`}
+                aria-label={`Go to slide ${slideIndex + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }
+
