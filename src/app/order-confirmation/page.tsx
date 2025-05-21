@@ -5,12 +5,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth-context';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle, Package, Home, Phone, Mail, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Package, Home, Phone, Mail, ArrowLeft, Printer, Loader2 as LoaderIcon } from 'lucide-react'; // Renamed Loader2 to LoaderIcon
 import type { Order } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
+import { toast } from '@/hooks/use-toast';
 
 const ORDER_CONFIRMATION_SESSION_KEY = 'maisonmate-order-confirmation';
 
@@ -22,7 +23,7 @@ export default function OrderConfirmationPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.replace('/auth'); // Redirect if not authenticated
+      router.replace('/auth'); 
       return;
     }
 
@@ -32,24 +33,30 @@ export default function OrderConfirmationPage() {
         try {
           const parsedOrder: Order = JSON.parse(orderDataString);
           setOrder(parsedOrder);
-          // Optional: Remove item from sessionStorage after retrieving to prevent re-display on refresh
-          // sessionStorage.removeItem(ORDER_CONFIRMATION_SESSION_KEY); 
         } catch (e) {
           console.error("Error parsing order data from sessionStorage:", e);
-          router.replace('/'); // Or to cart page if order data is corrupted
+          toast({ variant: "destructive", title: "Erreur", description: "Impossible de récupérer les détails de la commande."})
+          router.replace('/'); 
         }
       } else if (!authLoading && user) { 
-        // No order data found, but user is logged in, maybe they refreshed or came directly
-        // router.replace('/'); // Redirect to home if no order data
+        // No order data, might be a direct navigation or refresh after sessionStorage clear
+        // To prevent showing an empty confirmation, redirect or show appropriate message.
+        // For now, we show a message if `order` remains null.
       }
       setIsLoading(false);
     }
   }, [authLoading, user, router]);
 
+  const handlePrint = () => {
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
+  };
+
   if (isLoading || authLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <LoaderIcon className="h-12 w-12 animate-spin text-primary" />
         <p className="mt-4 text-muted-foreground">Chargement de la confirmation...</p>
       </div>
     );
@@ -80,7 +87,7 @@ export default function OrderConfirmationPage() {
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4 pt-20">
-      <Card className="shadow-xl rounded-lg">
+      <Card className="shadow-xl rounded-lg printable-area"> {/* Added printable-area class */}
         <CardHeader className="text-center bg-primary/10 p-6 rounded-t-lg">
           <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-3" />
           <CardTitle className="text-3xl font-bold text-primary">Merci pour votre commande !</CardTitle>
@@ -132,15 +139,20 @@ export default function OrderConfirmationPage() {
             </div>
           </section>
           
-          <div className="text-center pt-4">
+          <div className="text-center pt-4 space-y-3 no-print"> {/* Added no-print class */}
             <p className="text-sm text-muted-foreground mb-4">
               Un e-mail de confirmation (simulation) vous a été envoyé. Notre équipe vous contactera pour confirmer les détails de la livraison.
             </p>
-            <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              <Link href="/products">
-                 <ArrowLeft className="mr-2 h-5 w-5" /> Continuer vos achats
-              </Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <Button onClick={handlePrint} size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                    <Printer className="mr-2 h-5 w-5" /> Imprimer la Facture
+                </Button>
+                <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Link href="/products">
+                    <ArrowLeft className="mr-2 h-5 w-5" /> Continuer vos achats
+                </Link>
+                </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -148,21 +160,23 @@ export default function OrderConfirmationPage() {
   );
 }
 
-// Added a simple Loader2 component for use during loading states if not already available globally
-const Loader2 = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-        {...props}
-    >
-        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-    </svg>
-);
+// Using LoaderIcon as Loader2 was causing conflict with lucide-react's Loader2
+// This definition can be removed if lucide-react's Loader2 is consistently used
+// const LoaderIcon = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
+//     <svg
+//         xmlns="http://www.w3.org/2000/svg"
+//         width="24"
+//         height="24"
+//         viewBox="0 0 24 24"
+//         fill="none"
+//         stroke="currentColor"
+//         strokeWidth="2"
+//         strokeLinecap="round"
+//         strokeLinejoin="round"
+//         className={className}
+//         {...props}
+//     >
+//         <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+//     </svg>
+// );
+

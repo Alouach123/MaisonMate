@@ -121,6 +121,8 @@ body {
 ::-webkit-scrollbar-thumb {
   background-color: hsl(var(--primary) / 0.15); /* Very transparent by default */
   border-radius: 10px; /* Rounded thumb */
+  border: 2px solid transparent; /* Create a "padding" effect */
+  background-clip: padding-box; /* Clip the background to the padding box */
   transition: background-color 0.2s ease-out; /* Smooth transition for color change */
 }
 
@@ -158,9 +160,6 @@ html {
       transform: translateX(0);
     }
     100% {
-      /* Scroll by the width of the first half of the duplicated items */
-      /* If you have N unique items, and you duplicated them, the scroll is N * (card_width + margin_between_cards) */
-      /* For 5 unique items, this is translateX(-50%) of the total width of the 10 items. */
       transform: translateX(-50%);
     }
   }
@@ -173,3 +172,105 @@ html {
     animation-play-state: paused;
   }
 }
+
+/* Print Styles */
+@media print {
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 10pt !important; /* Smaller font size for print */
+    -webkit-print-color-adjust: exact !important; /* Ensure colors print in Chrome/Safari */
+    print-color-adjust: exact !important; /* Standard */
+    background-color: #ffffff !important; /* Ensure white background */
+    color: #000000 !important; /* Ensure black text */
+  }
+
+  /* Hide elements not meant for printing */
+  header, 
+  footer, 
+  [data-radix-toast-viewport], 
+  .no-print,
+  #webpack-dev-server-client-overlay, /* Next.js dev error overlay */
+  iframe[style*="z-index: 2147483647"] /* Common for extension overlays */
+  {
+    display: none !important;
+  }
+
+  /* Style the printable area */
+  .printable-area {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important; /* Add a light border for definition */
+    border-radius: 0 !important;
+    background-color: #ffffff !important;
+  }
+
+  .printable-area * {
+    background-color: transparent !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .printable-area h1, .printable-area h2, .printable-area h3, .printable-area h4, .printable-area h5, .printable-area h6 {
+    color: #000000 !important; /* Ensure headings are black */
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  .printable-area p, .printable-area li, .printable-area span, .printable-area div {
+    color: #000000 !important; /* Ensure text elements are black */
+  }
+  
+  .printable-area img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  .printable-area a {
+    text-decoration: none !important;
+    color: #000000 !important;
+  }
+  /* Optional: show URL for links
+  .printable-area a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555 !important;
+  }
+  */
+
+  /* Ensure tables are styled simply for print */
+  .printable-area table, .printable-area th, .printable-area td {
+    border: 1px solid #ddd !important;
+  }
+  .printable-area th {
+    background-color: #f0f0f0 !important;
+  }
+
+  /* Avoid page breaks inside these elements if possible */
+  .printable-area section, .printable-area div, .printable-area .flex {
+    page-break-inside: avoid;
+  }
+  .printable-area .border-b {
+    border-bottom-color: #ccc !important;
+  }
+  .printable-area .text-primary { /* Primary color text to black */
+    color: #000000 !important;
+  }
+  .printable-area .bg-primary\/10 { /* Light primary background to white. Corrected escape sequence. */
+     background-color: #ffffff !important;
+  }
+   .printable-area .text-green-500 {
+    color: #000000 !important; /* Example for a specific color to black */
+  }
+
+
+  /* General page setup for printing */
+  @page {
+    size: A4;
+    margin: 1cm; /* Adjust margins as needed */
+  }
+}
+
