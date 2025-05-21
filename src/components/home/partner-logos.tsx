@@ -26,7 +26,7 @@ export default function PartnerLogos() {
                 alt={`${partner.name} logo`}
                 width={150}
                 height={60}
-                className="object-cover" // Changed from object-contain to object-cover
+                className="object-cover" // This makes the image cover the 150x60 area, cropping if necessary
                 data-ai-hint={partner.dataAiHint}
               />
             </div>
