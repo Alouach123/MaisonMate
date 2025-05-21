@@ -3,13 +3,13 @@
 
 import Image from 'next/image';
 
-// Representing real partner brands using placehold.co for visual placeholders
+// Representing real partner brands using placehold.co with generic "Logo" text
 const partners = [
-  { name: "IKEA", logoUrl: "https://placehold.co/150x60.png?text=IKEA", dataAiHint: "company logo" },
-  { name: "Roche Bobois", logoUrl: "https://placehold.co/150x60.png?text=Roche+Bobois", dataAiHint: "company logo" },
-  { name: "Kartell", logoUrl: "https://placehold.co/150x60.png?text=Kartell", dataAiHint: "company logo" },
-  { name: "Vitra", logoUrl: "https://placehold.co/150x60.png?text=Vitra", dataAiHint: "company logo" },
-  { name: "Herman Miller", logoUrl: "https://placehold.co/150x60.png?text=Herman+Miller", dataAiHint: "company logo" },
+  { name: "IKEA", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
+  { name: "Roche Bobois", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
+  { name: "Kartell", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
+  { name: "Vitra", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
+  { name: "Herman Miller", logoUrl: "https://placehold.co/150x60.png?text=Logo", dataAiHint: "company logo" },
 ];
 
 export default function PartnerLogos() {
@@ -24,7 +24,7 @@ export default function PartnerLogos() {
             <div key={partner.name} className="grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100">
               <Image
                 src={partner.logoUrl}
-                alt={partner.name}
+                alt={`${partner.name} logo`}
                 width={150}
                 height={60}
                 className="object-contain"
