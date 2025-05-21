@@ -140,7 +140,7 @@ export default function CheckoutPage() {
         <CardContent className="space-y-8">
           <section>
             <h3 className="text-lg font-semibold mb-3">Récapitulatif de votre commande</h3>
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-2 border rounded-md p-3 bg-muted/30">
+            <div className="space-y-3 pr-2 border rounded-md p-3 bg-muted/30 overflow-y-auto"> {/* Removed max-h-60 */}
               {cartItems.map(item => (
                 <div key={item.id} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-3">
