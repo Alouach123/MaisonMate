@@ -47,14 +47,12 @@ const CATEGORIES_TO_SHOWCASE = [
 const PRODUCTS_PER_SHOWCASE = 2;
 const BEST_SELLERS_COUNT = 4; 
 const DEALS_COUNT = 4; 
-// const MORE_TO_EXPLORE_COUNT = 8; // No longer needed
 
 
 export default function HomePage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dealsProducts, setDealsProducts] = useState<Product[]>([]);
-  // const [moreToExploreProducts, setMoreToExploreProducts] = useState<Product[]>([]); // No longer needed
 
   useEffect(() => {
     async function loadProducts() {
@@ -72,18 +70,12 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    if (allProducts.length > 0) {
-      // Deterministic selection for deals for now
-      setDealsProducts(allProducts.slice(0, DEALS_COUNT));
-      
-      // More to Explore logic removed
-      // let exploreSlice = allProducts.slice(DEALS_COUNT);
-      // if (bestSellerProducts.length > 0) { // Ensure bestSellerProducts is defined
-      //   exploreSlice = exploreSlice.filter(p => !(bestSellerProducts.map(bs => bs.id).includes(p.id)));
-      // }
-      // setMoreToExploreProducts(exploreSlice.slice(0, MORE_TO_EXPLORE_COUNT));
+    if (!isLoading && allProducts.length > 0) {
+      // Client-side randomization for deals
+      const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
+      setDealsProducts(shuffled.slice(0, DEALS_COUNT));
     }
-  }, [allProducts]); // Removed bestSellerProducts from dependency array as it's not used for this effect anymore
+  }, [allProducts, isLoading]);
   
   const categoryShowcaseSections = useMemo(() => 
     CATEGORIES_TO_SHOWCASE.map((categoryConfig, index) => {
@@ -111,7 +103,9 @@ export default function HomePage() {
         );
       }
       
+      // Only render showcase if products for it are loaded or if still loading placeholders
       if (!isLoading && productsForShowcase.length === 0 && allProducts.length > 0 && process.env.NODE_ENV === 'production') return null;
+
 
       return (
         <CategoryShowcaseSection
@@ -130,7 +124,6 @@ export default function HomePage() {
     }).filter(Boolean), [allProducts, isLoading]
   );
 
-  // Deterministic selection for best sellers
   const bestSellerProducts = useMemo(() => {
     if (isLoading || allProducts.length === 0) return [];
     return [...allProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, BEST_SELLERS_COUNT);
@@ -143,6 +136,7 @@ export default function HomePage() {
       
       {categoryShowcaseSections}
       
+      {/* Content that should remain within the standard container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-28 lg:pt-32"> 
         <div className="space-y-12 md:space-y-16 lg:space-y-20">
           <FeaturedCategories />
@@ -170,8 +164,6 @@ export default function HomePage() {
           ) : bestSellerProducts.length > 0 && (
             <BestSellerProducts products={bestSellerProducts} title="Nos Meilleures Ventes" itemsToShow={BEST_SELLERS_COUNT} />
           )}
-
-          {/* Section "Plus d'Articles à Explorer" removed */}
           
           {!isLoading && allProducts.length === 0 && (
               <div className="py-10 text-center">
@@ -184,15 +176,36 @@ export default function HomePage() {
           {(isLoading || allProducts.length > 0) && ( 
               <>
                 <ServiceHighlights />
-                <Separator />
-                <Testimonials />
-                <Separator />
-                <PartnerLogos />
-                <Separator />
-                <NewsletterSignup />
+                {/* Testimonials is now outside this container */}
               </>
           )}
         </div>
+      </div>
+
+      {/* Testimonials section - now outside the main container to allow full-width scroll area */}
+      {(isLoading || allProducts.length > 0) && (
+        <>
+          <div className="w-full my-12 md:my-16 lg:my-20"> {/* Full width separator */}
+            <Separator />
+          </div>
+          <Testimonials />
+          <div className="w-full my-12 md:my-16 lg:my-20"> {/* Full width separator */}
+            <Separator />
+          </div>
+        </>
+      )}
+      
+      {/* These sections will also be inside the container for consistency if Testimonials is full-width */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-12 md:space-y-16 lg:space-y-20">
+            {(isLoading || allProducts.length > 0) && ( 
+                <>
+                  <PartnerLogos />
+                  <Separator />
+                  <NewsletterSignup />
+                </>
+            )}
+          </div>
       </div>
     </>
   );

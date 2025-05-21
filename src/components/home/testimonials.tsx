@@ -50,43 +50,51 @@ const testimonialsData = [
 ];
 
 export default function Testimonials() {
-  // Duplicate testimonials for a seamless loop effect
   const duplicatedTestimonials = [...testimonialsData, ...testimonialsData];
 
   return (
-    <section className="py-8 md:py-12 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-8 md:py-12 bg-background w-full">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-bold text-center mb-2 text-foreground">Ce que nos clients disent</h2>
         <p className="text-center text-muted-foreground mb-8 md:mb-12 text-lg">
           Découvrez les témoignages de nos clients satisfaits qui ont transformé leur intérieur avec nos produits.
         </p>
-        <div className="overflow-hidden w-full group"> {/* Outer container to hide overflow */}
-          <div className="flex w-max animate-scroll-testimonials group-hover:pause-animation"> {/* Inner container for flex items and animation */}
-            {duplicatedTestimonials.map((testimonial, index) => (
-              <Card key={index} className="shadow-xl rounded-xl flex flex-col mx-3 flex-none w-80 sm:w-96 h-full"> {/* Fixed width and margin for spacing */}
-                <CardContent className="p-6 flex-grow">
-                  <div className="flex items-center mb-4">
-                    <Avatar className="h-12 w-12 mr-4">
-                      <AvatarImage src={testimonial.avatarImage} alt={testimonial.name} data-ai-hint="person portrait"/>
-                      <AvatarFallback>{testimonial.avatarFallback}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-lg font-semibold text-foreground">{testimonial.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{testimonial.location}</p>
-                    </div>
+      </div>
+      {/* Full-width scrolling container with edge fades */}
+      <div className="relative w-full group overflow-hidden">
+        <div 
+          className="absolute inset-y-0 left-0 w-16 sm:w-24 md:w-32 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+        <div 
+          className="absolute inset-y-0 right-0 w-16 sm:w-24 md:w-32 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+        <div className="flex w-max animate-scroll-testimonials group-hover:pause-animation py-4 px-2"> {/* Added py-4 and px-2 for better spacing if cards are close to edge internally */}
+          {duplicatedTestimonials.map((testimonial, index) => (
+            <Card key={index} className="shadow-xl rounded-xl flex flex-col mx-3 flex-none w-80 sm:w-96 h-full bg-card border border-border/50">
+              <CardContent className="p-6 flex-grow">
+                <div className="flex items-center mb-4">
+                  <Avatar className="h-12 w-12 mr-4">
+                    <AvatarImage src={testimonial.avatarImage} alt={testimonial.name} data-ai-hint="person portrait"/>
+                    <AvatarFallback>{testimonial.avatarFallback}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-foreground">{testimonial.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
                   </div>
-                  <div className="flex mb-3">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-5 w-5 ${i < testimonial.rating ? 'fill-accent text-accent' : 'text-muted-foreground/30'}`} />
-                    ))}
-                  </div>
-                  <blockquote className="text-foreground/80 italic leading-relaxed text-sm">
-                    "{testimonial.quote}"
-                  </blockquote>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+                <div className="flex mb-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`h-5 w-5 ${i < testimonial.rating ? 'fill-accent text-accent' : 'text-muted-foreground/30'}`} />
+                  ))}
+                </div>
+                <blockquote className="text-foreground/80 italic leading-relaxed text-sm">
+                  "{testimonial.quote}"
+                </blockquote>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
