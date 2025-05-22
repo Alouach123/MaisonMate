@@ -35,13 +35,12 @@ export async function addOrderAction(payload: AddOrderPayload): Promise<{ succes
     const db = await connectToDatabase();
     const ordersCollection = db.collection<Omit<OrderDocument, '_id'>>('orders');
 
-    // Transform CartItem[] to OrderItem[] for storage, if needed (more lightweight)
     const orderItems: OrderItem[] = cartItems.map(item => ({
-      productId: item.id, // Assuming CartItem.id is the product's original ID
+      productId: item.id, 
       name: item.name,
       quantity: item.quantity,
       price: item.price,
-      imageUrl: item.imageUrl, // Optional: store for quick display in admin if needed
+      imageUrl: item.imageUrl, 
     }));
 
     const newOrderData: Omit<OrderDocument, '_id'> = {
@@ -51,7 +50,7 @@ export async function addOrderAction(payload: AddOrderPayload): Promise<{ succes
       totalAmount: totalAmount,
       shippingAddress: shippingAddress,
       orderDate: new Date(),
-      status: 'En attente', // Default status for COD
+      status: 'En attente', 
     };
 
     const result = await ordersCollection.insertOne(newOrderData);
@@ -72,11 +71,27 @@ export async function getOrdersAction(): Promise<OrderAppView[]> {
     const db = await connectToDatabase();
     const ordersCollection = db.collection<OrderDocument>('orders');
     
-    // Fetch all orders, sort by most recent
     const orderDocs = await ordersCollection.find({}).sort({ orderDate: -1 }).toArray();
     return orderDocs.map(doc => serializeOrder(doc)).filter(o => o !== null) as OrderAppView[];
   } catch (error) {
     console.error("Failed to fetch orders:", error);
+    return [];
+  }
+}
+
+export async function getOrdersForUserAction(userId: string): Promise<OrderAppView[]> {
+  if (!userId) {
+    console.warn("getOrdersForUserAction called without a userId.");
+    return [];
+  }
+  try {
+    const db = await connectToDatabase();
+    const ordersCollection = db.collection<OrderDocument>('orders');
+    
+    const orderDocs = await ordersCollection.find({ userId: userId }).sort({ orderDate: -1 }).toArray();
+    return orderDocs.map(doc => serializeOrder(doc)).filter(o => o !== null) as OrderAppView[];
+  } catch (error) {
+    console.error(`Failed to fetch orders for user ${userId}:`, error);
     return [];
   }
 }

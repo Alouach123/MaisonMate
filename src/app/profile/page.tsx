@@ -8,8 +8,8 @@ import { useAuth } from '@/hooks/use-auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserCircle2, Mail, KeyRound, Save, Loader2, ShieldAlert, ShieldCheck, Camera, UploadCloud, Home, Phone, Building, MapPin, Globe2 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { UserCircle2, Mail, KeyRound, Save, Loader2, ShieldAlert, ShieldCheck, Camera, UploadCloud, Home, Phone, Building, MapPin, Globe2, ShoppingBag, History, Package, DollarSign, CalendarDays } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from '@/components/ui/progress';
@@ -17,9 +17,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase/client'; 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ProfileFormData } from '@/types';
+import type { ProfileFormData, OrderAppView } from '@/types'; // Added OrderAppView
 import { ProfileFormSchema } from '@/types';
 import { Separator } from '@/components/ui/separator';
+import { getOrdersForUserAction } from '@/app/actions/orderActions'; // Import new action
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface PasswordValidation {
   minLength: boolean;
@@ -71,10 +76,6 @@ export default function ProfilePage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const { register, handleSubmit, reset, formState: { errors, isSubmitting: isSubmittingProfileForm } } = useForm<ProfileFormData>({
     resolver: zodResolver(ProfileFormSchema),
     defaultValues: {
@@ -104,6 +105,13 @@ export default function ProfilePage() {
 
   const [formError, setFormError] = useState<string | null>(null);
 
+  const [userOrders, setUserOrders] = useState<OrderAppView[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     if (isMounted) {
       if (!authLoading && !isAuthenticated) {
@@ -114,6 +122,20 @@ export default function ProfilePage() {
       }
       if (user) {
         setCurrentEmail(user.email || '');
+        // Fetch user orders
+        const fetchUserOrders = async () => {
+          setIsLoadingOrders(true);
+          try {
+            const orders = await getOrdersForUserAction(user.id);
+            setUserOrders(orders);
+          } catch (error) {
+            console.error("Failed to fetch user orders:", error);
+            toast({ variant: "destructive", title: "Erreur", description: "Impossible de charger l'historique des commandes." });
+          } finally {
+            setIsLoadingOrders(false);
+          }
+        };
+        fetchUserOrders();
       }
       if (profile) {
         reset({ 
@@ -184,7 +206,7 @@ export default function ProfilePage() {
     }
     setFormError(null);
     setIsUpdatingPassword(true);
-    const { error } = await updateUserPassword(newPassword);
+    const { error } = await updateUserPassword(newPassword); // Supabase doesn't require current password for logged-in user update
     if (error) {
       setFormError(error.message || "Erreur lors de la mise à jour du mot de passe.");
     } else {
@@ -288,7 +310,7 @@ export default function ProfilePage() {
       </div>
     );
   }
-   if (!user && isAuthenticated) {
+   if (!user && isAuthenticated) { // Should not happen if context is consistent
      return (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20">
             <ShieldAlert className="h-12 w-12 text-destructive" />
@@ -297,11 +319,10 @@ export default function ProfilePage() {
         </div>
      )
    }
-   if (!user) {
+   if (!user) { // Should be caught by !isAuthenticated, but as a fallback
      router.push('/auth');
      return <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12 pt-20"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <p className="mt-4">Redirection...</p></div>;
    }
-
 
   const currentAvatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
   const avatarSeedValue = profile?.first_name || user.user_metadata?.first_name || profile?.last_name || user.user_metadata?.last_name || user.email?.split('@')[0] || 'User';
@@ -438,10 +459,71 @@ export default function ProfilePage() {
             </Button>
           </form>
 
+          <Separator />
+
+          <section className="p-4 border rounded-md space-y-4 bg-card">
+            <h3 className="text-lg font-semibold flex items-center gap-2"><History className="h-5 w-5 text-primary" />Historique de vos commandes</h3>
+            {isLoadingOrders ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2 text-muted-foreground">Chargement des commandes...</p>
+              </div>
+            ) : userOrders.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">Vous n'avez pas encore passé de commande.</p>
+            ) : (
+              <Accordion type="single" collapsible className="w-full space-y-3">
+                {userOrders.map((order) => (
+                  <AccordionItem key={order.id} value={order.id} className="border bg-muted/30 rounded-lg shadow-sm">
+                    <AccordionTrigger className="p-4 text-md font-medium hover:no-underline">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full text-left gap-2">
+                        <div className='flex items-center gap-2'>
+                          <ShoppingBag size={18} className="text-primary"/>
+                          <span>Commande #{order.id.substring(0, 8)}...</span>
+                          <Badge variant={order.status === 'Livrée' ? 'default' : order.status === 'Annulée' ? 'destructive' : 'outline'}
+                                 className={order.status === 'Livrée' ? 'bg-green-500/20 text-green-700 border-green-500/50' : ''}>
+                            {order.status}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground sm:text-right space-x-2">
+                            <span className="flex items-center gap-1"><CalendarDays size={14}/>{format(new Date(order.orderDate), 'dd MMM yyyy', { locale: fr })}</span>
+                            <span className="font-semibold text-foreground">${order.totalAmount.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-4 pt-0 text-sm">
+                      <p className="font-semibold mb-2">Articles commandés :</p>
+                      <ul className="space-y-2">
+                        {order.items.map((item) => (
+                          <li key={item.productId} className="flex items-center gap-3 p-2 border-b last:border-b-0">
+                            {item.imageUrl && (
+                              <Image src={item.imageUrl} alt={item.name} width={40} height={40} className="rounded object-cover aspect-square" />
+                            )}
+                            <div className="flex-grow">
+                              <p className="font-medium">{item.name}</p>
+                              <p className="text-xs text-muted-foreground">Quantité: {item.quantity} x ${item.price.toFixed(2)}</p>
+                            </div>
+                            <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                          </li>
+                        ))}
+                      </ul>
+                       <Separator className="my-3"/>
+                       <p className="font-semibold mb-1">Adresse de livraison :</p>
+                       <div className="text-xs text-muted-foreground">
+                            <p>{order.shippingAddress.first_name} {order.shippingAddress.last_name}</p>
+                            <p>{order.shippingAddress.address_line1}</p>
+                            {order.shippingAddress.address_line2 && <p>{order.shippingAddress.address_line2}</p>}
+                            <p>{order.shippingAddress.postal_code} {order.shippingAddress.city}, {order.shippingAddress.country}</p>
+                            <p>Tél: {order.shippingAddress.phone}</p>
+                       </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
+          </section>
         </CardContent>
       </Card>
     </div>
   );
 }
-
     
