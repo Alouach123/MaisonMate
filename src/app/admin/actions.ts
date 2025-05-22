@@ -147,8 +147,10 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
         return { success: false, error: "Failed to insert product into database." };
     }
 
-    const insertedProduct: Product = {
-      ...(validation.data), 
+    // Use the complete validated data for the returned product, not just form data
+    // And ensure dates are correctly formatted as ISO strings for client consistency
+    const insertedProductForClient: Product = {
+      ...(validation.data), // This includes all validated fields
       id: result.insertedId.toString(),
       shortDescription: validation.data.shortDescription || undefined,
       imageUrl: validation.data.imageUrl || 'https://placehold.co/600x400.png',
@@ -158,7 +160,7 @@ export async function addProductAction(data: ProductFormData): Promise<{ success
       updatedAt: now.toISOString(),
     };
     
-    return { success: true, product: insertedProduct };
+    return { success: true, product: insertedProductForClient };
   } catch (error) {
     console.error("Error adding product:", error);
     return { success: false, error: "An error occurred while adding the product." };
@@ -182,7 +184,8 @@ export async function updateProductAction(data: ProductFormData): Promise<{ succ
     
     const { id: formId, ...updateDataFromForm } = validation.data;
 
-    const productToUpdate = {
+    // Prepare the update object, ensuring optional fields are handled
+    const productToUpdate: Partial<Omit<ProductDocument, '_id' | 'createdAt'>> & { updatedAt: Date } = {
       ...updateDataFromForm,
       shortDescription: updateDataFromForm.shortDescription || undefined,
       imageUrl: updateDataFromForm.imageUrl || 'https://placehold.co/600x400.png',
@@ -229,12 +232,12 @@ export async function deleteProductAction(productId: string): Promise<{ success:
 
 export async function getUsersAction(): Promise<AdminUserView[]> {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    console.error("Supabase URL or Service Role Key is not configured for getUsersAction.");
-    throw new Error("Supabase configuration missing for admin actions.");
+    console.error("Supabase URL or Service Role Key is not configured for getUsersAction in .env.local.");
+    throw new Error("Supabase configuration missing for admin actions. Please check your .env.local file and restart the server.");
   }
    if (supabaseServiceRoleKey === "your_actual_service_role_key_pasted_here") {
-    console.error("Placeholder SUPABASE_SERVICE_ROLE_KEY detected. Please update .env.local with your actual key.");
-    throw new Error("Supabase Service Role Key is not configured correctly (using placeholder).");
+    console.error("Placeholder SUPABASE_SERVICE_ROLE_KEY detected. Please update .env.local with your actual key and restart the server.");
+    throw new Error("Supabase Service Role Key is using a placeholder value. Please update .env.local and restart the server.");
   }
 
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
@@ -270,10 +273,12 @@ export async function getUsersAction(): Promise<AdminUserView[]> {
 
 export async function deleteUserAction(userId: string): Promise<{ success: boolean; error?: string }> {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    return { success: false, error: "Supabase URL or Service Role Key is not configured for admin actions." };
+     console.error("Supabase URL or Service Role Key is not configured for deleteUserAction in .env.local.");
+    return { success: false, error: "Supabase URL or Service Role Key is not configured for admin actions. Check .env.local and restart server." };
   }
    if (supabaseServiceRoleKey === "your_actual_service_role_key_pasted_here") {
-    return { success: false, error: "Supabase Service Role Key is not configured correctly (using placeholder). Cannot delete user." };
+    console.error("Placeholder SUPABASE_SERVICE_ROLE_KEY detected for deleteUserAction. Please update .env.local and restart server.");
+    return { success: false, error: "Supabase Service Role Key is using a placeholder. Update .env.local and restart server. Cannot delete user." };
   }
   if (!userId) {
     return { success: false, error: "User ID is required." };
