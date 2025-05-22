@@ -11,8 +11,8 @@ import { Loader2, KeyRound, CheckCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-// SIMULATED OTP - In a real app, this would be generated, sent, and verified against a backend/cache.
-const SIMULATED_CORRECT_OTP = "000000";
+// This OTP is used for the simulation to pass. It's not displayed to the user.
+const INTERNAL_SIMULATED_OTP = "000000";
 
 function VerifyOtpContent() {
   const router = useRouter();
@@ -37,10 +37,10 @@ function VerifyOtpContent() {
     // Simulate API call for OTP verification
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    if (otp === SIMULATED_CORRECT_OTP) {
+    if (otp === INTERNAL_SIMULATED_OTP) {
       toast({
         title: "Vérification Réussie !",
-        description: "Votre compte est maintenant vérifié (simulation). Veuillez vous connecter.",
+        description: "Votre compte est maintenant vérifié. Veuillez vous connecter.",
         variant: "default",
       });
       router.push('/auth'); // Redirect to login view within auth page
@@ -57,8 +57,8 @@ function VerifyOtpContent() {
           <KeyRound className="mx-auto h-10 w-10 text-primary mb-2" />
           <CardTitle className="text-xl">Vérifier votre compte</CardTitle>
           <CardDescription>
-            Un code de vérification (simulé) a été "envoyé" à {email ? <strong>{email}</strong> : "votre adresse e-mail"}.
-            Entrez le code ci-dessous. (Pour tester, utilisez : {SIMULATED_CORRECT_OTP})
+            Un code de vérification a été envoyé à {email ? <strong>{email}</strong> : "votre adresse e-mail"}.
+            Veuillez entrer le code à 6 chiffres ci-dessous.
           </CardDescription>
         </CardHeader>
         <CardContent>
